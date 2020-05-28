@@ -13,3 +13,9 @@ Tensorflow 2.0；
 ### Neural network-based Collaborative Filtering（NCF）
 
 [NCF](NCF)
+
+
+
+### Deep Interest Network for Click-Through Rate Prediction(DIN)
+
+[DIN](DIN)
