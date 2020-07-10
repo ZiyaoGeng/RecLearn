@@ -30,3 +30,11 @@ gzip -d meta_Electronics.json.gz
 ```
 
 其中`reviews_Electronics_5.json`为用户的行为数据，`meta_Electronics`为广告的元数据。
+
+
+
+### Wide & Deep Learning for Recommender Systems
+
+[Wide&Deep](Wide&Deep)
+
+数据同上，数据处理方式参考DIN中的内容。
