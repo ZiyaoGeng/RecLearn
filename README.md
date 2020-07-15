@@ -16,20 +16,20 @@
 
 **快速导航：**
 
-1. [NCF](#1. Neural network-based Collaborative Filtering（NCF）)
-2. [DIN](#2. Deep Interest Network for Click-Through Rate Prediction(DIN))
-3. [Wide&Deep](3. Wide & Deep Learning for Recommender Systems)
+1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1. Neural network-based Collaborative Filtering（NCF）)
+2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2. Deep Interest Network for Click-Through Rate Prediction(DIN))
+3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3. Wide & Deep Learning for Recommender Systems)
 4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
 
-
+  
 
 ### 实验环境
 
 Python 3.7；
 
-Tensorflow 2.0-CPU；
+Tensorflow 2.0-CPU；  
 
-
+  
 
 ### 复现论文
 
@@ -66,7 +66,7 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
 **原文笔记：**
 
-
+  
 
 #### 2. Deep Interest Network for Click-Through Rate Prediction(DIN)
 
@@ -113,7 +113,7 @@ https://arxiv.org/pdf/1706.06978.pdf
 
 https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
-
+  
 
 #### 3. Wide & Deep Learning for Recommender Systems
 
@@ -144,7 +144,7 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
-
+  
 
 #### 4. Deep & Cross Network for Ad Click Predictions
 
@@ -173,7 +173,7 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 **原文笔记：**
 
-
+  
 
 ### 附
 
