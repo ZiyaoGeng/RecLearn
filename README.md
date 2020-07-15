@@ -1,6 +1,6 @@
 # Recommended-System with TensorFlow 2.0
 
-### 前言
+## 前言
 
 本人在读研一，推荐系统方向。看过一些比较知名的推荐系统、CTR预估论文。开【Recommended-System with TensorFlow 2.0】的原因有三个：
 
@@ -23,7 +23,7 @@
 
   
 
-### 实验环境
+## 实验环境
 
 Python 3.7；
 
@@ -31,9 +31,9 @@ Tensorflow 2.0-CPU；
 
   
 
-### 复现论文
+## 复现论文
 
-#### 1. Neural network-based Collaborative Filtering（NCF）
+### 1. Neural network-based Collaborative Filtering（NCF）
 
 **模型：**
 
@@ -68,11 +68,11 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
   
 
-#### 2. Deep Interest Network for Click-Through Rate Prediction(DIN)
+### 2. Deep Interest Network for Click-Through Rate Prediction(DIN)
 
 **模型：**
 
-<center><img src="images/2.png" width="50%;" style="float:center"/></center>
+<div align=center><img src="images/2.png" width="50%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -115,7 +115,7 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
   
 
-#### 3. Wide & Deep Learning for Recommender Systems
+### 3. Wide & Deep Learning for Recommender Systems
 
 **模型：**
 
@@ -148,7 +148,7 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
   
 
-#### 4. Deep & Cross Network for Ad Click Predictions
+### 4. Deep & Cross Network for Ad Click Predictions
 
 **模型：**
 
@@ -177,7 +177,7 @@ https://arxiv.org/pdf/1708.05123.pdf
 
   
 
-### 附
+## 附
 
 公众号：潜心的Python小屋，欢迎大家关注。
 
