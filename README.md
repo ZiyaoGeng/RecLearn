@@ -37,7 +37,7 @@ Tensorflow 2.0-CPU；
 
 **模型：**
 
-<center><img src="images/1.png" width="50%"/></center>
+<div align=center><img src="images/1.png" width="50%"/></div>
 
 **数据集：**
 
@@ -119,7 +119,9 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 **模型：**
 
-<center><img src="images/3.png" width="70%;" style="float:center"/></center>
+<div align=center><img src="images/3.png" width="70%;" style="float:center"/></div>
+
+
 
 对于Wide&Deep模型来说，Tensorflow中有内置的模型。
 
@@ -150,7 +152,7 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
 **模型：**
 
-<center><img src="images/4.png" width="50%;" style="float:center"/></center>
+<div align=center><img src="images/4.png" width="50%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -179,4 +181,4 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 公众号：潜心的Python小屋，欢迎大家关注。
 
-<center><img src="images/0.png" width="50%;" style="float:center"/></center>
+<div align=center><img src="images/0.png" width="50%;" style="float:center"/></div>
