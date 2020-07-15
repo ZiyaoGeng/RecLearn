@@ -181,4 +181,4 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 公众号：潜心的Python小屋，欢迎大家关注。
 
-<div align=center><img src="images/0.png" width="50%;" style="float:center"/></div>
+<div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
