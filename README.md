@@ -14,13 +14,6 @@
 
 目前**复现的模型**有：NCF、DIN、Wide&Deep、DCN。
 
-**快速导航：**
-
-1. [NCF](#1. Neural network-based Collaborative Filtering（NCF）)
-2. [DIN](#2. Deep Interest Network for Click-Through Rate Prediction(DIN))
-3. [Wide&Deep](3. Wide & Deep Learning for Recommender Systems)
-4. [DCN](#4. Deep & Cross Network for Ad Click Predictions)
-
 
 
 ### 实验环境
@@ -37,7 +30,7 @@ Tensorflow 2.0-CPU；
 
 **模型：**
 
-<img src="images/1.png" style="zoom:50%;" />
+<img src="images/1.png" style="zoom: 25%;" />
 
 **数据集：**
 
