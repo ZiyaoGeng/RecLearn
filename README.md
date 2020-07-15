@@ -16,9 +16,9 @@
 
 **快速导航：**
 
-1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1. Neural network-based Collaborative Filtering（NCF）)
-2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2. Deep Interest Network for Click-Through Rate Prediction(DIN))
-3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3. Wide & Deep Learning for Recommender Systems)
+1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1-neural-network-based-collaborative-filteringncf)
+2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
+3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3-wide--deep-learning-for-recommender-systems)
 4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
 
   
@@ -37,7 +37,7 @@ Tensorflow 2.0-CPU；
 
 **模型：**
 
-<img src="images/1.png" width="50%" style="float:center"/>
+<center><img src="images/1.png" width="50%"/></center>
 
 **数据集：**
 
@@ -72,7 +72,7 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
 **模型：**
 
-<img src="images/2.png" width="50%;" style="float:center"/>
+<center><img src="images/2.png" width="50%;" style="float:center"/></center>
 
 **数据集：**
 
@@ -119,7 +119,7 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 **模型：**
 
-<img src="images/3.png" width="70%;" style="float:center"/>
+<center><img src="images/3.png" width="70%;" style="float:center"/></center>
 
 对于Wide&Deep模型来说，Tensorflow中有内置的模型。
 
@@ -150,7 +150,7 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
 **模型：**
 
-<img src="images/4.png" width="50%;" style="float:center"/>
+<center><img src="images/4.png" width="50%;" style="float:center"/></center>
 
 **数据集：**
 
@@ -179,4 +179,4 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 公众号：潜心的Python小屋，欢迎大家关注。
 
-<img src="images/0.png" width="50%;" style="float:center"/>
+<center><img src="images/0.png" width="50%;" style="float:center"/></center>
