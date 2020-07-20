@@ -1,25 +1,24 @@
 """
-Created on July 14, 2020
+Created on July 20, 2020
 
-train DCN model
+train PNN model
 
 @author: Ziyao Geng
 """
 
 import tensorflow as tf
-import datetime
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
 from utils import create_dataset
-from model import DCN
+from model import PNN
 
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
-def main(learning_rate, epochs, hidden_units):
+def main(learning_rate, epochs, embed_dim, hidden_units, mode='in'):
     """
     feature_columns is a list and contains two dict：
     - dense_features: {feat: dense_feature_name}
@@ -31,22 +30,10 @@ def main(learning_rate, epochs, hidden_units):
     feature_columns, train_X, test_X, train_y, test_y = create_dataset()
 
     # ============================Build Model==========================
-    model = DCN(feature_columns, hidden_units)
+    model = PNN(feature_columns, embed_dim, hidden_units)
     model.summary()
-    # =============================Tensorboard=========================
-    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = 'logs/' + current_time
-    tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir,
-        histogram_freq=1,
-        write_graph=True,
-        write_grads=False,
-        write_images=True,
-        embeddings_freq=0, embeddings_layer_names=None,
-        embeddings_metadata=None, embeddings_data=None, update_freq=500
-    )
     # ============================model checkpoint======================
-    check_path = 'save/dcn_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
+    check_path = 'save/pnn_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
                                                     verbose=1, period=4)
     # =========================Compile============================
@@ -57,7 +44,7 @@ def main(learning_rate, epochs, hidden_units):
         train_X,
         train_y,
         epochs=epochs,
-        callbacks=[tensorboard, checkpoint],
+        callbacks=[checkpoint],
         batch_size=128,
         validation_split=0.2
     )
@@ -68,6 +55,9 @@ def main(learning_rate, epochs, hidden_units):
 if __name__ == '__main__':
     epochs = 20
     learning_rate = 0.001
+    # the embedding dimension of all sparse features should be the same.
+    embed_dim = 8
     # The number of hidden units in the deep network layer
     hidden_units = [64, 32, 1]
-    main(learning_rate, epochs, hidden_units)
+    mode = 'in'
+    main(learning_rate, epochs, embed_dim, hidden_units, mode)
