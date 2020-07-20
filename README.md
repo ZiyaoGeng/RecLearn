@@ -175,7 +175,23 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 **原文笔记：**
 
+https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
+
   
+
+### 5.Product-based Neural Networks for User Response Prediction
+
+**模型：**
+
+<div align=center><img src="images/5.png" width="50%;" style="float:center"/></div>
+
+**数据集：**
+
+Criteo Kaggle比赛数据集。
+
+**原文笔记：**
+
+https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
 
 ## 附
 
