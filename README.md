@@ -2,6 +2,11 @@
 
 ## 前言
 
+<p align="left">
+  <img src='https://img.shields.io/badge/python-3.7-blue'>
+  <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
+</p>  
+
 本人在读研一，推荐系统方向。看过一些比较知名的推荐系统、CTR预估论文。开【Recommended-System with TensorFlow 2.0】的原因有三个：
 
 1. 论文只看理论感觉有些地方简单，但是实践起来却比较困难；
@@ -24,14 +29,6 @@
 6. [Deep Crossing](https://github.com/BlackSpaceGZY/Recommended-System#6.Deep-Crossing--Web-Scale-Modeling-without-Manually-Crafted-Combinatorial-Features)
 
 
-
-## 实验环境
-
-Python 3.7；
-
-Tensorflow 2.0-CPU；  
-
-  
 
 ## 复现论文
 
