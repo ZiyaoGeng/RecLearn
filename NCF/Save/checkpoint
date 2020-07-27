@@ -1,2 +1,0 @@
-model_checkpoint_path: "ml-1m_NeuMF_8_[64, 32, 16, 8]_1575897749.ckpt"
-all_model_checkpoint_paths: "ml-1m_NeuMF_8_[64, 32, 16, 8]_1575897749.ckpt"
