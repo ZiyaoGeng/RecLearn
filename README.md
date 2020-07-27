@@ -12,32 +12,18 @@
 
 关于【Recommended-System with TensorFlow 2.0】，模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考。
 
-目前**复现的模型**有：NCF、DIN、Wide&Deep、DCN。
+目前**复现的模型**有：NCF、DIN、Wide&Deep、DCN、PNN、Deep Crossing。
 
 **快速导航：**
 
 1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1-neural-network-based-collaborative-filteringncf)
-<<<<<<< HEAD
-
 2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
-
 3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3-wide--deep-learning-for-recommender-systems)
-
 4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
-
 5. [PNN](https://github.com/BlackSpaceGZY/Recommended-System#5-product--based-neural-networks-for-user-response-prediction)
-
 6. [Deep Crossing](https://github.com/BlackSpaceGZY/Recommended-System#6.Deep-Crossing--Web-Scale-Modeling-without-Manually-Crafted-Combinatorial-Features)
 
-   
 
-=======
-2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
-3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3-wide--deep-learning-for-recommender-systems)
-4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
-
-  
->>>>>>> aa5dfd71e42d0a521e94d5a989611f7b89ac73ec
 
 ## 实验环境
 
