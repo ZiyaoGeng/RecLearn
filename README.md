@@ -17,6 +17,7 @@
 **快速导航：**
 
 1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1-neural-network-based-collaborative-filteringncf)
+<<<<<<< HEAD
 
 2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
 
@@ -29,6 +30,13 @@
 6. [Deep Crossing](https://github.com/BlackSpaceGZY/Recommended-System#6.Deep-Crossing--Web-Scale-Modeling-without-Manually-Crafted-Combinatorial-Features)
 
    
+=======
+2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
+3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3-wide--deep-learning-for-recommender-systems)
+4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
+
+  
+>>>>>>> aa5dfd71e42d0a521e94d5a989611f7b89ac73ec
 
 ## 实验环境
 
@@ -200,6 +208,7 @@ Criteo Kaggle比赛数据集。
 
 https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
 
+<<<<<<< HEAD
 
 
 ### 6. Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features
@@ -220,8 +229,14 @@ https://www.kdd.org/kdd2016/papers/files/adf0975-shanA.pdf
 
 https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
+=======
+>>>>>>> aa5dfd71e42d0a521e94d5a989611f7b89ac73ec
 ## 附
 
 公众号：潜心的Python小屋，欢迎大家关注。
 
+<<<<<<< HEAD
 <div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
+=======
+<div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
+>>>>>>> aa5dfd71e42d0a521e94d5a989611f7b89ac73ec
