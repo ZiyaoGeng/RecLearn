@@ -37,6 +37,8 @@
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
 
+
+
 ## 更新
 
 2020.07.28：更改ReadMe介绍；
@@ -52,6 +54,8 @@
 2020.05.26：DIN模型；
 
 2020.03.27：NCF模型；
+
+
 
 ## 数据集介绍
 
@@ -84,6 +88,8 @@ Criteo广告数据集是一个经典的用来预测广告点击率的数据集�
 3. [Criteo 1TB](https://labs.criteo.com/2013/12/download-terabyte-click-logs/)：可以根据需要下载完整的日志数据集；
 
 Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#3-criteo)
+
+
 
 ## 复现论文
 

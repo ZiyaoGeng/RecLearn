@@ -20,35 +20,39 @@ ml-1m数据集中包含`ratings.dat`、`users.dat`、`movies.dat`。
 标签列表为： UserID::Gender::Age::Occupation::Zip-code
 
  - Gender：性别， "M"代表男， "F"代表女；
+
 - Age：年龄，分为多个区间
-        *  1:  "Under 18"
-        * 18:  "18-24"
-        * 25:  "25-34"
-        * 35:  "35-44"
-        * 45:  "45-49"
-        * 50:  "50-55"
-        * 56:  "56+"
+
+    - 1:  "Under 18"
+    - 18:  "18-24"
+    -  25:  "25-34"
+    - 35:  "35-44"
+    - 45:  "45-49"
+    - 50:  "50-55"
+    - 56:  "56+"
+
 - 职业：
-        *  0:  "other" or not specified
-        *  1:  "academic/educator"
-        *  2:  "artist"
-        *  3:  "clerical/admin"
-        *  4:  "college/grad student"
-        *  5:  "customer service"
-        *  6:  "doctor/health care"
-        *  7:  "executive/managerial"
-        *  8:  "farmer"
-        *  9:  "homemaker"
-        * 10:  "K-12 student"
-        * 11:  "lawyer"
-        * 12:  "programmer"
-        * 13:  "retired"
-        * 14:  "sales/marketing"
-        * 15:  "scientist"
-        * 16:  "self-employed"
-        * 17:  "technician/engineer"
-        * 18:  "tradesman/craftsman"
-        * 19:  "unemployed"
+    
+    - 0:  "other" or not specified
+    - 1:  "academic/educator"
+    - 2:  "artist"
+    - 3:  "clerical/admin"
+    - 4:  "college/grad student"
+    - 5:  "customer service"
+    - 6:  "doctor/health care"
+    - 7:  "executive/managerial"
+    - 8:  "farmer"
+    - 9:  "homemaker"
+    - 10:  "K-12 student"
+    - 11:  "lawyer"
+    - 12:  "programmer"
+    - 13:  "retired"
+    - 14:  "sales/marketing"
+    - 15:  "scientist"
+    - 16:  "self-employed"
+    - 17:  "technician/engineer"
+    - 18:  "tradesman/craftsman"
+    - 19:  "unemployed"
     
     * 20:  "writer"
 
@@ -57,25 +61,27 @@ ml-1m数据集中包含`ratings.dat`、`users.dat`、`movies.dat`。
 标签列表为：MovieID::Title::Genres
 
 - Titles：电影名称；
+
 - Genres：电影分类
-        * Action
-        * Adventure
-        * Animation
-        * Children's
-        * Comedy
-        * Crime
-        * Documentary
-        * Drama
-        * Fantasy
-        * Film-Noir
-        * Horror
-        * Musical
-        * Mystery
-        * Romance
-        * Sci-Fi
-        * Thriller
-        * War
-        * Western
+
+    - Action
+    -  Adventure
+    -  Animation
+    -  Children's
+    -  Comedy
+    -  Crime
+    -  Documentary
+    -  Drama
+    -  Fantasy
+    -  Film-Noir
+    -  Horror
+    -  Musical
+    -  Mystery
+    -  Romance
+    -  Sci-Fi
+    -  Thriller
+    -  War
+    -  Western
 
 用于推荐系统或CTR预估，目前大多数是采用隐式反馈的形式，即将各个打分依据某个原则改变为1（高于某个分数）和0（低于某个分数或未打分），并且还要划分正负样本等。
 
