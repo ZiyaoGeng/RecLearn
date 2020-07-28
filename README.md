@@ -199,6 +199,8 @@ Criteo
 
 **代码解析：**
 
+
+
 **原文地址：**
 
 https://arxiv.org/pdf/1611.00144.pdf
@@ -221,6 +223,8 @@ https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
 Crieto
 
 **代码解析：**
+
+[Deep Crossing代码文档](./Deep_Crossing_document.md)
 
 **原文地址：**
 

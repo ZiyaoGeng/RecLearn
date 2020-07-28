@@ -26,7 +26,7 @@
 
 数据处理，主要分析见：[Criteo](../Dataset%20Introduction.md#3-criteo)。
 
-`get_chunk`可设置训练的样本量：
+`get_chunk`可设置训练的样本
 
 ```
 data_df.get_chunk(1000000)
