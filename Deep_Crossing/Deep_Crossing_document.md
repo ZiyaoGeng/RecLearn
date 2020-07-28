@@ -26,11 +26,15 @@
 
 数据处理，主要分析见：[Criteo](../Dataset%20Introduction.md#3-criteo)。
 
-`get_chunk`可设置训练的样本
+- 数据集地址根据实际情况设置；
 
-```
-data_df.get_chunk(1000000)
-```
+- `get_chunk`可设置训练的样本；
+
+  ```python
+  data_df.get_chunk(1000000)
+  ```
+
+- 稀疏特征embed_dim根据实际情况设置；
 
 
 
