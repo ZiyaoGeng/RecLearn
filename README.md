@@ -11,19 +11,17 @@
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-本人在读研一，推荐系统方向。看过一些比较知名的推荐系统、CTR预估论文。开【Recommended-System with TensorFlow 2.0】的原因有三个：
+本人在读研一，推荐系统方向，和各位一样，在推荐算法这条路愈走愈远，无法自拔。开源项目`Recommended System with TF2.0`主要是对**阅读过的部分推荐系统、CTR预估论文进行复现**。建立的原因有三个：
 
-1. 论文只看理论感觉有些地方简单，但是实践起来却比较困难；
-2. 为了更好的理解论文，增强自己的工程能力；
-3. 很多论文给出的复现代码都是TF1.x，对于使用TF2.0的我来说，很难理解【TF1.x学习不系统】；
+1. 理论和实践似乎有很大的间隔，学术界与工业界的差距更是如此；
+2. 更好的理解论文的核心内容，增强自己的工程能力；
+3. 很多论文给出的开源代码都是TF1.x，因此想要用更简单的TF2.0进行复现；
 
-所以想开一个TF2.0的Project，来对部分论文进行实验的复现。当然也看过一些知名的开源项目，如deepcrt等，不过发现对自己来说，只适合拿来参考【代码水平太高了，写不出来】。
+当然也看过一些知名的开源项目，如[DeepCTR](https://github.com/shenweichen/DeepCTR)等，不过对自己目前的水平来说，只适合拿来参考。
 
-关于【Recommended-System with TensorFlow 2.0】，模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考。
+项目中每个**模型都是相互独立的，并不存在依赖**。模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考。代码重要地方会带有注释，也会有专门的`.md`文件或者其他方式进行解释。
 
-目前**复现的模型**有：NCF、DIN、Wide&Deep、DCN、PNN、Deep Crossing。
-
-**快速导航：**
+目前**复现的模型**有（按复现时间进行排序）：
 
 1. [NCF](#1-neural-network-based-collaborative-filteringncf)
 2. [DIN](#2-deep-interest-network-for-click-through-rate-predictiondin)
