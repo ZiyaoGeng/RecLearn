@@ -11,7 +11,7 @@
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-本人在读研一，推荐系统方向，和各位一样，在推荐算法这条路愈走愈远，无法自拔。开源项目`Recommended System with TF2.0`主要是对**阅读过的部分推荐系统、CTR预估论文进行复现**。建立的原因有三个：
+本人在读研一，推荐系统方向，和各位一样，在推荐算法这条路愈走愈远，无法自拔。开源项目`Recommended System with TF2.0`主要是对**阅读过的部分推荐系统、CTR预估论文进行复现**。建立的**原因**有三个：
 
 1. 理论和实践似乎有很大的间隔，学术界与工业界的差距更是如此；
 2. 更好的理解论文的核心内容，增强自己的工程能力；
@@ -19,7 +19,14 @@
 
 当然也看过一些知名的开源项目，如[DeepCTR](https://github.com/shenweichen/DeepCTR)等，不过对自己目前的水平来说，只适合拿来参考。
 
-项目中每个**模型都是相互独立的，并不存在依赖**。模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考。代码重要地方会带有注释，也会有专门的`.md`文件或者其他方式进行解释。
+**项目特点：**
+
+- 使用TF2.0-CPU进行复现；
+- 每个模型都是相互独立的，不存在依赖关系；
+- 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考；
+- 对于[实验数据集](#数据集介绍)有专门详细的介绍；
+- 代码源文件参数、函数命名规范，并且带有标准的注释；
+- 每个模型会有专门的`.md`文件或者其他方式进行解释；
 
 目前**复现的模型**有（按复现时间进行排序）：
 
@@ -29,6 +36,46 @@
 4. [DCN](#4-deep--cross-network-for-ad-click-predictions)
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
+
+
+
+## 更新
+
+2020.07.28：更改ReadMe介绍；
+
+2020.07.27：Deep Crossing模型；
+
+2020.07.20：PNN模型；
+
+2020.07.14：DCN模型；
+
+2020.07.10：Wide&Deep模型；
+
+2020.05.26：DIN模型；
+
+2020.03.27：NCF模型；
+
+## 数据集介绍
+
+目前实验使用的数据集主要有三个：Movielens-1m、Amazon-Electronics、Criteo。
+
+### Movielens
+
+### Amazon-Electronics
+
+### Criteo
+
+Criteo广告数据集是一个经典的用来预测广告点击率的数据集。2014年，由全球知名广告公司Criteo赞助举办[Display Advertising Challenge](https://www.kaggle.com/c/criteo-display-ad-challenge)比赛。但比赛过去太久，Kaggle已不提供数据集。现有三种方式获得数据集或其样本：
+
+1. [Criteo_sample.txt](https://github.com/shenweichen/DeepCTR/blob/master/examples/criteo_sample.txt)：包含在DeepCTR中，用于测试模型是否正确，不过数据量太少；
+2. [kaggle Criteo](https://s3-eu-west-1.amazonaws.com/kaggle-display-advertising-challenge-dataset/dac.tar.gz)：训练集（10.38G）、测试集（1.35G）;（实验大部分都是使用该数据集）
+3. [Criteo 1TB](https://labs.criteo.com/2013/12/download-terabyte-click-logs/)：可以根据需要下载完整的日志数据集；
+
+Criteo数据集的具体介绍与处理：[传送门](Dataset Introduction.md)
+
+
+
+
 
 ## 复现论文
 
@@ -218,3 +265,4 @@ https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 公众号：潜心的Python小屋，欢迎大家关注。
 
 <div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
+[https://github.com/shenweichen/DeepCTR/blob/master/examples/criteo_sample.txt]: 
