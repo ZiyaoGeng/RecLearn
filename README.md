@@ -1,8 +1,6 @@
-<div>
-  <img src='images/0-1.png' style="zoom:60%;", align='left'>
-</div>
-
-
+<p algin='left'>
+  <img src='images/0-1.png' style="zoom:50%;", align='left'>
+</p>
 
 
 
