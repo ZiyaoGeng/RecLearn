@@ -1,11 +1,13 @@
 <div>
-  <img src='images/0-1.png' width='50%' />
+  <img src='images/0-1.png' width='40%' />
 </div>
 
 ## 前言
 
 <p align="left">
   <img src='https://img.shields.io/badge/python-3.7-blue'>
+  <img src='https://img.shields.io/badge/NumPy-1.17-brightgreen'>
+  <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
@@ -23,14 +25,12 @@
 
 **快速导航：**
 
-1. [NCF](https://github.com/BlackSpaceGZY/Recommended-System#1-neural-network-based-collaborative-filteringncf)
-2. [DIN](https://github.com/BlackSpaceGZY/Recommended-System#2-deep-interest-network-for-click-through-rate-predictiondin)
-3. [Wide&Deep](https://github.com/BlackSpaceGZY/Recommended-System#3-wide--deep-learning-for-recommender-systems)
-4. [DCN](https://github.com/BlackSpaceGZY/Recommended-System#4-deep--cross-network-for-ad-click-predictions)
-5. [PNN](https://github.com/BlackSpaceGZY/Recommended-System-with-TF2.0#5product-based-neural-networks-for-user-response-prediction)
-6. [Deep Crossing](https://github.com/BlackSpaceGZY/Recommended-System-with-TF2.0#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
-
-
+1. [NCF](#1-neural-network-based-collaborative-filteringncf)
+2. [DIN](#2-deep-interest-network-for-click-through-rate-predictiondin)
+3. [Wide&Deep](#3-wide--deep-learning-for-recommender-systems)
+4. [DCN](#4-deep--cross-network-for-ad-click-predictions)
+5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
+6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
 
 ## 复现论文
 
