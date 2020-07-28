@@ -49,7 +49,7 @@ def create_dataset():
     data_df[dense_features] = mms.fit_transform(data_df[dense_features])
 
     feature_columns = [[denseFeature(feat) for feat in dense_features]] + \
-                      [[sparseFeature(feat, len(data_df[feat].unique()), embed_dim=4)
+                      [[sparseFeature(feat, len(data_df[feat].unique()), embed_dim=10)
                         for feat in sparse_features]]
 
     train, test = train_test_split(data_df, test_size=0.2)

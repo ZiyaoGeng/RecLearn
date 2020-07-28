@@ -39,16 +39,18 @@ class Residual_Units(Layer):
 
 
 class Deep_Crossing(keras.Model):
-    def __init__(self, feature_columns, embed_dim, hidden_units):
+    def __init__(self, feature_columns, hidden_units):
         super(Deep_Crossing, self).__init__()
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         self.embed_layers = {
             'embed_' + str(i): Embedding(input_dim=feat['feat_num'], input_length=1,
-                                         output_dim=embed_dim, embeddings_initializer='random_uniform')
+                                         output_dim=feat['embed_dim'], embeddings_initializer='random_uniform')
             for i, feat in enumerate(self.sparse_feature_columns)
         }
+        # the total length of embedding
+        embed_dim = sum([feat['embed_dim'] for feat in self.sparse_feature_columns])
         # the dimension of stack layer
-        dim_stack = len(self.dense_feature_columns) + embed_dim * len(self.sparse_feature_columns)
+        dim_stack = len(self.dense_feature_columns) + embed_dim
         # hidden_units = [512, 512, 256, 128, 64]
         self.res_network = [Residual_Units(unit, dim_stack) for unit in hidden_units]
         self.dense = Dense(1)
