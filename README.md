@@ -1,5 +1,5 @@
 <div>
-  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/0-1.png' width='40%' />
+  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_0.png' width='40%' />
 </div>
 
 ## 前言
@@ -97,7 +97,7 @@ Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.m
 
 **模型：**
 
-<div align=center><img src="images/1.png" width="40%"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_1.png" width="40%"/></div>
 
 **数据集：**
 
@@ -121,7 +121,7 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
 **模型：**
 
-<div align=center><img src="images/2.png" width="40%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_2.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -147,7 +147,7 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 **模型：**
 
-<div align=center><img src="images/3.png" width="60%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_3.png" width="60%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -169,7 +169,7 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
 **模型：**
 
-<div align=center><img src="images/4.png" width="40%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_4.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -191,7 +191,7 @@ https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
 
 **模型：**
 
-<div align=center><img src="images/5.png" width="40%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_5.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -216,7 +216,7 @@ https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
 
 **模型：**
 
-<div align=center><img src="images/6.png" width="40%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_6.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
@@ -238,4 +238,4 @@ https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
 公众号：**潜心的Python小屋**，欢迎大家关注。
 
-<div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_weixin.png" width="30%;" style="float:center"/></div>
