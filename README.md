@@ -71,7 +71,7 @@ Criteo广告数据集是一个经典的用来预测广告点击率的数据集�
 2. [kaggle Criteo](https://s3-eu-west-1.amazonaws.com/kaggle-display-advertising-challenge-dataset/dac.tar.gz)：训练集（10.38G）、测试集（1.35G）;（实验大部分都是使用该数据集）
 3. [Criteo 1TB](https://labs.criteo.com/2013/12/download-terabyte-click-logs/)：可以根据需要下载完整的日志数据集；
 
-Criteo数据集的具体介绍与处理：[传送门](./Dataset Introduction.md)
+Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md)
 
 
 
