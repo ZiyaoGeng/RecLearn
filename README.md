@@ -224,7 +224,7 @@ Crieto
 
 **代码解析：**
 
-[Deep Crossing代码文档](./Deep_Crossing_document.md)
+[Deep Crossing代码文档](./Deep_Crossing/Deep_Crossing_document.md)
 
 **原文地址：**
 
