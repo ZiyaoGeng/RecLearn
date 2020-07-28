@@ -37,8 +37,6 @@
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
 
-
-
 ## 更新
 
 2020.07.28：更改ReadMe介绍；
@@ -57,11 +55,25 @@
 
 ## 数据集介绍
 
-目前实验使用的数据集主要有三个：Movielens-1m、Amazon-Electronics、Criteo。
+目前实验使用的数据集主要有三个：Movielens、Amazon、Criteo。
 
 ### Movielens
 
-### Amazon-Electronics
+[MovieLens](https://grouplens.org/datasets/movielens/)是历史最悠久的推荐系统数据集，主要分为：ml-100k（1998年）、ml-1m（2003年）、ml-10m（2009年）、ml-20m（2015年）、ml-25m（2019年）。实验中主要是用ml-1m数据集。
+
+已处理过的数据集：[ml-1m](https://github.com/hexiangnan/neural_collaborative_filtering)
+
+ml-1m数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#1-movielens)
+
+
+
+### Amazon
+
+[Amazon](http://jmcauley.ucsd.edu/data/amazon/)提供了商品数据集，该数据集包含亚马逊的产品评论和元数据，包括1996年5月至2014年7月期间的1.428亿评论。它包括很多子数据集，如：Book、Electronics、Movies and TV等，实验中我们主要是用**Electronics子数据集**。
+
+Amazon-Electronics数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#2-amazon)
+
+
 
 ### Criteo
 
@@ -71,11 +83,7 @@ Criteo广告数据集是一个经典的用来预测广告点击率的数据集�
 2. [kaggle Criteo](https://s3-eu-west-1.amazonaws.com/kaggle-display-advertising-challenge-dataset/dac.tar.gz)：训练集（10.38G）、测试集（1.35G）;（实验大部分都是使用该数据集）
 3. [Criteo 1TB](https://labs.criteo.com/2013/12/download-terabyte-click-logs/)：可以根据需要下载完整的日志数据集；
 
-Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md)
-
-
-
-
+Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#3-criteo)
 
 ## 复现论文
 
@@ -83,26 +91,15 @@ Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.m
 
 **模型：**
 
-<div align=center><img src="images/1.png" width="50%"/></div>
+<div align=center><img src="images/1.png" width="40%"/></div>
 
 **数据集：**
 
 Movielens、Pinterest
 
-**代码：**
+**代码解析：**
 
-- Data：数据集
-- Pretrain：预训练保存的模型；
-- Save：模型保存；
-- configs.py：参数设置，对应模型有对应的参数；
-- DataSet.py：构造所需要的数据集，得到负样本集合；
-- evaluate.py：评估函数；
-- GMF.py：模型；
-- MLP.py：模型；
-- NeuMF.py：模型；
-- utils.py：获得训练样本，加载预训练模型；
-
-**参考原文开源代码地址：**
+**原文开源代码：**
 
 https://github.com/hexiangnan/neural_collaborative_filtering
 
@@ -118,34 +115,13 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
 **模型：**
 
-<div align=center><img src="images/2.png" width="50%;" style="float:center"/></div>
+<div align=center><img src="images/2.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
-[Amazon](http://jmcauley.ucsd.edu/data/amazon/)数据集中Electronics子集，下载并解压【或手动下载】：
+Amazon数据集中Electronics子集。
 
-```python
-wget -c http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Electronics_5.json.gz
-gzip -d reviews_Electronics_5.json.gz
-wget -c http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Electronics.json.gz
-gzip -d meta_Electronics.json.gz
-```
-
-其中`reviews_Electronics_5.json`为用户的行为数据，`meta_Electronics`为广告的元数据。
-
-**代码：**
-
-- datasset：处理过的数据集，dataset.kpl；
-- logs：TensorBoard所保存的日志；
-- raw_data：原数据存放地址；
-- save：模型保存；
-- utils：处理数据
-  - 1_convert_pd.py
-  - 2_remap_id.py
-- build_dataset.py：构建数据集；
-- dice.py：Dice实现；
-- model.py：模型；
-- train.py：训练；
+**代码解析：**
 
 **参考原文开源代码地址：**
 
@@ -165,24 +141,13 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 **模型：**
 
-<div align=center><img src="images/3.png" width="70%;" style="float:center"/></div>
-
-
-
-对于Wide&Deep模型来说，Tensorflow中有内置的模型。
+<div align=center><img src="images/3.png" width="60%;" style="float:center"/></div>
 
 **数据集：**
 
 由于原文没有给出公开数据集，所以在此我们使用Amazon Dataset中的Electronics子集，由于数据集的原因，模型可能与原文的有所出入，但整体思想还是不变的。
 
-**代码：**
-
-- logs：TensorBoard保存日志；
-- save：模型保存；
-- model.py：模型；
-- train.py：训练
-
-注：数据集使用了DIN中的构造，所以直接调用了。
+**代码解析：**
 
 **原文地址：**
 
@@ -198,22 +163,13 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
 **模型：**
 
-<div align=center><img src="images/4.png" width="50%;" style="float:center"/></div>
+<div align=center><img src="images/4.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
-Criteo Kaggle比赛数据集。
+Criteo
 
-注：由于Kaggle数据已经不公开，且只是为了测试，所以使用了一个小样本数据集【参考了deepctr】，如果想在原数据集上进行实验，可去寻找相关资源。
-
-**代码：**
-
-- dataset：数据集；
-- log：TensorBoard保存日志；
-- save：模型保存；
-- model.py：模型；
-- train.py：训练；
-- utils.py：数据处理；
+**代码解析：**
 
 **原文地址：**
 
@@ -229,28 +185,36 @@ https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
 
 **模型：**
 
-<div align=center><img src="images/5.png" width="50%;" style="float:center"/></div>
+<div align=center><img src="images/5.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
-Criteo Kaggle比赛数据集。
+Criteo
+
+**代码解析：**
+
+**原文地址：**
+
+https://arxiv.org/pdf/1611.00144.pdf
 
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
 
-<<<<<<< HEAD
+
 
 
 ### 6. Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features
 
 **模型：**
 
-<img src="images/6.png" style="zoom:50%;" />
+<div align=center><img src="images/6.png" width="40%;" style="float:center"/></div>
 
 **数据集：**
 
-Crieto数据集
+Crieto
+
+**代码解析：**
 
 **原文地址：**
 
@@ -262,7 +226,6 @@ https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
 ## 附
 
-公众号：潜心的Python小屋，欢迎大家关注。
+公众号：**潜心的Python小屋**，欢迎大家关注。
 
 <div align=center><img src="images/0.png" width="30%;" style="float:center"/></div>
-[https://github.com/shenweichen/DeepCTR/blob/master/examples/criteo_sample.txt]: 
