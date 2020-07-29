@@ -1,5 +1,5 @@
 <div>
-  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_0.png' width='40%' />
+  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_0.png' width='40%'/>
 </div>
 
 ## 前言
@@ -41,6 +41,8 @@
 
 ## 更新
 
+2020.07.29：[PNN代码文档](./PNN/PNN_document.md)更新；
+
 2020.07.28：更改ReadMe介绍；
 
 2020.07.27：Deep Crossing模型；
@@ -63,7 +65,7 @@
 
 ### Movielens
 
-[MovieLens](https://grouplens.org/datasets/movielens/)是历史最悠久的推荐系统数据集，主要分为：ml-100k（1998年）、ml-1m（2003年）、ml-10m（2009年）、ml-20m（2015年）、ml-25m（2019年）。实验中主要是用ml-1m数据集。
+[MovieLens](https://grouplens.org/datasets/movielens/)是历史最悠久的推荐系统数据集，主要分为：ml-100k（1998年）、ml-1m（2003年）、ml-10m（2009年）、ml-20m（2015年）、ml-25m（2019年）。实验中主要使用ml-1m数据集。
 
 已处理过的数据集：[ml-1m](https://github.com/hexiangnan/neural_collaborative_filtering)
 
@@ -73,7 +75,7 @@ ml-1m数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md
 
 ### Amazon
 
-[Amazon](http://jmcauley.ucsd.edu/data/amazon/)提供了商品数据集，该数据集包含亚马逊的产品评论和元数据，包括1996年5月至2014年7月期间的1.428亿评论。它包括很多子数据集，如：Book、Electronics、Movies and TV等，实验中我们主要是用**Electronics子数据集**。
+[Amazon](http://jmcauley.ucsd.edu/data/amazon/)提供了商品数据集，该数据集包含亚马逊的产品评论和元数据，包括1996年5月至2014年7月期间的1.428亿评论。它包括很多子数据集，如：Book、Electronics、Movies and TV等，实验中我们主要使用**Electronics子数据集**。
 
 Amazon-Electronics数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#2-amazon)
 
@@ -199,7 +201,7 @@ Criteo
 
 **代码解析：**
 
-
+[PNN代码文档](./PNN/PNN_document.md)
 
 **原文地址：**
 
