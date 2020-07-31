@@ -36,6 +36,7 @@
 4. [DCN](#4-deep--cross-network-for-ad-click-predictions)
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
+7. [DeepFM](#7-deepfm)
 
 
 
@@ -235,6 +236,30 @@ https://www.kdd.org/kdd2016/papers/files/adf0975-shanA.pdf
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
+
+
+
+### 7. DeepFM
+
+**模型：**
+
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_7.png" width="40%;" style="float:center"/></div>
+
+**数据集：**
+
+Crieto
+
+**代码解析：**
+
+**原文地址：**
+
+https://arxiv.org/abs/1703.04247
+
+**原文笔记：**
+
+https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
+
+
 
 ## 附
 
