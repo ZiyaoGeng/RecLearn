@@ -56,7 +56,7 @@ class MLP(layers.Layer):
 		:param dropout_deep: dropout number
 		"""
 		super(MLP, self).__init__()
-		self.dnn_network = [Dense(units=unit, activation='relu') for unit in hidden_units[1:]]
+		self.dnn_network = [Dense(units=unit, activation='relu') for unit in hidden_units]
 		self.dropout = Dropout(dropout_deep)
 
 	def call(self, inputs):
