@@ -134,6 +134,8 @@ Amazon数据集中Electronics子集。
 
 **代码解析：**
 
+https://zhuanlan.zhihu.com/p/144153291
+
 **参考原文开源代码地址：**
 
 https://github.com/zhougr1993/DeepInterestNetwork
@@ -252,6 +254,8 @@ https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 Crieto
 
 **代码解析：**
+
+[DeepFM代码文档](./DeepFM/DeepFM_document.md)
 
 **原文地址：**
 
