@@ -37,10 +37,13 @@
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
 7. [DeepFM](#7-deepfm)
+8. [NFM](#8-NFM)
 
 
 
 ## 更新
+
+2020.08.02：NFM模型；
 
 2020.07.31：DeepFM模型；
 
@@ -266,6 +269,28 @@ https://arxiv.org/abs/1703.04247
 https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
 
 
+
+### 8. NFM
+
+**模型：**
+
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_8.png" width="40%;" style="float:center"/></div>
+
+**数据集：**
+
+Crieto
+
+**代码解析：**
+
+[NFM代码文档](./NFM/NFM_document.md)
+
+**原文地址：**
+
+https://arxiv.org/pdf/1708.05027&ie=utf-8&sc_us=6917339300733978278.pdf
+
+**原文笔记：**
+
+https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
 ## 附
 
