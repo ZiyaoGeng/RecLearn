@@ -36,12 +36,15 @@
 4. [DCN](#4-deep--cross-network-for-ad-click-predictions)
 5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
 6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
-7. [DeepFM](#7-deepfm)
-8. [NFM](#8-NFM)
+7. [DeepFM](#7-deepfm-a-factorization-machine-based-neural-network-for-ctr-prediction)
+8. [NFM](#8-neural-factorization-machines-for-sparse-predictive-analytics)
+9. [AFM](#9-attentional-factorization-machines-learning-the-weight-of-feature-interactions-via-attention-networks)
 
 
 
 ## 更新
+
+2020.08.03：AFM模型；
 
 2020.08.02：NFM模型；
 
@@ -246,7 +249,7 @@ https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
 
 
-### 7. DeepFM
+### 7. DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
 
 **模型：**
 
@@ -270,7 +273,7 @@ https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
 
 
 
-### 8. NFM
+### 8. Neural Factorization Machines for Sparse Predictive Analytics
 
 **模型：**
 
@@ -292,8 +295,33 @@ https://arxiv.org/pdf/1708.05027&ie=utf-8&sc_us=6917339300733978278.pdf
 
 https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
+
+
+### 9. Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks
+
+**模型：**
+
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_8.png" width="40%;" style="float:center"/></div>
+
+**数据集：**
+
+Crieto
+
+**代码解析：**
+
+[AFM代码文档](./AFM/AFM_document.md)
+
+**原文地址：**
+
+https://arxiv.org/pdf/1708.04617.pdf
+
+**原文笔记：**
+
+
+
 ## 附
 
 公众号：**潜心的Python小屋**，欢迎大家关注。
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_weixin.png" width="30%;" style="float:center"/></div>
+
