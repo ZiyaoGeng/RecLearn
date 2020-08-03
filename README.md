@@ -28,6 +28,8 @@
 - 代码源文件参数、函数命名规范，并且带有标准的注释；
 - 每个模型会有专门的代码文档（`.md文件`）或者其他方式进行解释；
 
+## 目录
+
 目前**复现的模型**有（按复现时间进行排序）：
 
 1. [NCF](#1-neural-network-based-collaborative-filteringncf)
@@ -126,7 +128,9 @@ https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
 
 **原文笔记：**
 
-  
+**目录：**[返回目录  ](#目录)
+
+
 
 ### 2. Deep Interest Network for Click-Through Rate Prediction(DIN)
 
@@ -154,6 +158,8 @@ https://arxiv.org/pdf/1706.06978.pdf
 
 https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
+**目录：**[返回目录  ](#目录)
+
   
 
 ### 3. Wide & Deep Learning for Recommender Systems
@@ -176,7 +182,9 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 
-  
+  **目录：**[返回目录  ](#目录)
+
+
 
 ### 4. Deep & Cross Network for Ad Click Predictions
 
@@ -198,7 +206,9 @@ https://arxiv.org/pdf/1708.05123.pdf
 
 https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
 
-  
+  **目录：**[返回目录  ](#目录)
+
+
 
 ### 5.Product-based Neural Networks for User Response Prediction
 
@@ -221,6 +231,8 @@ https://arxiv.org/pdf/1611.00144.pdf
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
+
+**目录：**[返回目录  ](#目录)
 
 
 
@@ -247,6 +259,8 @@ https://www.kdd.org/kdd2016/papers/files/adf0975-shanA.pdf
 
 https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
+**目录：**[返回目录  ](#目录)
+
 
 
 ### 7. DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
@@ -270,6 +284,8 @@ https://arxiv.org/abs/1703.04247
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
+
+**目录：**[返回目录  ](#目录)
 
 
 
@@ -295,6 +311,8 @@ https://arxiv.org/pdf/1708.05027&ie=utf-8&sc_us=6917339300733978278.pdf
 
 https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
+**目录：**[返回目录  ](#目录)
+
 
 
 ### 9. Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks
@@ -307,6 +325,10 @@ https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
 Crieto
 
+**原文开源代码：**
+
+https://github.com/hexiangnan/attentional_factorization_machine
+
 **代码解析：**
 
 [AFM代码文档](./AFM/AFM_document.md)
@@ -317,7 +339,7 @@ https://arxiv.org/pdf/1708.04617.pdf
 
 **原文笔记：**
 
-
+**目录：**[返回目录  ](#目录)
 
 ## 附
 
