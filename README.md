@@ -301,7 +301,7 @@ https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
 **模型：**
 
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_8.png" width="40%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_9.png" width="50%;" style="float:center"/></div>
 
 **数据集：**
 
