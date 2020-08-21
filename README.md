@@ -41,10 +41,11 @@
 7. [DeepFM](#7-deepfm-a-factorization-machine-based-neural-network-for-ctr-prediction)
 8. [NFM](#8-neural-factorization-machines-for-sparse-predictive-analytics)
 9. [AFM](#9-attentional-factorization-machines-learning-the-weight-of-feature-interactions-via-attention-networks)
-
-
+10. [xDeepFM](#10-xdeepfm-combining-explicit-and-implicit-feature-interactions-for-recommender-systems)
 
 ## 更新
+
+2020.08.21：xDeepFM模型；
 
 2020.08.03：AFM模型；
 
@@ -122,10 +123,6 @@ Movielens、Pinterest
 
 https://github.com/hexiangnan/neural_collaborative_filtering
 
-**原文地址：**
-
-https://arxiv.org/pdf/1708.05031.pdf?source=post_page---------------------------
-
 **原文笔记：**
 
 **目录：**[返回目录  ](#目录)
@@ -150,10 +147,6 @@ https://zhuanlan.zhihu.com/p/144153291
 
 https://github.com/zhougr1993/DeepInterestNetwork
 
-**原文地址：**
-
-https://arxiv.org/pdf/1706.06978.pdf
-
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
@@ -174,10 +167,6 @@ https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 
 **代码解析：**
 
-**原文地址：**
-
-[https://arxiv.org/pdf/1606.07792.pdf%29/](https://arxiv.org/pdf/1606.07792.pdf)/)
-
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
@@ -197,10 +186,6 @@ https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
 Criteo
 
 **代码解析：**
-
-**原文地址：**
-
-https://arxiv.org/pdf/1708.05123.pdf
 
 **原文笔记：**
 
@@ -223,10 +208,6 @@ Criteo
 **代码解析：**
 
 [PNN代码文档](./PNN/PNN_document.md)
-
-**原文地址：**
-
-https://arxiv.org/pdf/1611.00144.pdf
 
 **原文笔记：**
 
@@ -251,10 +232,6 @@ Crieto
 
 [Deep Crossing代码文档](./Deep_Crossing/Deep_Crossing_document.md)
 
-**原文地址：**
-
-https://www.kdd.org/kdd2016/papers/files/adf0975-shanA.pdf
-
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
@@ -277,10 +254,6 @@ Crieto
 
 [DeepFM代码文档](./DeepFM/DeepFM_document.md)
 
-**原文地址：**
-
-https://arxiv.org/abs/1703.04247
-
 **原文笔记：**
 
 https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
@@ -302,10 +275,6 @@ Crieto
 **代码解析：**
 
 [NFM代码文档](./NFM/NFM_document.md)
-
-**原文地址：**
-
-https://arxiv.org/pdf/1708.05027&ie=utf-8&sc_us=6917339300733978278.pdf
 
 **原文笔记：**
 
@@ -333,11 +302,31 @@ https://github.com/hexiangnan/attentional_factorization_machine
 
 [AFM代码文档](./AFM/AFM_document.md)
 
-**原文地址：**
+**原文笔记：**
 
-https://arxiv.org/pdf/1708.04617.pdf
+https://mp.weixin.qq.com/s/hPCS9Dw2vT2pwdWwPo0EJg
+
+**目录：**[返回目录  ](#目录)
+
+
+
+### 10. xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems
+
+**模型：**
+
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_10.png" width="50%;" style="float:center"/></div>
+
+**数据集：**
+
+Criteo
+
+**原文开源代码：**
+
+https://github.com/Leavingseason/xDeepFM
 
 **原文笔记：**
+
+https://mp.weixin.qq.com/s/TohOmVpQzNlA3vXv0gpobg
 
 **目录：**[返回目录  ](#目录)
 
