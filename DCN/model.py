@@ -53,12 +53,10 @@ class CrossNetwork(Layer):
 
 
 class DCN(keras.Model):
-    """
-    Deep&Cross Network model
-    """
     def __init__(self, feature_columns, hidden_units, dnn_dropout=0.,
                  activation='relu', embed_reg=1e-4, cross_reg=1e-4):
         """
+        Deep&Cross Network architecture
         :param feature_columns: dense_feature_columns + sparse_feature_columns
         :param hidden_units: a list of neural network hidden units
         :param dnn_dropout: dropout of dnn
