@@ -8,27 +8,34 @@ model: Neural Factorization Machines for Sparse Predictive Analytics
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers, optimizers, losses, regularizers
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Embedding, Dropout, Concatenate, Dense, Input, BatchNormalization
-
-import os
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 class NFM(keras.Model):
-    def __init__(self, feature_columns, hidden_units, dropout_rate):
+    def __init__(self, feature_columns, hidden_units, dnn_dropout=0., activation='relu', embed_reg=1e-4):
+        """
+        NFM architecture
+        :param feature_columns: a list containing dense and sparse column feature information
+        :param hidden_units: a list of dnn hidden units
+        :param dnn_dropout: dropout of dnn
+        :param activation: activation function of dnn
+        :param embed_reg: the regularizer of embedding
+        """
         super(NFM, self).__init__()
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'], input_length=1,
-                                         output_dim=feat['embed_dim'], embeddings_initializer='random_uniform')
+            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+                                         input_length=1,
+                                         output_dim=feat['embed_dim'],
+                                         embeddings_initializer='random_uniform',
+                                         embeddings_regularizer=l2(embed_reg))
             for i, feat in enumerate(self.sparse_feature_columns)
         }
-        self.dropout = Dropout(rate=dropout_rate)
+        self.dropout = Dropout(rate=dnn_dropout)
         self.bn = BatchNormalization()
         self.concat = Concatenate(axis=-1)
-        self.dnn_network = [Dense(units=unit, activation='relu') for unit in hidden_units]
+        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
         self.dense = Dense(1)
 
     def call(self, inputs):
@@ -42,13 +49,13 @@ class NFM(keras.Model):
                        tf.reduce_sum(tf.pow(embed, 2), axis=1))
         # Concat
         x = self.concat([dense_inputs, embed])
-        # Dropout
-        x = self.dropout(x)
         # BatchNormalization
         x = self.bn(x)
         # Hidden Layers
         for dnn in self.dnn_network:
             x = dnn(x)
+        # Dropout
+        x = self.dropout(x)
         outputs = tf.nn.sigmoid(self.dense(x))
         return outputs
 
@@ -56,14 +63,3 @@ class NFM(keras.Model):
         dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
         sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
         keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
-
-
-def main():
-    dense = [{'name': 'c1'}, {'name': 'c2'}, {'name': 'c3'}, {'name': 'c4'}]
-    sparse = [{'feat_num': 100, 'embed_dim': 256}, {'feat_num': 200, 'embed_dim': 256}]
-    columns = [dense, sparse]
-    model = NFM(columns, [200, 200, 200], 0.5)
-    model.summary()
-
-
-main()
