@@ -20,6 +20,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
+    # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
     sample_num = 100000

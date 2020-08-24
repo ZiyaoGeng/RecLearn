@@ -10,28 +10,39 @@ import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
-from utils import create_dataset
 from model import AFM
+
+from utils import create_criteo_dataset
 
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
-def main(sample_num, embed_dim, learning_rate, epochs, batch_size, mode='max', attention_hidden_unit=None):
-    """
+if __name__ == '__main__':
+    # ========================= Hyper Parameters =======================
+    # you can modify your file path
+    file = '../dataset/Criteo/train.txt'
+    read_part = True
+    sample_num = 100000
+    test_size = 0.2
 
-    :param sample_num: the num of training sample
-    :param embed_dim: the dimension of all embedding layer
-    :param learning_rate:
-    :param epochs:
-    :param batch_size:
-    :param mode
-    :param attention_hidden_unit:
-    :return:
-    """
-    feature_columns, train_X, test_X, train_y, test_y = create_dataset(sample_num, embed_dim)
+    embed_dim = 16
+    attention_hidden_unit = 64
+    mode = 'max'
 
+    learning_rate = 0.001
+    batch_size = 512
+    epochs = 5
+
+    # ========================== Create dataset =======================
+    feature_columns, train, test = create_criteo_dataset(file=file,
+                                                         embed_dim=embed_dim,
+                                                         read_part=read_part,
+                                                         sample_num=sample_num,
+                                                         test_size=test_size)
+    train_X, train_y = train
+    test_X, test_y = train
     # ============================Build Model==========================
     model = AFM(feature_columns, mode, attention_hidden_unit=attention_hidden_unit)
     model.summary()
@@ -53,16 +64,3 @@ def main(sample_num, embed_dim, learning_rate, epochs, batch_size, mode='max', a
     )
     # ===========================Test==============================
     print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
-
-
-if __name__ == '__main__':
-    sample_num = 100000
-    embed_dim = 16
-    learning_rate = 0.001
-    batch_size = 512
-    epochs = 5
-    attention_hidden_unit = 64
-    # main(sample_num, embed_dim, learning_rate, epochs, batch_size, mode='max')
-    # main(sample_num, embed_dim, learning_rate, epochs, batch_size, mode='avg')
-    main(sample_num, embed_dim, learning_rate, epochs, batch_size,
-         mode='att', attention_hidden_unit=attention_hidden_unit)

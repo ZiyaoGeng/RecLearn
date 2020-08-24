@@ -8,28 +8,29 @@ model: Attentional Factorization Machines: Learning the Weight of Feature Intera
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers, optimizers, losses, regularizers
+from tensorflow.keras import layers
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Embedding, Dropout, Concatenate, Dense, Input, GlobalMaxPooling1D, GlobalAveragePooling1D
-
-import os
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 class AFM(keras.Model):
-    def __init__(self, feature_columns, mode, attention_hidden_unit=None):
+    def __init__(self, feature_columns, mode, attention_hidden_unit=64, embed_reg=1e-4):
         """
-
+        AFM architecture
         :param feature_columns: dense_feature_columns and sparse_feature_columns
         :param mode: 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
-        :param attention_hidden_unit: if mode == 'att'
+        :param attention_hidden_unit: hidden unit, if mode == 'att'
+        :param embed_reg: the regularizer of embedding
         """
         super(AFM, self).__init__()
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         self.mode = mode
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'], input_length=1,
-                                         output_dim=feat['embed_dim'], embeddings_initializer='random_uniform')
+            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+                                         input_length=1,
+                                         output_dim=feat['embed_dim'],
+                                         embeddings_initializer='random_uniform',
+                                         embeddings_regularizer=l2(embed_reg))
             for i, feat in enumerate(self.sparse_feature_columns)
         }
         if self.mode == 'max':
@@ -50,11 +51,13 @@ class AFM(keras.Model):
         embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
         embed = tf.transpose(tf.convert_to_tensor(embed), [1, 0, 2])
         # Pair-wise Interaction Layer
+        # for loop is badly
         element_wise_product_list = []
         for i in range(embed.shape[1]):
             for j in range(i+1, embed.shape[1]):
                 element_wise_product_list.append(tf.multiply(embed[:, i], embed[:, j]))
-        element_wise_product = tf.transpose(tf.convert_to_tensor(element_wise_product_list), [1, 0, 2])
+        element_wise_product = tf.transpose(tf.concat(element_wise_product_list), [1, 0, 2])
+        # mode
         if self.mode == 'max':
             # MaxPooling Layer
             x = self.max(element_wise_product)
@@ -82,19 +85,3 @@ class AFM(keras.Model):
         a_score = tf.transpose(a_score, [0, 2, 1])
         outputs = tf.reshape(tf.matmul(a_score, keys), shape=(-1, keys.shape[2]))
         return outputs
-
-
-def main():
-    """
-    test model
-    :return:
-    """
-    dense = [{'name': 'c1'}, {'name': 'c2'}, {'name': 'c3'}, {'name': 'c4'}]
-    sparse = [{'feat_num': 100, 'embed_dim': 64}, {'feat_num': 200, 'embed_dim': 64},
-              {'feat_num': 300, 'embed_dim': 64}, {'feat_num': 400, 'embed_dim': 64}]
-    columns = [dense, sparse]
-    model = AFM(columns, 'att', 12)
-    model.summary()
-
-
-# main()
