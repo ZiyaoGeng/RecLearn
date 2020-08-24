@@ -9,33 +9,32 @@ model: Deep & Cross Network for Ad Click Predictions
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Input
-from tensorflow.keras.layers import Embedding, Concatenate, Dense, Layer
-from tensorflow.keras.experimental import WideDeepModel
-from utils import create_dataset
-
-import os
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.layers import Embedding, Concatenate, Dense, Layer, Dropout
 
 
 class CrossNetwork(Layer):
     """
     Cross Network
     """
-    def __init__(self, layer_num):
+    def __init__(self, layer_num, reg_w=1e-4):
         """
         :param layer_num: the deep of cross network
+        :param reg_w: the regularizer of w
         """
         self.layer_num = layer_num
-
+        self.reg_w = reg_w
         super(CrossNetwork, self).__init__()
 
     def build(self, input_shape):
         dim = int(input_shape[-1])
         self.cross_weights = [
-            self.add_weight(shape=(dim, 1),
+            self.add_weight(name='w_' + str(i),
+                            shape=(dim, 1),
                             initializer='random_uniform',
-                            name='w_' + str(i))
+                            regularizer=l2(self.reg_w),
+                            trainable=True
+                            )
             for i in range(self.layer_num)]
         self.cross_bias = [
             self.add_weight(shape=(dim, 1),
@@ -57,21 +56,30 @@ class DCN(keras.Model):
     """
     Deep&Cross Network model
     """
-    def __init__(self, feature_columns, hidden_units):
+    def __init__(self, feature_columns, hidden_units, dnn_dropout=0.,
+                 activation='relu', embed_reg=1e-4, cross_reg=1e-4):
         """
         :param feature_columns: dense_feature_columns + sparse_feature_columns
         :param hidden_units: a list of neural network hidden units
+        :param dnn_dropout: dropout of dnn
+        :param activation: activation function of dnn
+        :param embed_reg: the regularizer of embedding
+        :param cross_reg: the regularizer of cross network
         """
         super(DCN, self).__init__()
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         self.layer_num = len(hidden_units)
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'], input_length=1,
-                                             output_dim=feat['embed_dim'], embeddings_initializer='random_uniform')
+            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+                                         input_length=1,
+                                         output_dim=feat['embed_dim'],
+                                         embeddings_initializer='random_uniform',
+                                         embeddings_regularizer=l2(embed_reg))
             for i, feat in enumerate(self.sparse_feature_columns)
         }
-        self.cross_network = CrossNetwork(self.layer_num)
-        self.dnn_network = [Dense(units=unit, activation='relu') for unit in hidden_units]
+        self.cross_network = CrossNetwork(self.layer_num, cross_reg)
+        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
+        self.dropout = Dropout(dnn_dropout)
         self.concat = Concatenate(axis=-1)
         self.dense_final = Dense(1)
 
@@ -85,6 +93,7 @@ class DCN(keras.Model):
         dnn_x = x
         for dense in self.dnn_network:
             dnn_x = dense(dnn_x)
+        dnn_x = self.dropout(dnn_x)
         x = self.concat([cross_x, dnn_x])
         outputs = tf.nn.sigmoid(self.dense_final(x))
         return outputs
