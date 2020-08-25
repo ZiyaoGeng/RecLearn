@@ -32,7 +32,7 @@ ml-1m数据集中包含`ratings.dat`、`users.dat`、`movies.dat`。
     - 56:  "56+"
 
 - 职业：
-    
+  
     - 0:  "other" or not specified
     - 1:  "academic/educator"
     - 2:  "artist"
@@ -85,7 +85,7 @@ ml-1m数据集中包含`ratings.dat`、`users.dat`、`movies.dat`。
 
 用于推荐系统或CTR预估，目前大多数是采用隐式反馈的形式，即将各个打分依据某个原则改变为1（高于某个分数）和0（低于某个分数或未打分），并且还要划分正负样本等。
 
-以处理好的数据集：参考[NCF开源代码](https://github.com/hexiangnan/neural_collaborative_filtering)
+已处理好的数据集：参考[NCF开源代码](https://github.com/hexiangnan/neural_collaborative_filtering)
 
 
 
