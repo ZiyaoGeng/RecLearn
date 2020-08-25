@@ -86,7 +86,7 @@
 
 已处理过的数据集：[ml-1m](https://github.com/hexiangnan/neural_collaborative_filtering)
 
-ml-1m数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#1-movielens)
+ml-1m数据集的具体介绍与处理：[传送门](.~document/Dataset%20Introduction.md#1-movielens)
 
 
 
@@ -94,7 +94,7 @@ ml-1m数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md
 
 [Amazon](http://jmcauley.ucsd.edu/data/amazon/)提供了商品数据集，该数据集包含亚马逊的产品评论和元数据，包括1996年5月至2014年7月期间的1.428亿评论。它包括很多子数据集，如：Book、Electronics、Movies and TV等，实验中我们主要使用**Electronics子数据集**。
 
-Amazon-Electronics数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#2-amazon)
+Amazon-Electronics数据集的具体介绍与处理：[传送门](.~document/Dataset%20Introduction.md#2-amazon)
 
 
 
@@ -106,7 +106,7 @@ Criteo广告数据集是一个经典的用来预测广告点击率的数据集�
 2. [kaggle Criteo](https://s3-eu-west-1.amazonaws.com/kaggle-display-advertising-challenge-dataset/dac.tar.gz)：训练集（10.38G）、测试集（1.35G）;（实验大部分都是使用该数据集）
 3. [Criteo 1TB](https://labs.criteo.com/2013/12/download-terabyte-click-logs/)：可以根据需要下载完整的日志数据集；
 
-Criteo数据集的具体介绍与处理：[传送门](./Dataset%20Introduction.md#3-criteo)
+Criteo数据集的具体介绍与处理：[传送门](.~document/Dataset%20Introduction.md#3-criteo)
 
 
 
