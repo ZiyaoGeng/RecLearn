@@ -40,7 +40,7 @@ if __name__ == '__main__':
                                                          sample_num=sample_num,
                                                          test_size=test_size)
     train_X, train_y = train
-    test_X, test_y = train
+    test_X, test_y = test
     # ============================Build Model==========================
     model = DCN(feature_columns, hidden_units, dnn_dropout)
     model.summary()

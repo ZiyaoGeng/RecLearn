@@ -42,8 +42,13 @@
 8. [NFM](#8-neural-factorization-machines-for-sparse-predictive-analytics)
 9. [AFM](#9-attentional-factorization-machines-learning-the-weight-of-feature-interactions-via-attention-networks)
 10. [xDeepFM](#10-xdeepfm-combining-explicit-and-implicit-feature-interactions-for-recommender-systems)
+11. [FM](#11-factorization-machines)
 
 ## 更新
+
+2020.08.25：FM模型；
+
+2020.08.24：重写部分模型；
 
 2020.08.21：xDeepFM模型；
 
@@ -329,6 +334,18 @@ https://github.com/Leavingseason/xDeepFM
 https://mp.weixin.qq.com/s/TohOmVpQzNlA3vXv0gpobg
 
 **目录：**[返回目录  ](#目录)
+
+
+
+### 11. Factorization Machines
+
+**数据集：**
+
+Criteo
+
+**目录：**[返回目录  ](#目录)
+
+
 
 ## 附
 

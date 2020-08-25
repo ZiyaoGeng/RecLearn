@@ -42,7 +42,7 @@ if __name__ == '__main__':
                                                          sample_num=sample_num,
                                                          test_size=test_size)
     train_X, train_y = train
-    test_X, test_y = train
+    test_X, test_y = test
     # ============================Build Model==========================
     model = DeepFM(feature_columns, k=k, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
     model.summary()

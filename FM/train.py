@@ -1,16 +1,17 @@
 """
-Created on August 3, 2020
+Created on August 25, 2020
 
-train AFM model
+train FM model
 
 @author: Ziyao Geng
 """
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
-from model import AFM
+from model import FM
 
 from utils import create_criteo_dataset
 
@@ -24,12 +25,10 @@ if __name__ == '__main__':
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 100000
+    sample_num = 10000
     test_size = 0.2
 
-    embed_dim = 16
-    attention_hidden_unit = 64
-    mode = 'max'
+    k = 10
 
     learning_rate = 0.001
     batch_size = 512
@@ -37,23 +36,21 @@ if __name__ == '__main__':
 
     # ========================== Create dataset =======================
     feature_columns, train, test = create_criteo_dataset(file=file,
-                                                         embed_dim=embed_dim,
-                                                         read_part=read_part,
-                                                         sample_num=sample_num,
-                                                         test_size=test_size)
+                                           read_part=read_part,
+                                           sample_num=sample_num,
+                                           test_size=test_size)
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = AFM(feature_columns, mode, attention_hidden_unit=attention_hidden_unit)
-    model.summary()
+    model = FM(feature_columns=feature_columns, k=k)
     # ============================model checkpoint======================
-    # check_path = 'save/afm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
+    # check_path = '../save/fm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # =========================Compile============================
+    # ============================Compile============================
     model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
                   metrics=[AUC()])
-    # ===========================Fit==============================
+    # ==============================Fit==============================
     model.fit(
         train_X,
         train_y,
