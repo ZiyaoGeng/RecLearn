@@ -230,7 +230,7 @@ Crieto
 
 **代码解析：**
 
-[Deep Crossing代码文档](./Deep_Crossing/Deep_Crossing_document.md)
+[Deep Crossing代码文档](./~document/Deep_Crossing_document.md)
 
 **原文笔记：**
 
@@ -252,7 +252,7 @@ Crieto
 
 **代码解析：**
 
-[DeepFM代码文档](./DeepFM/DeepFM_document.md)
+[DeepFM代码文档](./~document/DeepFM_document.md)
 
 **原文笔记：**
 
@@ -274,7 +274,7 @@ Crieto
 
 **代码解析：**
 
-[NFM代码文档](./NFM/NFM_document.md)
+[NFM代码文档](./~document/NFM_document.md)
 
 **原文笔记：**
 
@@ -300,7 +300,7 @@ https://github.com/hexiangnan/attentional_factorization_machine
 
 **代码解析：**
 
-[AFM代码文档](./AFM/AFM_document.md)
+[AFM代码文档](./~document/AFM_document.md)
 
 **原文笔记：**
 

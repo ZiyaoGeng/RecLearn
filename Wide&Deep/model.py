@@ -6,113 +6,90 @@ model: Wide & Deep Learning for Recommender Systems
 @author: Ziyao Geng
 """
 
-import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Embedding, Concatenate, GlobalAveragePooling1D, BatchNormalization
-from tensorflow.keras import regularizers
-from tensorflow.keras.experimental import WideDeepModel
-import os
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.layers import Dense, Embedding, Concatenate, Dropout, Input
+from tensorflow.keras.regularizers import l2
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+class Linear(layers.Layer):
+    """
+    Linear Part
+    """
+    def __init__(self):
+        super(Linear, self).__init__()
+        self.dense = Dense(1, activation=None)
+
+    def call(self, inputs, **kwargs):
+        result = self.dense(inputs)
+        return result
+
+
+class DNN(layers.Layer):
+    """
+    Deep part
+    """
+    def __init__(self, hidden_units, activation='relu', dnn_dropout=0.):
+        """
+
+        :param hidden_units: list of hidden layer units's numbers
+        :param activation: activation function
+        :param dnn_dropout: dropout number
+        """
+        super(DNN, self).__init__()
+        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
+        self.dropout = Dropout(dnn_dropout)
+
+    def call(self, inputs, **kwargs):
+        x = inputs
+        for dnn in self.dnn_network:
+            x = dnn(x)
+        x = self.dropout(x)
+        return x
 
 
 class WideDeep(tf.keras.Model):
-    """
-    Wide&Deep model
-    """
-    def __init__(self, user_num, item_num, cate_num, cate_list, embed_unit):
+    def __init__(self, feature_columns, hidden_units, activation='relu', dnn_dropout=0., embed_reg=1e-4):
         """
-        :param user_num: 用户数量
-        :param item_num: 物品数量
-        :param cate_num: 物品种类数量
-        :param cate_list: 物品种类列表
-        :param embed_unit: embedding维度
+        Wide&Deep architecture
+        :param feature_columns: a list containing dense and sparse column feature information
+        :param hidden_units: a list of dnn hidden units
+        :param activation: activation function of dnn
+        :param dnn_dropout: dropout of dnn
+        :param embed_reg: the regularizer of embedding
         """
         super(WideDeep, self).__init__()
-        self.cate_list = tf.convert_to_tensor(cate_list, dtype=tf.int32)
-        self.embed_unit = embed_unit
-        self.item_embed = Embedding(
-            input_dim=item_num, output_dim=embed_unit,
-            embeddings_initializer='random_uniform', embeddings_regularizer=regularizers.l2(0.001)
-        )
-        self.cate_embed = Embedding(
-            input_dim=cate_num, output_dim=embed_unit,
-            embeddings_initializer='random_uniform', embeddings_regularizer=regularizers.l2(0.001)
-        )
-        self.concat1 = Concatenate(axis=-1)
-        self.pooling = GlobalAveragePooling1D()
-        self.bn1 = BatchNormalization()
-        self.concat2 = Concatenate(axis=-1)
-        self.dense_wide = Dense(units=1)
-        self.concat3 = Concatenate(axis=-1)
-        self.bn2 = BatchNormalization()
-        self.dense_deep1 = Dense(units=80, activation='relu')
-        self.dense_deep2 = Dense(units=40, activation='relu')
-        self.dense_deep3 = Dense(units=1)
+        self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+        self.embed_layers = {
+            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+                                         input_length=1,
+                                         output_dim=feat['embed_dim'],
+                                         embeddings_initializer='random_uniform',
+                                         embeddings_regularizer=l2(embed_reg))
+            for i, feat in enumerate(self.sparse_feature_columns)
+        }
+        self.dnn = DNN(hidden_units, activation, dnn_dropout)
+        self.linear = Linear()
+        self.final_dense = Dense(1, activation=None)
 
-    def call(self, inputs):
-        # user:id, item:id, hist:user history, sl:effective user history length
-        # item, sl 输入的时候是一个向量【batch中为矩阵】，故需要降维为标量【batch中为向量】
-        user, item, hist, sl = inputs[0], tf.squeeze(inputs[1], axis=1), inputs[2], tf.squeeze(inputs[3], axis=1)
-        # 物品对应种类
-        item_cate = tf.gather(self.cate_list, item)
-        # 物品embedding, shape=[None, embed_unit * 2]
-        item_embed = self.concat1([self.item_embed(item), self.cate_embed(item_cate)])
-        # 历史行为的种类
-        hist_cate = tf.gather(self.cate_list, hist)
-        # 历史行为embedding, shape=[None, len(hist), embed_unit * 2]
-        hist_embed = self.concat1([self.item_embed(hist), self.cate_embed(hist_cate)])
-
-        # mask
-        # 构造掩码向量，shape=[None, len(hist)]，且前sl个为1
-        mask = tf.sequence_mask(sl, hist_embed.shape[1], dtype=tf.float32)
-        # 扩展维度，shape=[None, len(hist), 1]
-        mask = tf.expand_dims(mask, -1)
-        # 多次复制，shape=[None, len(hist), embed_unit * 2]
-        mask = tf.tile(mask, [1, 1, hist_embed.shape[2]])
-        # 转化为真正的hist_embed
-        hist_embed *= mask
-        # 池化
-        # hist_embed = tf.reduce_sum(hist_embed, 1)
-        hist_embed = self.pooling(hist_embed)
-        hist_embed = self.bn1(hist_embed)
-        user_embed = hist_embed
-        # 拼接所有的embed
-        embed = self.concat2([user_embed, item_embed])
+    def call(self, inputs, **kwargs):
+        dense_inputs, sparse_inputs = inputs
+        stack = dense_inputs
+        for i in range(sparse_inputs.shape[1]):
+            embed_i = self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
+            stack = tf.concat([stack, embed_i], axis=-1)
 
         # Wide
-        # 特征工程
-        wide = self.concat3([tf.gather(user_embed, [0], axis=-1) * tf.gather(item_embed, [0], axis=-1),
-                          tf.gather(user_embed, [self.embed_unit*2-1], axis=-1) * tf.gather(item_embed, [self.embed_unit*2-1], axis=-1),
-                          tf.gather(user_embed, [self.embed_unit], axis=-1) *
-                          tf.gather(item_embed, [self.embed_unit], axis=-1)])
-        wide_out = self.dense_wide(wide)
+        wide_out = self.linear(dense_inputs)
         # Deep
-        deep = self.bn2(embed)
-        deep = self.dense_deep1(deep)
-        deep = self.dense_deep2(deep)
-        deep_out = self.dense_deep3(deep)
+        deep_out = self.dnn(stack)
+        deep_out = self.final_dense(deep_out)
+        # out
         outputs = tf.nn.sigmoid(0.5 * (wide_out + deep_out))
         return outputs
 
-    def summary(self):
-        user = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        item = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        sl = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        # 431为用户行为的最长长度
-        hist = tf.keras.Input(shape=(431,), dtype=tf.int32)
-        tf.keras.Model(inputs=[user, item, hist, sl], outputs=self.call([user, item, hist, sl])).summary()
-
-
-def main():
-    cate_list = np.arange(100)
-    model = WideDeep(100, 100, 5, cate_list, 6)
-    model.summary()
-
-
-
-
-
-
-
-
+    def summary(self, **kwargs):
+        dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
+        sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
+        keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
