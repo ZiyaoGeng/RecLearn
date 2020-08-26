@@ -30,8 +30,6 @@ class FFM_Layer(Layer):
         self.feature_num = sum([feat['feat_num'] for feat in self.sparse_feature_columns]) \
                            + len(self.dense_feature_columns)
         self.field_num = len(self.dense_feature_columns) + len(self.sparse_feature_columns)
-        self.field_list = len(self.dense_feature_columns) * [1] + \
-                          [feat['feat_num'] for feat in self.sparse_feature_columns]
 
     def build(self, input_shape):
         self.w0 = self.add_weight(name='w0', shape=(1,),
@@ -49,19 +47,19 @@ class FFM_Layer(Layer):
 
     def call(self, inputs, **kwargs):
         dense_inputs, sparse_inputs = inputs
-        stack = tf.split(dense_inputs, dense_inputs.shape[-1], axis=1)
+        stack = dense_inputs
         # one-hot encoding
         for i in range(sparse_inputs.shape[1]):
-            stack.append(
-                tf.one_hot(sparse_inputs[:, i], depth=self.sparse_feature_columns[i]['feat_num']))
-
+            stack = tf.concat(
+                [stack, tf.one_hot(sparse_inputs[:, i],
+                                   depth=self.sparse_feature_columns[i]['feat_num'])], axis=-1)
         # first order
         first_order = self.w0 + tf.matmul(tf.concat(stack, axis=-1), self.w)
         # field second order
         second_order = 0
-        field_f = tf.tensordot(tf.concat(stack, axis=-1), self.v, axes=[1, 0])
-        for i in range(len(self.field_list)):
-            for j in range(i+1, len(self.field_list)):
+        field_f = tf.tensordot(stack, self.v, axes=[1, 0])
+        for i in range(self.field_num):
+            for j in range(i+1, self.field_num):
                 second_order += tf.reduce_sum(
                     tf.multiply(field_f[:, i], field_f[:, j]),
                     axis=1, keepdims=True
@@ -96,11 +94,4 @@ class FFM(tf.keras.Model):
         tf.keras.Model(inputs=[dense_inputs, sparse_inputs],
                        outputs=self.call([dense_inputs, sparse_inputs])).summary()
 
-
-# dense_features = [{'feat': '1'}, {'feat': '2'}, {'feat': '3'}]
-# sparse_features = [{'feat': '4', 'feat_num': 10}, {'feat': '5', 'feat_num': 8},
-#                    {'feat': '6', 'feat_num': 6}, {'feat': '7', 'feat_num': 4}]
-# feature_columns = [dense_features, sparse_features]
-# model = FFM(feature_columns, k=8)
-# model.summary()
 
