@@ -7,7 +7,6 @@ model: Factorization Machines
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import Input
 from tensorflow.keras.regularizers import l2
 
 
@@ -17,6 +16,7 @@ class FM(tf.keras.Model):
         Factorization Machines
         sparse features should be one-hot encoding
         :param feature_columns: a list containing dense and sparse column feature information
+        :param k: the latent vector
         :param w_reg: the regularization coefficient of parameter w
 		:param v_reg: the regularization coefficient of parameter v
         """

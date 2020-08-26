@@ -43,8 +43,11 @@
 9. [AFM](#9-attentional-factorization-machines-learning-the-weight-of-feature-interactions-via-attention-networks)
 10. [xDeepFM](#10-xdeepfm-combining-explicit-and-implicit-feature-interactions-for-recommender-systems)
 11. [FM](#11-factorization-machines)
+12. [FFM](#12-field-aware-factorization-machines-for-ctr-prediction)
 
 ## 更新
+
+2020.08.26：FFM模型；【该模型**也仅仅是为了复现**，实际应用最好使用下述提到的C++包】
 
 2020.08.25：FM模型；
 
@@ -343,9 +346,31 @@ https://mp.weixin.qq.com/s/TohOmVpQzNlA3vXv0gpobg
 
 Criteo
 
+**原文笔记：**
+
+https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html
+
 **目录：**[返回目录  ](#目录)
 
 
+
+### 12. Field-aware Factorization Machines for CTR Prediction
+
+**数据集：**
+
+Criteo
+
+**C++包：**
+
+https://github.com/ycjuan/libffm
+
+【注】FFM复现只是为了让自己更清楚其构造，但是真正在场景或比赛中应用的话，还是调取上述包。因为自己不会优化，两个for循环太慢了。
+
+**原文笔记**：
+
+https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html
+
+**目录：**[返回目录  ](#目录)
 
 ## 附
 
