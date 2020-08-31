@@ -44,8 +44,11 @@
 10. [xDeepFM](#10-xdeepfm-combining-explicit-and-implicit-feature-interactions-for-recommender-systems)
 11. [FM](#11-factorization-machines)
 12. [FFM](#12-field-aware-factorization-machines-for-ctr-prediction)
+13. [MF](#13-matrix-factorization-techniques-for-recommender-systems)
 
 ## 更新
+
+2020.08.31：MF模型【采用显示反馈，在基础MF上加入bias】；
 
 2020.08.26：FFM模型；【该模型**也仅仅是为了复现**，实际应用最好使用下述提到的C++包】
 
@@ -369,6 +372,16 @@ https://github.com/ycjuan/libffm
 **原文笔记**：
 
 https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html
+
+**目录：**[返回目录  ](#目录)
+
+
+
+### 13. Matrix Factorization Techniques for Recommender Systems
+
+**数据集：**
+
+ml-1m
 
 **目录：**[返回目录  ](#目录)
 
