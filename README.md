@@ -36,9 +36,11 @@
 
 1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
 
-2、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
+2、需要环境Python3.7，Tensorflow2.0；
 
-3、设置`超参数`，直接运行即可；
+3、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
+
+4、设置`超参数`，直接运行即可；
 
 
 
