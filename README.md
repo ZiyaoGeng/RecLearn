@@ -118,6 +118,36 @@ Criteo数据集的具体介绍与处理：[传送门](~document/Dataset%20Introd
 
 ## 复现论文
 
+传统模型：
+
+| Paper\|Model                                                | Published in\|Time          | Author                       |
+| ----------------------------------------------------------- | --------------------------- | ---------------------------- |
+| Matrix Factorization Techniques for Recommender Systems\|MF | IEEE Computer Society\|2009 | Koren\|Yahoo Research        |
+| Factorization Machines\|FM                                  | ICDM｜2010                  | Steffen Rendle               |
+| Field-aware Factorization Machines for CTR Prediction｜FFM  | RecSys｜2016                | Yuchin Juan｜Criteo Research |
+| 基于神经网络的模型：                                        |                             |                              |
+
+| Paper｜Model                                                 | Published in｜Time | Author                                                       |
+| ------------------------------------------------------------ | ------------------ | ------------------------------------------------------------ |
+| Wide & Deep Learning for Recommender Systems｜WDL            | DLRS｜2016         | Google Inc.                                                  |
+| Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|Deep Crossing | KDD\|2016          | Microsoft Research                                           |
+| Product-based Neural Networks for User Response Prediction\|PNN | ICDM\|2016         | Shanghai Jiao Tong University                                |
+| Deep & Cross Network for Ad Click Predictions｜DCN           | ADKDD\|2017        | Stanford University｜Google Inc.                             |
+| Neural Factorization Machines for Sparse Predictive Analytics\|NFM | SIGIR\|2017        | Xiangnan He                                                  |
+| Neural network-based Collaborative Filtering\|NCF            | WWW\|2017          | Xiangnan He                                                  |
+| Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|AFM | IJCAI｜2017        | Zhejiang University\|National University of Singapore        |
+| DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|DeepFM | IJCAI｜2017        | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
+| xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|xDeepFM | KDD\|2018          | University of Science and Technology of China                |
+|                                                              |                    |                                                              |
+
+序列模型：
+
+| Paper｜Model                                                 | Published in｜Time | Author        |
+| ------------------------------------------------------------ | ------------------ | ------------- |
+| Deep Interest Network for Click-Through Rate Prediction\|DIN | KDD\|2018          | Alibaba Group |
+
+
+
 ### 1. Neural network-based Collaborative Filtering（NCF）
 
 **模型：**
