@@ -1,5 +1,5 @@
 <div>
-  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_0.png' width='40%'/>
+  <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/logo.jpg' width='36%'/>
 </div>
 
 ## 前言
