@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 10000
+    sample_num = 100000
     test_size = 0.2
 
     k = 10
@@ -43,6 +43,7 @@ if __name__ == '__main__':
     test_X, test_y = test
     # ============================Build Model==========================
     model = FM(feature_columns=feature_columns, k=k)
+    model.summary()
     # ============================model checkpoint======================
     # check_path = '../save/fm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
