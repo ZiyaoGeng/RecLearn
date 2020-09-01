@@ -8,45 +8,31 @@
   <img src='https://img.shields.io/badge/python-3.7-blue'>
   <img src='https://img.shields.io/badge/NumPy-1.17-brightgreen'>
   <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
+  <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-本人在读研一，推荐系统方向，和各位一样，在推荐算法这条路愈走愈远，无法自拔。开源项目`Recommended System with TF2.0`主要是对**阅读过的部分推荐系统、CTR预估论文进行复现**。建立的**原因**有三个：
+
+开源项目`Recommender System with TF2.0`主要是对阅读过的部分推荐系统、CTR预估论文进行复现，包括**传统模型**（MF、FM、FFM等）、**神经网络模型**（WDL、DCN等）以及**序列模型**（DIN）。建立的**原因**有三个：
 
 1. 理论和实践似乎有很大的间隔，学术界与工业界的差距更是如此；
 2. 更好的理解论文的核心内容，增强自己的工程能力；
 3. 很多论文给出的开源代码都是TF1.x，因此想要用更简单的TF2.0进行复现；
 
-当然也看过一些知名的开源项目，如[DeepCTR](https://github.com/shenweichen/DeepCTR)等，不过对自己目前的水平来说，只适合拿来参考。
-
 **项目特点：**
 
 - 使用Tensorflow2.0进行复现；
 - 每个模型都是相互独立的，不存在依赖关系；
-- 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集。如果论文给出github代码，会进行参考；
+- 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集；
 - 对于[实验数据集](#数据集介绍)有专门详细的介绍；
+- 包含[模型结构文档](./~document/model_document.md)；
 - 代码源文件参数、函数命名规范，并且带有标准的注释；
-- 每个模型会有专门的代码文档（`.md文件`）或者其他方式进行解释；
 
-## 目录
 
-目前**复现的模型**有（按复现时间进行排序）：
-
-1. [NCF](#1-neural-network-based-collaborative-filteringncf)
-2. [DIN](#2-deep-interest-network-for-click-through-rate-predictiondin)
-3. [Wide&Deep](#3-wide--deep-learning-for-recommender-systems)
-4. [DCN](#4-deep--cross-network-for-ad-click-predictions)
-5. [PNN](#5product-based-neural-networks-for-user-response-prediction)
-6. [Deep Crossing](#6-deep-crossing-web-scale-modeling-without-manually-crafted-combinatorial-features)
-7. [DeepFM](#7-deepfm-a-factorization-machine-based-neural-network-for-ctr-prediction)
-8. [NFM](#8-neural-factorization-machines-for-sparse-predictive-analytics)
-9. [AFM](#9-attentional-factorization-machines-learning-the-weight-of-feature-interactions-via-attention-networks)
-10. [xDeepFM](#10-xdeepfm-combining-explicit-and-implicit-feature-interactions-for-recommender-systems)
-11. [FM](#11-factorization-machines)
-12. [FFM](#12-field-aware-factorization-machines-for-ctr-prediction)
-13. [MF](#13-matrix-factorization-techniques-for-recommender-systems)
 
 ## 更新
+
+2020.09.01：更新README；
 
 2020.08.31：MF模型【采用显示反馈，在基础MF上加入bias】；
 
@@ -64,7 +50,7 @@
 
 2020.07.31：DeepFM模型；
 
-2020.07.29：[PNN代码文档](./PNN/PNN_document.md)更新；
+2020.07.29：PNN代码文档更新；
 
 2020.07.28：更改ReadMe介绍；
 
@@ -79,6 +65,16 @@
 2020.05.26：DIN模型；
 
 2020.03.27：NCF模型；
+
+
+
+## 实验
+
+1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
+
+2、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
+
+3、设置`超参数`，直接运行即可；
 
 
 
@@ -118,305 +114,53 @@ Criteo数据集的具体介绍与处理：[传送门](~document/Dataset%20Introd
 
 ## 复现论文
 
-传统模型：
+### 1. 传统推荐模型
 
-| Paper\|Model                                                | Published in\|Time          | Author                       |
-| ----------------------------------------------------------- | --------------------------- | ---------------------------- |
-| Matrix Factorization Techniques for Recommender Systems\|MF | IEEE Computer Society\|2009 | Koren\|Yahoo Research        |
-| Factorization Machines\|FM                                  | ICDM｜2010                  | Steffen Rendle               |
-| Field-aware Factorization Machines for CTR Prediction｜FFM  | RecSys｜2016                | Yuchin Juan｜Criteo Research |
-| 基于神经网络的模型：                                        |                             |                              |
 
-| Paper｜Model                                                 | Published in｜Time | Author                                                       |
-| ------------------------------------------------------------ | ------------------ | ------------------------------------------------------------ |
-| Wide & Deep Learning for Recommender Systems｜WDL            | DLRS｜2016         | Google Inc.                                                  |
-| Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|Deep Crossing | KDD\|2016          | Microsoft Research                                           |
-| Product-based Neural Networks for User Response Prediction\|PNN | ICDM\|2016         | Shanghai Jiao Tong University                                |
-| Deep & Cross Network for Ad Click Predictions｜DCN           | ADKDD\|2017        | Stanford University｜Google Inc.                             |
-| Neural Factorization Machines for Sparse Predictive Analytics\|NFM | SIGIR\|2017        | Xiangnan He                                                  |
-| Neural network-based Collaborative Filtering\|NCF            | WWW\|2017          | Xiangnan He                                                  |
-| Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|AFM | IJCAI｜2017        | Zhejiang University\|National University of Singapore        |
-| DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|DeepFM | IJCAI｜2017        | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
-| xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|xDeepFM | KDD\|2018          | University of Science and Technology of China                |
-|                                                              |                    |                                                              |
 
-序列模型：
+|                        Paper\|Model                         |        Published in        |            Author            |
+| :---------------------------------------------------------: | :------------------------: | :--------------------------: |
+| Matrix Factorization Techniques for Recommender Systems\|MF | IEEE Computer Society,2009 |    Koren\|Yahoo Research     |
+|                 Factorization Machines\|FM                  |         ICDM, 2010         |        Steffen Rendle        |
+| Field-aware Factorization Machines for CTR Prediction｜FFM  |        RecSys, 2016        | Yuchin Juan｜Criteo Research |
 
-| Paper｜Model                                                 | Published in｜Time | Author        |
-| ------------------------------------------------------------ | ------------------ | ------------- |
-| Deep Interest Network for Click-Through Rate Prediction\|DIN | KDD\|2018          | Alibaba Group |
 
 
+### 2. 基于神经网络的模型
 
-### 1. Neural network-based Collaborative Filtering（NCF）
 
-**模型：**
 
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_1.png" width="40%"/></div>
+|                         Paper｜Model                         | Published in |                            Author                            |
+| :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
+|      Wide & Deep Learning for Recommender Systems｜WDL       |  DLRS, 2016  |                         Google Inc.                          |
+| Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|Deep Crossing |  KDD, 2016   |                      Microsoft Research                      |
+| Product-based Neural Networks for User Response Prediction\|PNN |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
+|      Deep & Cross Network for Ad Click Predictions｜DCN      | ADKDD, 2017  |               Stanford University｜Google Inc.               |
+| Neural Factorization Machines for Sparse Predictive Analytics\|NFM | SIGIR, 2017  |                         Xiangnan He                          |
+|      Neural network-based Collaborative Filtering\|NCF       |  WWW, 2017   |                         Xiangnan He                          |
+| Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|AFM | IJCAI, 2017  |    Zhejiang University\|National University of Singapore     |
+| DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|DeepFM | IJCAI, 2017  | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
+| xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|xDeepFM |  KDD, 2018   |        University of Science and Technology of China         |
 
-**数据集：**
 
-Movielens、Pinterest
 
-**代码解析：**
+### 3. 序列模型
 
-**原文开源代码：**
 
-https://github.com/hexiangnan/neural_collaborative_filtering
 
-**原文笔记：**
+| Paper｜Model                                                 | Published in | Author        |
+| ------------------------------------------------------------ | ------------ | ------------- |
+| Deep Interest Network for Click-Through Rate Prediction\|DIN | KDD, 2018    | Alibaba Group |
 
-**目录：**[返回目录  ](#目录)
 
 
 
-### 2. Deep Interest Network for Click-Through Rate Prediction(DIN)
 
-**模型：**
+## 联系方式
 
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_2.png" width="40%;" style="float:center"/></div>
+1、对于项目有任何建议或问题，可以在`Issue`留言，或者可以添加作者微信`zgzjhzgzy`。
 
-**数据集：**
+2、作者有一个自己的公众号：`推荐算法的小齿轮`，如果喜欢里面的内容，不妨点个关注。
 
-Amazon数据集中Electronics子集。
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="30%"/></div>
 
-**代码解析：**
-
-https://zhuanlan.zhihu.com/p/144153291
-
-**参考原文开源代码地址：**
-
-https://github.com/zhougr1993/DeepInterestNetwork
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
-
-**目录：**[返回目录  ](#目录)
-
-  
-
-### 3. Wide & Deep Learning for Recommender Systems
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_3.png" width="60%;" style="float:center"/></div>
-
-**数据集：**
-
-由于原文没有给出公开数据集，所以在此我们使用Amazon Dataset中的Electronics子集，由于数据集的原因，模型可能与原文的有所出入，但整体思想还是不变的。
-
-**代码解析：**
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/LRghf8mj1hjUYri_m3AzBg
-
-  **目录：**[返回目录  ](#目录)
-
-
-
-### 4. Deep & Cross Network for Ad Click Predictions
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_4.png" width="40%;" style="float:center"/></div>
-
-**数据集：**
-
-Criteo
-
-**代码解析：**
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
-
-  **目录：**[返回目录  ](#目录)
-
-
-
-### 5.Product-based Neural Networks for User Response Prediction
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_5.png" width="40%;" style="float:center"/></div>
-
-**数据集：**
-
-Criteo
-
-**代码解析：**
-
-[PNN代码文档](./PNN/PNN_document.md)
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/GMQd5RTmGPuxbokoHZs3eg
-
-**目录：**[返回目录  ](#目录)
-
-
-
-
-### 6. Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_6.png" width="40%;" style="float:center"/></div>
-
-**数据集：**
-
-Crieto
-
-**代码解析：**
-
-[Deep Crossing代码文档](./~document/Deep_Crossing_document.md)
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 7. DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_7.png" width="40%;" style="float:center"/></div>
-
-**数据集：**
-
-Crieto
-
-**代码解析：**
-
-[DeepFM代码文档](./~document/DeepFM_document.md)
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/bxYag1GcJABkwwz0NmLI5g
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 8. Neural Factorization Machines for Sparse Predictive Analytics
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_8.png" width="40%;" style="float:center"/></div>
-
-**数据集：**
-
-Crieto
-
-**代码解析：**
-
-[NFM代码文档](./~document/NFM_document.md)
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 9. Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_9.png" width="50%;" style="float:center"/></div>
-
-**数据集：**
-
-Crieto
-
-**原文开源代码：**
-
-https://github.com/hexiangnan/attentional_factorization_machine
-
-**代码解析：**
-
-[AFM代码文档](./~document/AFM_document.md)
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/hPCS9Dw2vT2pwdWwPo0EJg
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 10. xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems
-
-**模型：**
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_10.png" width="50%;" style="float:center"/></div>
-
-**数据集：**
-
-Criteo
-
-**原文开源代码：**
-
-https://github.com/Leavingseason/xDeepFM
-
-**原文笔记：**
-
-https://mp.weixin.qq.com/s/TohOmVpQzNlA3vXv0gpobg
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 11. Factorization Machines
-
-**数据集：**
-
-Criteo
-
-**原文笔记：**
-
-https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 12. Field-aware Factorization Machines for CTR Prediction
-
-**数据集：**
-
-Criteo
-
-**C++包：**
-
-https://github.com/ycjuan/libffm
-
-【注】FFM复现只是为了让自己更清楚其构造，但是真正在场景或比赛中应用的话，还是调取上述包。因为自己不会优化，两个for循环太慢了。
-
-**原文笔记**：
-
-https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html
-
-**目录：**[返回目录  ](#目录)
-
-
-
-### 13. Matrix Factorization Techniques for Recommender Systems
-
-**数据集：**
-
-ml-1m
-
-**目录：**[返回目录  ](#目录)
-
-## 附
-
-公众号：**潜心的Python小屋**，欢迎大家关注。
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_weixin.png" width="30%;" style="float:center"/></div>
