@@ -31,6 +31,8 @@
 
 
 
+&nbsp;
+
 ## 更新
 
 2020.09.01：更新README；
@@ -69,6 +71,8 @@
 
 
 
+&nbsp;
+
 ## 实验
 
 1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
@@ -79,7 +83,7 @@
 
 
 
-
+&nbsp;
 
 ## 复现论文
 
@@ -93,7 +97,7 @@
 |                Factorization Machines\|**FM**                |         ICDM, 2010         |        Steffen Rendle        |
 | Field-aware Factorization Machines for CTR Prediction｜**FFM** |        RecSys, 2016        | Yuchin Juan｜Criteo Research |
 
-
+&nbsp;
 
 ### 2. 基于神经网络的模型
 
@@ -111,11 +115,9 @@
 | DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|**DeepFM** | IJCAI, 2017  | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
 | xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**xDeepFM** |  KDD, 2018   |        University of Science and Technology of China         |
 
-
+&nbsp;
 
 ### 3. 序列模型
-
-
 
 | Paper｜Model                                                 | Published in | Author        |
 | ------------------------------------------------------------ | ------------ | ------------- |
@@ -123,7 +125,7 @@
 
 
 
-
+&nbsp;
 
 ## 联系方式
 
