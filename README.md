@@ -83,6 +83,7 @@
 | Paper｜Model                                                 | Published in | Author        |
 | ------------------------------------------------------------ | ------------ | ------------- |
 | Deep Interest Network for Click-Through Rate Prediction\|**DIN** | KDD, 2018    | Alibaba Group |
+| Self-Attentive Sequential Recommendation｜**SASRec**         | ICDM, 2018   | UCSD          |
 
 
 
