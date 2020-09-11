@@ -61,7 +61,7 @@ class SASRec(tf.keras.Model):
         x = dense_inputs
         for i in range(self.other_sparse_len):
             x = tf.concat([x, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
-        pos_encoding = tf.expand_dims(self.positional_encoding(seq_inputs), axis=0)
+        # pos_encoding = tf.expand_dims(self.positional_encoding(seq_inputs), axis=0)
         seq_embed, item_embed = None, None
         for i in range(self.feq_len):
             seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
@@ -69,21 +69,20 @@ class SASRec(tf.keras.Model):
             item_embed = self.embed_seq_layers[i](item_inputs[:, i]) if item_embed is None \
                 else item_embed + self.embed_seq_layers[i](item_inputs[:, i])
 
-        seq_embed += pos_encoding
+        # seq_embed += pos_encoding
         att_outputs = seq_embed
         for block in self.attention_block:
             att_outputs = block(att_outputs)
-
         att_outputs = Flatten()(att_outputs)
-
-        x = tf.concat([att_outputs, x], axis=-1)
-        x = self.dense(x)
+        # x = tf.concat([att_outputs, x], axis=-1)
+        # x = self.dense(x)
+        x = self.dense(att_outputs)
         # Predict
         outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(x, item_embed), axis=1, keepdims=True))
         return outputs
 
     def positional_encoding(self, seq_inputs):
-        encoded_vec = [pos / tf.pow(10000, 2 * i / tf.cast(self.d_model, dtype=tf.float32))
+        encoded_vec = [pos / tf.pow(10000.0, 2 * i / tf.cast(self.d_model, dtype=tf.float32))
                        for pos in range(seq_inputs.shape[-1]) for i in range(self.item_embed)]
         encoded_vec[::2] = tf.sin(encoded_vec[::2])
         encoded_vec[1::2] = tf.cos(encoded_vec[1::2])
@@ -111,4 +110,4 @@ def test_model():
     model.summary()
 
 
-test_model()
+# test_model()

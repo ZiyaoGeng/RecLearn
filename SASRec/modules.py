@@ -33,9 +33,8 @@ def scaled_dot_product_attention(q, k, v, causality=True):
 
     # Causality
     if causality:
-        diag_vals = tf.ones_like(outputs[0, :, :])  # (seq_len, seq_len)
-        tril = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  # (seq_len, seq_len)
-        masks = tf.tile(tf.expand_dims(tril, 0), [outputs.shape[0], 1, 1])  # (None, seq_len, seq_len)
+        diag_vals = tf.ones_like(outputs)  # (seq_len, seq_len)
+        masks = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  # (seq_len, seq_len)
 
         paddings = tf.ones_like(masks) * (-2 ** 32 + 1)
         outputs = tf.where(tf.equal(masks, 0), paddings, outputs)  # (None, seq_len, seq_len)
