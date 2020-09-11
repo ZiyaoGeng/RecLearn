@@ -8,7 +8,7 @@ modules of SASRec: attention mechanism, multi-head attention, self-attention blo
 
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Flatten
+from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Flatten, Conv1D
 
 
 def scaled_dot_product_attention(q, k, v, causality=True):
@@ -28,19 +28,19 @@ def scaled_dot_product_attention(q, k, v, causality=True):
     key_masks = tf.sign(tf.abs(tf.reduce_sum(k, axis=-1)))  # (None, seq_len)
     key_masks = tf.tile(tf.expand_dims(key_masks, 1), [1, q.shape[1], 1])  # (None, seq_len, seq_len)
 
-    paddings = tf.ones_like(scaled_att_logits) * (-2**32+1)
+    paddings = tf.ones_like(scaled_att_logits) * (-2 ** 32 + 1)
     outputs = tf.where(tf.equal(key_masks, 0), paddings, scaled_att_logits)  # (None, seq_len, seq_len)
 
     # Causality
     if causality:
-        diag_vals = tf.ones_like(outputs)  # (seq_len, seq_len)
-        masks = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  # (seq_len, seq_len)
+        diag_vals = tf.ones_like(outputs)  # (None, seq_len, seq_len)
+        masks = tf.linalg.LinearOperatorLowerTriangular(diag_vals).to_dense()  # (None, seq_len, seq_len)
 
         paddings = tf.ones_like(masks) * (-2 ** 32 + 1)
         outputs = tf.where(tf.equal(masks, 0), paddings, outputs)  # (None, seq_len, seq_len)
 
     # softmax
-    outputs = tf.nn.softmax(logits=outputs, axis=-1)  # (None, seq_len, seq_len)
+    outputs = tf.nn.softmax(logits=outputs)  # (None, seq_len, seq_len)
 
     # Query Masking
     query_masks = tf.sign(tf.abs(tf.reduce_sum(q, axis=-1)))  # (None, seq_len)
@@ -100,12 +100,12 @@ class FFN(Layer):
         :param d_model: A scalar. W2
         """
         super(FFN, self).__init__()
-        self.dense1 = Dense(hidden_unit, activation='relu')
-        self.dense2 = Dense(d_model, activation=None)
+        self.conv1 = Conv1D(filters=hidden_unit, kernel_size=1, activation='relu', use_bias=True)
+        self.conv2 = Conv1D(filters=d_model, kernel_size=1, activation=None, use_bias=True)
 
     def call(self, inputs):
-        x = self.dense1(inputs)
-        output = self.dense2(x)
+        x = self.conv1(inputs)
+        output = self.conv2(x)
         return output
 
 
@@ -132,14 +132,14 @@ class SelfAttentionBlock(Layer):
 
     def call(self, inputs):
         x = inputs
+        # self-attention
         att_out = self.mha(x, x, x)
         att_out = self.dropout1(att_out)
         # residual add
         out1 = self.layernorm1(x + att_out)
-
+        # ffn
         ffn_out = self.ffn(out1)
         ffn_out = self.dropout2(ffn_out)
-
         # residual add
         out2 = self.layernorm2(out1 + ffn_out)  # (None, seq_len, d_model)
         return out2

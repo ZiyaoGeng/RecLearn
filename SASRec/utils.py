@@ -1,7 +1,7 @@
 """
 Created on May 25, 2020
 
-create ml-1m dataset
+create implicit ml-1m dataset
 
 @author: Ziyao Geng
 """
@@ -45,8 +45,8 @@ def create_implicit_ml_1m_dataset(file, embed_dim=8, maxlen=40):
     data_df = pd.read_csv(file, sep="::", engine='python',
                      names=['user_id', 'item_id', 'label', 'Timestamp'])
     # implicit dataset
-    data_df.loc[data_df.label >= 3, 'label'] = 1
-    data_df.loc[data_df.label < 3, 'label'] = 0
+    data_df.loc[data_df.label >= 2, 'label'] = 1
+    data_df.loc[data_df.label < 2, 'label'] = 0
     # sort
     data_df = data_df.sort_values(by=['user_id', 'Timestamp'])
 
@@ -62,7 +62,7 @@ def create_implicit_ml_1m_dataset(file, embed_dim=8, maxlen=40):
                 neg = random.randint(1, item_count)
                 return neg
 
-        neg_list = [gen_neg() for i in range(len(pos_list) + 99)]
+        neg_list = [gen_neg() for i in range(len(pos_list) + 100)]
         for i in range(1, len(pos_list)):
             hist_i = pos_list[:i]
             if i == len(pos_list) - 1:
@@ -93,7 +93,7 @@ def create_implicit_ml_1m_dataset(file, embed_dim=8, maxlen=40):
     test = pd.DataFrame(test_data, columns=['hist', 'target_item', 'label'])
     # if no dense or sparse features, can fill with 0
     print('==================Padding===================')
-    train_X = [np.array([0] * len(train)), np.array([0] * len(train)),
+    train_X = [np.array([0.] * len(train)), np.array([0] * len(train)),
                np.expand_dims(pad_sequences(train['hist'], maxlen=maxlen), axis=1),
                train['target_item'].values]
     train_y = train['label'].values

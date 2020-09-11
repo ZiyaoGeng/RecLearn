@@ -27,13 +27,13 @@ if __name__ == '__main__':
     K = 10
     blocks = 2
     num_heads = 1
-    ffn_hidden_unit = 32
-    dropout = 0.5
+    ffn_hidden_unit = 256
+    dropout = 0.2
     norm_training = True
-    causality = True
+    causality = False
 
     learning_rate = 0.001
-    batch_size = 128
+    batch_size = 512
     epochs = 5
     # ========================== Create dataset =======================
     feature_columns, behavior_list, train, val, test = create_implicit_ml_1m_dataset(file, embed_dim, maxlen)
