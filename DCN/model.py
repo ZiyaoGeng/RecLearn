@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Embedding, Concatenate, Dense, Layer, Dropout
+from tensorflow.keras.layers import Embedding, Dense, Layer, Dropout
 
 
 class CrossNetwork(Layer):
