@@ -7,10 +7,11 @@ train DCN model
 """
 
 import tensorflow as tf
-import datetime
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
+
 from utils import create_criteo_dataset
 from model import DCN
 
@@ -22,8 +23,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = '../dataset/Criteo/train.txt'
+    # file = '../dataset/Criteo/demo.txt'
     read_part = True
-    sample_num = 100000
+    sample_num = 5000000
     test_size = 0.2
 
     embed_dim = 8
@@ -31,8 +33,8 @@ if __name__ == '__main__':
     hidden_units = [256, 128, 64]
 
     learning_rate = 0.001
-    batch_size = 512
-    epochs = 5
+    batch_size = 4096
+    epochs = 10
     # ========================== Create dataset =======================
     feature_columns, train, test = create_criteo_dataset(file=file,
                                                          embed_dim=embed_dim,
@@ -42,7 +44,7 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = DCN(feature_columns, hidden_units, dnn_dropout)
+    model = DCN(feature_columns, hidden_units, dnn_dropout=dnn_dropout)
     model.summary()
     # ============================model checkpoint======================
     # check_path = 'save/dcn_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
@@ -56,9 +58,9 @@ if __name__ == '__main__':
         train_X,
         train_y,
         epochs=epochs,
-        # callbacks=[tensorboard, checkpoint],
-        batch_size=128,
-        validation_split=0.2
+        callbacks=[EarlyStopping(monitor='val_loss', patience=2)],  # checkpoint
+        batch_size=batch_size,
+        validation_split=0.1
     )
     # ===========================Test==============================
     print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
