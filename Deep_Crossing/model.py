@@ -41,8 +41,8 @@ class Deep_Crossing(keras.Model):
         Deep&Crossing
         :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
         :param hidden_units: A list. Neural network hidden units.
-        :param res_dropout: A scalar. Dropout of resnet
-        :param embed_reg: A scalar. The regularizer of embedding
+        :param res_dropout: A scalar. Dropout of resnet.
+        :param embed_reg: A scalar. The regularizer of embedding.
         """
         super(Deep_Crossing, self).__init__()
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
