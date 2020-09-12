@@ -67,7 +67,7 @@
 |                         Paper｜Model                         | Published in |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
 |    Wide & Deep Learning for Recommender Systems｜**WDL**     |  DLRS, 2016  |                         Google Inc.                          |
-| Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Deep-&-Cross-Network)** |  KDD, 2016   |                      Microsoft Research                      |
+| Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Deep-Crossing)** |  KDD, 2016   |                      Microsoft Research                      |
 | Product-based Neural Networks for User Response Prediction\|**PNN** |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
 | Deep & Cross Network for Ad Click Predictions｜[**DCN**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Deep-&-Cross-Network) | ADKDD, 2017  |               Stanford University｜Google Inc.               |
 | Neural Factorization Machines for Sparse Predictive Analytics\|**NFM** | SIGIR, 2017  |                         Xiangnan He                          |
