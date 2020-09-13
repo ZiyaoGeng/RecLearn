@@ -10,23 +10,46 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Input
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Embedding, Concatenate, Dense, Layer, Dropout
+from tensorflow.keras.layers import Embedding, Dense, Layer, Dropout
+
+
+class DNN(Layer):
+    """
+	Deep Neural Network
+	"""
+
+    def __init__(self, hidden_units, activation='relu', dropout=0.):
+        """
+		:param hidden_units: A list. Neural network hidden units.
+		:param activation: A string. Activation function of dnn.
+		:param dropout: A scalar. Dropout number.
+		"""
+        super(DNN, self).__init__()
+        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
+        self.dropout = Dropout(dropout)
+
+    def call(self, inputs, **kwargs):
+        x = inputs
+        for dnn in self.dnn_network:
+            x = dnn(x)
+        x = self.dropout(x)
+        return x
 
 
 class PNN(keras.Model):
     def __init__(self, feature_columns, hidden_units, mode='in', dnn_dropout=0.,
                  activation='relu', embed_reg=1e-4, w_z_reg=1e-4, w_p_reg=1e-4, l_b_reg=1e-4):
         """
-        PNN architecture
-        :param feature_columns: a list containing dense and sparse column feature information
-        :param hidden_units: a list of dnn hidden units
-        :param mode: IPNN or OPNN
-        :param dnn_dropout: dropout of dnn
-        :param activation: activation function of dnn
-        :param embed_reg: the regularizer of embedding
-        :param w_z_reg: the regularizer of w_z_ in product layer
-        :param w_p_reg: the regularizer of w_p in product layer
-        :param l_b_reg: the regularizer of l_b in product layer
+        Product-based Neural Networks
+        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
+        :param hidden_units: A list. Neural network hidden units.
+        :param mode: A string. 'in' IPNN or 'out'OPNN.
+        :param activation: A string. Activation function of dnn.
+        :param dnn_dropout: A scalar. Dropout of dnn.
+        :param embed_reg: A scalar. The regularizer of embedding.
+        :param w_z_reg: A scalar. The regularizer of w_z_ in product layer
+        :param w_p_reg: A scalar. The regularizer of w_p in product layer
+        :param l_b_reg: A scalar. The regularizer of l_b in product layer
         """
         super(PNN, self).__init__()
         # inner product or outer product
@@ -34,7 +57,7 @@ class PNN(keras.Model):
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         # the number of feature fields
         self.field_num = len(self.sparse_feature_columns)
-        # embedding layers
+        self.embed_dim = self.sparse_feature_columns[0]['embed_dim']
         # The embedding dimension of each feature field must be the same
         self.embed_layers = {
             'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
@@ -68,36 +91,33 @@ class PNN(keras.Model):
                                    initializer='random_uniform',
                                    regularizer=l2(l_b_reg),
                                    trainable=True)
-        self.concat = Concatenate(axis=-1)
         # dnn
-        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units[1:]]
-        self.dropout = Dropout(dnn_dropout)
+        self.dnn_network = DNN(hidden_units[1:], activation, dnn_dropout)
         self.dense_final = Dense(1)
 
     def call(self, inputs):
         dense_inputs, sparse_inputs = inputs
-        embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
-        embed = tf.transpose(tf.convert_to_tensor(embed), [1, 0, 2])
-        z = embed
+        embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
+                 for i in range(sparse_inputs.shape[1])]
+        embed = tf.transpose(tf.convert_to_tensor(embed), [1, 0, 2])  # (None, field_num, embed_dim)
+        z = embed  # (None, field, embed_dim)
         # product layer
         if self.mode == 'in':
-            p = tf.matmul(embed, tf.transpose(embed, [0, 2, 1]))
-        else:
-            f_sum = tf.reduce_sum(embed, axis=1, keepdims=True)
-            p = tf.matmul(tf.transpose(f_sum, [0, 2, 1]), f_sum)
+            p = tf.matmul(embed, tf.transpose(embed, [0, 2, 1]))  # (None, field_num, field_num)
+        else:  # out
+            f_sum = tf.reduce_sum(embed, axis=1, keepdims=True)  # (None, 1 embed_num)
+            p = tf.matmul(tf.transpose(f_sum, [0, 2, 1]), f_sum)  # (None, embed_num, embed_num)
 
-        l_z = tf.tensordot(z, self.w_z, axes=2)
-        l_p = tf.tensordot(p, self.w_p, axes=2)
-        l_1 = tf.nn.relu(self.concat([l_z + l_p + self.l_b, dense_inputs]))
+        l_z = tf.tensordot(z, self.w_z, axes=2)  # (None, h_unit)
+        l_p = tf.tensordot(p, self.w_p, axes=2)  # (None, h_unit)
+        l_1 = tf.nn.relu(tf.concat([l_z + l_p + self.l_b, dense_inputs], axis=-1))
         # dnn layer
-        dnn_x = l_1
-        for dense in self.dnn_network:
-            dnn_x = dense(dnn_x)
-        dnn_x = self.dropout(dnn_x)
+        dnn_x = self.dnn_network(l_1)
         outputs = tf.nn.sigmoid(self.dense_final(dnn_x))
         return outputs
 
     def summary(self):
         dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
         sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
-        keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
+        keras.Model(inputs=[dense_inputs, sparse_inputs],
+                    outputs=self.call([dense_inputs, sparse_inputs])).summary()

@@ -45,7 +45,7 @@ def create_criteo_dataset(file, embed_dim=8, read_part=True, sample_num=100000, 
     :param embed_dim: the embedding dimension of sparse features
     :param read_part: whether to read part of it
     :param sample_num: the number of instances if read_part is True
-    :param test_size: ratio of train dataset to test dataset
+    :param test_size: ratio of test dataset
     :return: feature columns, train, test
     """
     names = ['label', 'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10', 'I11',
