@@ -9,7 +9,7 @@ model: Neural Factorization Machines for Sparse Predictive Analytics
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Embedding, Dropout, Concatenate, Dense, Input, BatchNormalization
+from tensorflow.keras.layers import Embedding, Dropout, Layer, Dense, Input, BatchNormalization
 
 
 class DNN(Layer):
@@ -56,7 +56,8 @@ class NFM(keras.Model):
                                          embeddings_regularizer=l2(embed_reg))
             for i, feat in enumerate(self.sparse_feature_columns)
         }
-        self.bn = BatchNormalization(training=bn_use)
+        self.bn = BatchNormalization()
+        self.bn_use = bn_use
         self.dnn_network = DNN(hidden_units, activation, dnn_dropout)
         self.dense = Dense(1)
 
@@ -73,12 +74,9 @@ class NFM(keras.Model):
         # Concat
         x = tf.concat([dense_inputs, embed], axis=-1)
         # BatchNormalization
-        x = self.bn(x)
+        x = self.bn(x, training=self.bn_use)
         # Hidden Layers
-        for dnn in self.dnn_network:
-            x = dnn(x)
-        # Dropout
-        x = self.dropout(x)
+        x = self.dnn_network(x)
         outputs = tf.nn.sigmoid(self.dense(x))
         return outputs
 
