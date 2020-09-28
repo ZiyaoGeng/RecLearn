@@ -20,9 +20,9 @@ class FM(layers.Layer):
 	def __init__(self, k=10, w_reg=1e-4, v_reg=1e-4):
 		"""
 
-		:param k: the dimension of the latent vector
-		:param w_reg: the regularization coefficient of parameter w
-		:param v_reg: the regularization coefficient of parameter v
+		:param k: A scalar. The dimension of the latent vector.
+		:param w_reg: A scalar. The regularization coefficient of parameter w.
+		:param v_reg: A scalar. The regularization coefficient of parameter v.
 		"""
 		super(FM, self).__init__()
 		self.k = k
@@ -59,9 +59,9 @@ class DNN(layers.Layer):
 	def __init__(self, hidden_units, activation='relu', dnn_dropout=0.):
 		"""
 		DNN part
-		:param hidden_units: list of hidden layer units's numbers
-		:param activation: activation function
-		:param dnn_dropout: dropout number
+		:param hidden_units: A list. List of hidden layer units's numbers
+		:param activation: A string. Activation function
+		:param dnn_dropout: A scalar. dropout number
 		"""
 		super(DNN, self).__init__()
 		self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
@@ -80,14 +80,14 @@ class DeepFM(keras.Model):
 				 activation='relu', fm_w_reg=1e-4, fm_v_reg=1e-4, embed_reg=1e-4):
 		"""
 		DeepFM
-		:param feature_columns: a list containing dense and sparse column feature information
-		:param k: fm's latent vector number
-		:param hidden_units: a list of dnn hidden units
-		:param dnn_dropout: dropout of dnn
-		:param activation: activation function of dnn
-		:param fm_w_reg: the regularizer of w in fm
-		:param fm_v_reg: the regularizer of v in fm
-		:param embed_reg: the regularizer of embedding
+		:param feature_columns: A list. a list containing dense and sparse column feature information.
+		:param k: A scalar. fm's latent vector number.
+		:param hidden_units: A list. A list of dnn hidden units.
+		:param dnn_dropout: A scalar. Dropout of dnn.
+		:param activation: A string. Activation function of dnn.
+		:param fm_w_reg: A scalar. The regularizer of w in fm.
+		:param fm_v_reg: A scalar. The regularizer of v in fm.
+		:param embed_reg: A scalar. The regularizer of embedding.
 		"""
 		super(DeepFM, self).__init__()
 		self.dense_feature_columns, self.sparse_feature_columns = feature_columns
