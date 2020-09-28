@@ -58,7 +58,7 @@ class DNN(layers.Layer):
 	"""
 	def __init__(self, hidden_units, activation='relu', dnn_dropout=0.):
 		"""
-
+		DNN part
 		:param hidden_units: list of hidden layer units's numbers
 		:param activation: activation function
 		:param dnn_dropout: dropout number
@@ -79,7 +79,7 @@ class DeepFM(keras.Model):
 	def __init__(self, feature_columns, k=10, hidden_units=(200, 200, 200), dnn_dropout=0.,
 				 activation='relu', fm_w_reg=1e-4, fm_v_reg=1e-4, embed_reg=1e-4):
 		"""
-		DeepFM architecture
+		DeepFM
 		:param feature_columns: a list containing dense and sparse column feature information
 		:param k: fm's latent vector number
 		:param hidden_units: a list of dnn hidden units
@@ -114,13 +114,15 @@ class DeepFM(keras.Model):
 
 	def call(self, inputs, **kwargs):
 		dense_inputs, sparse_inputs = inputs
-		stack = dense_inputs
-		for i in range(sparse_inputs.shape[1]):
-			embed_i = self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
-			stack = tf.concat([stack, embed_i], axis=-1)
+		sparse_embed = tf.concat([self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
+                                  for i in range(sparse_inputs.shape[1])], axis=-1)
+		stack = tf.concat([dense_inputs, sparse_embed], axis=-1)
+		# wide
 		wide_outputs = self.fm(stack)
+		# deep
 		deep_outputs = self.dnn(stack)
 		deep_outputs = self.dense(deep_outputs)
+
 		outputs = tf.nn.sigmoid(
 			tf.add(tf.add(self.w1 * wide_outputs, self.w2 * deep_outputs), self.bias))
 		return outputs
@@ -129,4 +131,3 @@ class DeepFM(keras.Model):
 		dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
 		sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
 		keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
-
