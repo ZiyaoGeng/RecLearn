@@ -97,7 +97,3 @@
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="30%"/></div>
 
-$$
-(\mu-\sigma,\mu+\sigma)
-$$
-
