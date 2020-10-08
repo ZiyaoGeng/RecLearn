@@ -74,7 +74,7 @@
 |    Neural network-based Collaborative Filtering\|**NCF**     |  WWW, 2017   |                         Xiangnan He                          |
 | Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|**[AFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Attentional-Factorization-Machines)** | IJCAI, 2017  |    Zhejiang University\|National University of Singapore     |
 | DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|**[DeepFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/DeepFM)** | IJCAI, 2017  | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
-| xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**xDeepFM** |  KDD, 2018   |        University of Science and Technology of China         |
+| xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**[xDeepFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/xDeepFM)** |  KDD, 2018   |        University of Science and Technology of China         |
 
 &nbsp;
 

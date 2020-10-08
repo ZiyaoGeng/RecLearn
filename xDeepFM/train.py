@@ -8,6 +8,7 @@ train xDeepFM model
 
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
 from utils import create_criteo_dataset
@@ -23,17 +24,17 @@ if __name__ == '__main__':
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 100000
+    sample_num = 500000
     test_size = 0.2
 
     embed_dim = 8
     dnn_dropout = 0.5
     hidden_units = [256, 128, 64]
-    cin_size = (128, 128)
+    cin_size = [128, 128]
 
     learning_rate = 0.001
-    batch_size = 512
-    epochs = 5
+    batch_size = 4096
+    epochs = 10
     # ========================== Create dataset =======================
     feature_columns, train, test = create_criteo_dataset(file=file,
                                                          embed_dim=embed_dim,
@@ -57,7 +58,7 @@ if __name__ == '__main__':
         train_X,
         train_y,
         epochs=epochs,
-        # callbacks=[checkpoint],
+        callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
         batch_size=batch_size,
         validation_split=0.1
     )
