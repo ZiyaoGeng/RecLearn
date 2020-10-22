@@ -60,18 +60,18 @@
 
 &nbsp;
 
-### 2. 基于神经网络的模型
-
-
+### 2. 经典神经网络的模型
 
 |                         Paper｜Model                         | Published in |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
+|                          **Match**                           |              |                                                              |
+| Neural network-based Collaborative Filtering\|[**NCF**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-network-based-Collaborative-Filtering) |  WWW, 2017   |                         Xiangnan He                          |
+|                           **CTR**                            |              |                                                              |
 | Wide & Deep Learning for Recommender Systems｜[**WDL**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Wide-&-Deep-Learning) |  DLRS, 2016  |                         Google Inc.                          |
 | Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Deep-Crossing)** |  KDD, 2016   |                      Microsoft Research                      |
 | Product-based Neural Networks for User Response Prediction\|[**PNN**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Product-based-Neural-Networks) |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
 | Deep & Cross Network for Ad Click Predictions｜[**DCN**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Deep-&-Cross-Network) | ADKDD, 2017  |               Stanford University｜Google Inc.               |
 | Neural Factorization Machines for Sparse Predictive Analytics\|**[NFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-Factorization-Machines)** | SIGIR, 2017  |                         Xiangnan He                          |
-|    Neural network-based Collaborative Filtering\|**NCF**     |  WWW, 2017   |                         Xiangnan He                          |
 | Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|**[AFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Attentional-Factorization-Machines)** | IJCAI, 2017  |    Zhejiang University\|National University of Singapore     |
 | DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|**[DeepFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/DeepFM)** | IJCAI, 2017  | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
 | xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**[xDeepFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/xDeepFM)** |  KDD, 2018   |        University of Science and Technology of China         |
@@ -80,10 +80,13 @@
 
 ### 3. 序列模型
 
-| Paper｜Model                                                 | Published in | Author        |
-| ------------------------------------------------------------ | ------------ | ------------- |
-| Deep Interest Network for Click-Through Rate Prediction\|**DIN** | KDD, 2018    | Alibaba Group |
-| Self-Attentive Sequential Recommendation｜**SASRec**         | ICDM, 2018   | UCSD          |
+|                         Paper｜Model                         | Published in |    Author     |
+| :----------------------------------------------------------: | :----------: | :-----------: |
+|                          **Match**                           |              |               |
+|     Self-Attentive Sequential Recommendation｜**SASRec**     |  ICDM, 2018  |     UCSD      |
+|                           **CTR**                            |              |               |
+| Deep Interest Network for Click-Through Rate Prediction\|**DIN** |  KDD, 2018   | Alibaba Group |
+|                                                              |              |               |
 
 
 
