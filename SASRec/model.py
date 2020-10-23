@@ -36,7 +36,7 @@ class SASRec(tf.keras.Model):
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
         self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
         self.dense_len = len(self.dense_feature_columns)
-        self.feq_len = len(behavior_feature_list)
+        self.seq_len = len(behavior_feature_list)
         self.item_embed = self.sparse_feature_columns[0]['embed_dim']
         # d_model must be the same as embedding_dim, because of residual connect
         self.d_model = self.item_embed
@@ -65,7 +65,7 @@ class SASRec(tf.keras.Model):
         for i in range(self.other_sparse_len):
             x = tf.concat([x, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
         seq_embed, item_embed = None, None
-        for i in range(self.feq_len):
+        for i in range(self.seq_len):
             seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
                 else seq_embed + self.embed_seq_layers[i](seq_inputs[:, i])
             item_embed = self.embed_seq_layers[i](item_inputs[:, i]) if item_embed is None \
@@ -95,8 +95,8 @@ class SASRec(tf.keras.Model):
     def summary(self):
         dense_inputs = Input(shape=(self.dense_len, ), dtype=tf.float32)
         sparse_inputs = Input(shape=(self.other_sparse_len, ), dtype=tf.int32)
-        seq_inputs = Input(shape=(self.feq_len, self.maxlen), dtype=tf.int32)
-        item_inputs = Input(shape=(self.feq_len, ), dtype=tf.int32)
+        seq_inputs = Input(shape=(self.seq_len, self.maxlen), dtype=tf.int32)
+        item_inputs = Input(shape=(self.seq_len, ), dtype=tf.int32)
         tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs, item_inputs],
                     outputs=self.call([dense_inputs, sparse_inputs, seq_inputs, item_inputs])).summary()
 
