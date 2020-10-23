@@ -21,7 +21,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
-    maxlen = 200
+    maxlen = 4
     embed_dim = 32
 
     K = 10
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     feature_columns, behavior_list, train, val, test = create_implicit_ml_1m_dataset(file, embed_dim, maxlen)
     train_X, train_y = train
     val_X, val_y = val
+
     # ============================Build Model==========================
     model = SASRec(feature_columns, behavior_list, blocks, num_heads, ffn_hidden_unit, dropout,
                    maxlen, norm_training, causality)
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         model.fit(
             train_X,
             train_y,
-            validation_data=[val_X, val_y],
+            validation_data=(val_X, val_y),
             epochs=1,
             # callbacks=[tensorboard, checkpoint],
             batch_size=batch_size,
