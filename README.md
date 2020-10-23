@@ -84,6 +84,7 @@
 | :----------------------------------------------------------: | :----------: | :-----------: |
 |                          **Match**                           |              |               |
 |     Self-Attentive Sequential Recommendation｜**SASRec**     |  ICDM, 2018  |     UCSD      |
+| STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **STAMP** |  KDD, 2018   |   Qiao Liu    |
 |                           **CTR**                            |              |               |
 | Deep Interest Network for Click-Through Rate Prediction\|**DIN** |  KDD, 2018   | Alibaba Group |
 |                                                              |              |               |
