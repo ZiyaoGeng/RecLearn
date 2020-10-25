@@ -16,8 +16,7 @@ from modules import *
 
 
 class STAMP(tf.keras.Model):
-    def __init__(self, feature_columns, behavior_feature_list, item_pooling, activation='tanh',
-                 maxlen=40, embed_reg=1e-4):
+    def __init__(self, feature_columns, behavior_feature_list, item_pooling, maxlen=40, activation='tanh', embed_reg=1e-4):
         """
         STAMP
         :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
@@ -61,9 +60,8 @@ class STAMP(tf.keras.Model):
         self.ffn2 = Dense(self.sparse_feature_columns[0]['embed_dim'], activation=activation)
 
     def call(self, inputs):
-        dense_inputs, sparse_inputs, seq_inputs, item_inputs = inputs
-
-        seq_inputs = tf.concat([seq_inputs, tf.expand_dims(item_inputs, axis=-1)], axis=-1)
+        dense_inputs, sparse_inputs, seq_inputs = inputs
+        
         x = dense_inputs
         # other
         for i in range(self.other_sparse_len):
@@ -73,14 +71,15 @@ class STAMP(tf.keras.Model):
         for i in range(self.seq_len):
             seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
                 else seq_embed + self.embed_seq_layers[i](seq_inputs[:, i])
-            m_t = self.embed_seq_layers[i](item_inputs[:, i]) if m_t is None \
-                else m_t + self.embed_seq_layers[i](item_inputs[:, i])  # (None, d)
+            m_t = self.embed_seq_layers[i](seq_inputs[:, i, -1]) if m_t is None \
+                else m_t + self.embed_seq_layers[i](seq_inputs[-1, i, -1])  # (None, d)
             item_pooling_embed = self.embed_seq_layers[i](self.item_pooling[:, i]) \
                 if item_pooling_embed is None \
                 else item_pooling_embed + self.embed_seq_layers[i](self.item_pooling[:, i])
         m_s = tf.reduce_sum(seq_embed, axis=1)  # (None, d)
         # attention
         m_a = self.attention_layer([seq_embed, m_s, m_t])  # (None, d)
+        # m_a = m_s
         # try to add other embedding vector
         if self.other_sparse_len != 0 or self.dense_len != 0:
             m_a = tf.concat([m_a, x], axis=-1)
@@ -99,13 +98,12 @@ class STAMP(tf.keras.Model):
         dense_inputs = Input(shape=(self.dense_len,), dtype=tf.float32)
         sparse_inputs = Input(shape=(self.other_sparse_len,), dtype=tf.int32)
         seq_inputs = Input(shape=(self.seq_len, self.maxlen), dtype=tf.int32)
-        item_inputs = Input(shape=(self.seq_len,), dtype=tf.int32)
-        tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs, item_inputs],
-                       outputs=self.call([dense_inputs, sparse_inputs, seq_inputs, item_inputs])).summary()
+        tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs],
+                       outputs=self.call([dense_inputs, sparse_inputs, seq_inputs])).summary()
 
 
 def test_model():
-    dense_features = [{'feat': 'a'}, {'feat': 'b'}]
+    dense_features = []  # [{'feat': 'a'}, {'feat': 'b'}]
     sparse_features = [{'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8},
                        {'feat': 'cate_id', 'feat_num': 100, 'embed_dim': 8},
                        {'feat': 'adv_id', 'feat_num': 100, 'embed_dim': 8}]
@@ -114,6 +112,7 @@ def test_model():
     features = [dense_features, sparse_features]
     model = STAMP(features, behavior_list, item_pooling)
     model.summary()
+    # model.compile(loss=CrossEntropy, optimizer=Adam(learning_rate=0.001))
 
 
-test_model()
+# test_model()
