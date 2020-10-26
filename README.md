@@ -97,7 +97,7 @@
    data_df.loc[data_df.label < 2, 'label'] = 0
    ```
 
-   应该颠倒，现在已经更正；
+   应该颠倒，已更正；
 
 
 
