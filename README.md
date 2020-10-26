@@ -80,18 +80,6 @@
 
 &nbsp;
 
-&nbsp;
-
-## 联系方式
-
-1、对于项目有任何建议或问题，可以在`Issue`留言，或者可以添加作者微信`zgzjhzgzy`。
-
-2、作者有一个自己的公众号：**推荐算法的小齿轮**，如果喜欢里面的内容，不妨点个关注。
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="30%"/></div>
-
-
-
 ## 致谢
 
 项目中会存在一些代码Bug，感谢以下朋友指出问题：
@@ -110,4 +98,16 @@
    ```
 
    应该颠倒，现在已经更正；
+
+
+
+&nbsp;
+
+## 联系方式
+
+1、对于项目有任何建议或问题，可以在`Issue`留言，或者可以添加作者微信`zgzjhzgzy`。
+
+2、作者有一个自己的公众号：**推荐算法的小齿轮**，如果喜欢里面的内容，不妨点个关注。
+
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="30%"/></div>
 
