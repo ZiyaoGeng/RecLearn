@@ -67,9 +67,9 @@
 
 |                         Paper｜Model                         | Published in |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
-| Wide & Deep Learning for Recommender Systems｜[**WDL**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Wide-&-Deep-Learning) |  DLRS, 2016  |                         Google Inc.                          |
+| Wide & Deep Learning for Recommender Systems｜[**WDL**](WDL) |  DLRS, 2016  |                         Google Inc.                          |
 | Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](Deep_Crossing)** |  KDD, 2016   |                      Microsoft Research                      |
-| Product-based Neural Networks for User Response Prediction\|[**PNN**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Product-based-Neural-Networks) |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
+| Product-based Neural Networks for User Response Prediction\|[**PNN**](PNN) |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
 | Deep & Cross Network for Ad Click Predictions｜[**DCN**](DCN) | ADKDD, 2017  |               Stanford University｜Google Inc.               |
 | Neural Factorization Machines for Sparse Predictive Analytics\|**[NFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-Factorization-Machines)** | SIGIR, 2017  |                         Xiangnan He                          |
 | Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks\|**[AFM](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Attentional-Factorization-Machines)** | IJCAI, 2017  |    Zhejiang University\|National University of Singapore     |
