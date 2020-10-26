@@ -5,8 +5,6 @@ model: STAMP: Short-Term Attention/Memory Priority Model for Session-based Recom
 
 @author: Ziyao Geng
 """
-
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Layer, Dense, LayerNormalization, \
@@ -24,18 +22,25 @@ class STAMP(tf.keras.Model):
         :param item_pooling: A Ndarray or Tensor, shape=(m, n),
         m is the number of items, and n is the number of behavior feature. The item pooling.
         :param activation: A String. The activation of FFN.
-        :param maxlen: A scalar. Number of length of sequence.
+        :param maxlen: A scalar. Maximum sequence length.
         :param embed_reg: A scalar. The regularizer of embedding.
         """
         super(STAMP, self).__init__()
+        # maximum sequence length
         self.maxlen = maxlen
+
         # item pooling
         self.item_pooling = item_pooling
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+
         # len
         self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
         self.dense_len = len(self.dense_feature_columns)
+        # if behavior feature list contains itemId and item category id, seq_len = 2
         self.seq_len = len(behavior_feature_list)
+
+        # embedding dim, each sparse feature embedding dimension is the same
+        self.embed_dim = self.sparse_feature_columns[0]['embed_dim']
 
         # other embedding layers
         self.embed_sparse_layers = [Embedding(input_dim=feat['feat_num'],
@@ -53,43 +58,60 @@ class STAMP(tf.keras.Model):
                                            embeddings_regularizer=l2(embed_reg))
                                  for feat in self.sparse_feature_columns
                                  if feat['feat'] in behavior_feature_list]
+
         # Attention
-        self.attention_layer = Attention_Layer(d=self.sparse_feature_columns[0]['embed_dim'])
+        self.attention_layer = Attention_Layer(d=self.embed_dim)
+
         # FNN, hidden unit must be equal to embedding dimension
-        self.ffn1 = Dense(self.sparse_feature_columns[0]['embed_dim'], activation=activation)
-        self.ffn2 = Dense(self.sparse_feature_columns[0]['embed_dim'], activation=activation)
+        self.ffn1 = Dense(self.embed_dim, activation=activation)
+        self.ffn2 = Dense(self.embed_dim, activation=activation)
 
     def call(self, inputs):
+        # dense_inputs and sparse_inputs is empty
         dense_inputs, sparse_inputs, seq_inputs = inputs
         
         x = dense_inputs
         # other
         for i in range(self.other_sparse_len):
             x = tf.concat([x, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
+
         # seq
         seq_embed, m_t, item_pooling_embed = None, None, None
         for i in range(self.seq_len):
+            # item sequence embedding
             seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
                 else seq_embed + self.embed_seq_layers[i](seq_inputs[:, i])
+            # last click item embedding
             m_t = self.embed_seq_layers[i](seq_inputs[:, i, -1]) if m_t is None \
                 else m_t + self.embed_seq_layers[i](seq_inputs[-1, i, -1])  # (None, d)
+            # item pooling embedding 
             item_pooling_embed = self.embed_seq_layers[i](self.item_pooling[:, i]) \
                 if item_pooling_embed is None \
-                else item_pooling_embed + self.embed_seq_layers[i](self.item_pooling[:, i])
-        m_s = tf.reduce_sum(seq_embed, axis=1)  # (None, d)
+                else item_pooling_embed + self.embed_seq_layers[i](self.item_pooling[:, i])  # (m, d)
+
+        # calculate m_s        
+        m_s = tf.reduce_mean(seq_embed, axis=1)  # (None, d)
+
         # attention
-        m_a = self.attention_layer([seq_embed, m_s, m_t])  # (None, d)
-        # m_a = m_s
+        # m_a = self.attention_layer([seq_embed, m_s, m_t])  # (None, d)
+        # if model is STMP, m_a = m_s
+        m_a = m_s
+
         # try to add other embedding vector
         if self.other_sparse_len != 0 or self.dense_len != 0:
             m_a = tf.concat([m_a, x], axis=-1)
             m_t = tf.concat([m_t, x], axis=-1)
+
         # FFN
         h_s = self.ffn1(m_a)  # (None, d)
         h_t = self.ffn2(m_t)  # (None, d)
+
         # Calculate
+        # h_t * item_pooling_embed, (None, 1, d) * (m, d) = (None, m, d)
+        # () mat h_s, (None, m, d) matmul (None, d, 1) = (None, m, 1)
         z = tf.matmul(tf.multiply(tf.expand_dims(h_t, axis=1), item_pooling_embed), tf.expand_dims(h_s, axis=-1))
         z = tf.squeeze(z, axis=-1)  # (None, m)
+
         # Outputs
         outputs = tf.nn.softmax(z)
         return outputs
@@ -112,7 +134,6 @@ def test_model():
     features = [dense_features, sparse_features]
     model = STAMP(features, behavior_list, item_pooling)
     model.summary()
-    # model.compile(loss=CrossEntropy, optimizer=Adam(learning_rate=0.001))
 
 
 # test_model()

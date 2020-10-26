@@ -3,7 +3,7 @@ Descripttion: train STAMP model
 Author: Ziyao Geng
 Date: 2020-10-25 09:27:23
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-25 15:41:03
+LastEditTime: 2020-10-26 09:57:12
 '''
 from time import time
 import tensorflow as tf
@@ -22,14 +22,14 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = '../dataset/Diginetica/train-item-views.csv'
-    maxlen = 4
-    embed_dim = 8
+    maxlen = 8
+    embed_dim = 100
 
     K = 20
 
-    learning_rate = 0.001
-    batch_size = 8
-    epochs = 10
+    learning_rate = 0.005
+    batch_size = 512
+    epochs = 30
     # ========================== Create dataset =======================
     feature_columns, behavior_list, item_pooling, train, val, test = create_diginetica_dataset(file, embed_dim, maxlen)
     train_X, train_y = train
@@ -42,7 +42,9 @@ if __name__ == '__main__':
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
     # =========================Compile============================
-    model.compile(loss=CrossEntropy(), optimizer=Adam(learning_rate=learning_rate))
+    # CrossEntropy()
+    # tf.losses.SparseCategoricalCrossentropy()
+    model.compile(loss=tf.losses.SparseCategoricalCrossentropy(), optimizer=Adam(learning_rate=learning_rate))
 
     for epoch in range(epochs):
         # ===========================Fit==============================

@@ -3,7 +3,7 @@ Descripttion:
 Author: Ziyao Geng
 Date: 2020-10-23 11:10:08
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-25 16:03:03
+LastEditTime: 2020-10-26 09:57:35
 '''
 """
 Created on Oct 23, 2020
@@ -78,8 +78,8 @@ class Attention_Layer(Layer):
         return m_a
 
 
-class CrossEntropy(Loss):
-    def call(self, y_true, y_pred):
-        y_true = tf.one_hot(tf.squeeze(y_true, axis=-1), depth=y_pred.shape[-1])
-        return - (tf.math.log(tf.reduce_sum(y_pred * y_true)) + tf.reduce_sum(tf.math.log(1.0 - y_pred)) - \
-            tf.math.log(1 - tf.reduce_sum(y_pred * y_true)))
+# class CrossEntropy(Loss):
+#     def call(self, y_true, y_pred):
+#         y_true = tf.one_hot(tf.squeeze(tf.cast(y_true, dtype=tf.int32), axis=-1), depth=y_pred.shape[-1])
+#         return - (tf.math.log(tf.reduce_sum(y_pred * y_true)) + tf.reduce_sum(tf.math.log(1.0 - y_pred)) - \
+#             tf.math.log(1 - tf.reduce_sum(y_pred * y_true)))

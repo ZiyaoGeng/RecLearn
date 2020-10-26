@@ -3,7 +3,7 @@ Descripttion: create Diginetica dataset
 Author: Ziyao Geng
 Date: 2020-10-23 19:52:53
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-25 16:25:08
+LastEditTime: 2020-10-26 09:56:48
 '''
 import pandas as pd
 import numpy as np
@@ -45,20 +45,21 @@ def convert_sequence(data_df):
 
         for i in range(1, len(item_list)):
             hist_i = item_list[:i]
+            # hist_item, next_click_item(label)
             data_sequence.append([hist_i, item_list[i]])
 
     return data_sequence
 
 def create_diginetica_dataset(file, embed_dim=8, maxlen=40):
     """
-    :param file: dataset path
-    :param embed_dim: latent factor
-    :param maxlen:
-    :return: user_num, item_num, train_df, test_df
+    :param file: A string. dataset path
+    :param embed_dim: A scalar. latent factor
+    :param maxlen: A scalar. 
+    :return: feature_columns, behavior_list, train, val, test
     """
     print('==========Data Preprocess Start============')
     # load dataset
-    data_df = pd.read_csv(file, sep=";").iloc[:10000]  # (1235380, 5)
+    data_df = pd.read_csv(file, sep=";").iloc[:100000] # (1235380, 5)
     
     # filter out sessions of length of 1
     data_df['session_count'] = data_df.groupby('sessionId')['sessionId'].transform('count')
@@ -68,7 +69,7 @@ def create_diginetica_dataset(file, embed_dim=8, maxlen=40):
     data_df['item_count'] = data_df.groupby('itemId')['itemId'].transform('count')
     data_df = data_df[data_df.item_count >= 5]  # (1004834, 7)
 
-    # label encoder itemId
+    # label encoder itemId, {0, 1, ..., }
     le = LabelEncoder()
     data_df['itemId'] = le.fit_transform(data_df['itemId'])
     
@@ -86,6 +87,7 @@ def create_diginetica_dataset(file, embed_dim=8, maxlen=40):
     test = pd.DataFrame(convert_sequence(test), columns=['hist', 'label'])
     
     # Padding
+    # not have dense inputs and other sparse inputs
     print('==================Padding===================')
     train_X = [np.array([0.] * len(train)), np.array([0] * len(train)),
                np.expand_dims(pad_sequences(train['hist'], maxlen=maxlen), axis=1)]
@@ -107,6 +109,8 @@ def create_diginetica_dataset(file, embed_dim=8, maxlen=40):
 
     # behavior list
     behavior_list = ['item_id']
+
+    print('===========Data Preprocess End=============')
     
     return feature_columns, behavior_list, item_pooling, (train_X, train_y), (val_X, val_y), (test_X, test_y)
     
