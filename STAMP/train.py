@@ -3,7 +3,7 @@ Descripttion: train STAMP model
 Author: Ziyao Geng
 Date: 2020-10-25 09:27:23
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-26 09:57:12
+LastEditTime: 2020-10-26 12:47:08
 '''
 from time import time
 import tensorflow as tf
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     K = 20
 
     learning_rate = 0.005
-    batch_size = 512
+    batch_size = 128
     epochs = 30
     # ========================== Create dataset =======================
     feature_columns, behavior_list, item_pooling, train, val, test = create_diginetica_dataset(file, embed_dim, maxlen)
@@ -62,4 +62,3 @@ if __name__ == '__main__':
         hit_rate, mrr = evaluate_model(model, test, K)
         print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, MRR = %.4f, '
               % (epoch, t2 - t1, time() - t2, hit_rate, mrr))
-

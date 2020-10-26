@@ -3,7 +3,7 @@ Descripttion: Evaluate
 Author: Ziyao Geng
 Date: 2020-10-25 10:07:17
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-26 09:57:47
+LastEditTime: 2020-10-26 12:47:28
 '''
 
 import numpy as np
@@ -44,11 +44,3 @@ def evaluate_model(model, test, K):
     
     
     return hit_rate, mrr
- 
-# K = 10
-# a = np.random.randint(20, size=(400))
-# b = np.random.randint(20, size=(400, 50))
-# hit = getHit(b, a)
-# mrr = getMRR(b, a)
-# print(hit)
-# print(mrr)

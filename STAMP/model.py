@@ -93,9 +93,9 @@ class STAMP(tf.keras.Model):
         m_s = tf.reduce_mean(seq_embed, axis=1)  # (None, d)
 
         # attention
-        # m_a = self.attention_layer([seq_embed, m_s, m_t])  # (None, d)
+        m_a = self.attention_layer([seq_embed, m_s, m_t])  # (None, d)
         # if model is STMP, m_a = m_s
-        m_a = m_s
+        # m_a = m_s
 
         # try to add other embedding vector
         if self.other_sparse_len != 0 or self.dense_len != 0:
