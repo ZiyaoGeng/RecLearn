@@ -57,7 +57,7 @@ if __name__ == '__main__':
         train_y,
         epochs=epochs,
         # callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
-        # validation_data=[val_X, val_y],
+        validation_data=(val_X, val_y),
         batch_size=batch_size,
     )
     # ===========================Test==============================
