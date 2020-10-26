@@ -1,77 +1,64 @@
 """
-Created on May 26, 2020
+Created on Oct 23, 2020
 
-train model
+train DIN model
 
 @author: Ziyao Geng
 """
-
 import tensorflow as tf
-import numpy as np
-import pickle
-import datetime
-import os
+from time import time
+from tensorflow.keras.losses import binary_crossentropy
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.metrics import AUC
 
 from model import DIN
+from utils import *
 
+import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
-def input_data(dataset, max_sl):
-    user = np.array(dataset[:, 0], dtype='int32')
-    item = np.array(dataset[:, 1], dtype='int32')
-    hist = dataset[:, 2]
-    hist_matrix = tf.keras.preprocessing.sequence.pad_sequences(hist, maxlen=max_sl, padding='post')
+if __name__ == '__main__':
+    # ========================= Hyper Parameters =======================
+    file = 'raw_data/remap.pkl'
+    maxlen = 40
+    
+    embed_dim = 32
+    att_hidden_units= [80, 40] 
+    ffn_hidden_units= [256, 128, 64]
+    dnn_dropout = 0.5
+    att_activation='sigmoid'
+    ffn_activation='prelu'
 
-    sl = np.array(dataset[:, 3], dtype='int32')
-    y = np.array(dataset[:, 4], dtype='float32')
-
-    return user, item, hist_matrix, sl, y
-
-
-def main():
-    hidden_unit = 64
-    batch_size = 32
-    learning_rate = 1
-    epochs = 50
-    with open('dataset/dataset.pkl', 'rb') as f:
-        train_set = np.array(pickle.load(f))
-        test_set = pickle.load(f)
-        cate_list = pickle.load(f)
-        user_count, item_count, cate_count, max_sl = pickle.load(f)
-    train_user, train_item, train_hist, train_sl, train_y = input_data(train_set, max_sl)
-    # Tensorboard
-    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = 'logs/' + current_time
-    tensorboard = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir,
-        histogram_freq=1,
-        write_graph=True,
-        write_grads=False,
-        write_images=True,
-        embeddings_freq=0, embeddings_layer_names=None,
-        embeddings_metadata=None, embeddings_data=None, update_freq=500
-    )
-    # model checkpoint
-    check_path = 'save/din_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
-                                                        verbose=1, period=1)
-
-    model = DIN(user_count, item_count, cate_count, cate_list, hidden_unit)
+    learning_rate = 0.001
+    batch_size = 512
+    epochs = 5
+    # ========================== Create dataset =======================
+    feature_columns, behavior_list, train, val, test = create_amazon_electronic_dataset(file, embed_dim, maxlen)
+    train_X, train_y = train
+    val_X, val_y = val
+    test_X, test_y = test
+    # ============================Build Model==========================
+    model = DIN(feature_columns, behavior_list, att_hidden_units, ffn_hidden_units, att_activation, 
+        ffn_activation, maxlen, dnn_dropout)
     model.summary()
-    optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, decay=0.1)
-    model.compile(loss=tf.keras.losses.binary_crossentropy,
-                  optimizer=optimizer, metrics=[tf.keras.metrics.AUC()])
+    # ============================model checkpoint======================
+    # check_path = 'save/din_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
+    # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
+    #                                                 verbose=1, period=5)
+    # =========================Compile============================
+    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                  metrics=[AUC()])
+    # ===========================Fit==============================
     model.fit(
-        [train_user, train_item, train_hist, train_sl],
+        train_X,
         train_y,
         epochs=epochs,
+        # callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
+        # validation_data=[val_X, val_y],
         batch_size=batch_size,
-        validation_split=0.1,
-        callbacks=[tensorboard, checkpoint]
     )
-
-
-if __name__ == '__main__':
-    main()
+    # ===========================Test==============================
+    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])

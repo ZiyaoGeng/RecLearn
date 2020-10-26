@@ -6,141 +6,115 @@ model: Deep interest network for click-through rate prediction
 @author: Ziyao Geng
 """
 import tensorflow as tf
-import numpy as np
 
-import os
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Embedding, Dense, BatchNormalization, Input, PReLU, Dropout
+from tensorflow.keras.regularizers import l2
 
-from dice import Dice
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+from modules import *
 
 
-class DIN(tf.keras.Model):
-    def __init__(self, user_num, item_num, cate_num, cate_list, hidden_units):
+class DIN(Model):
+    def __init__(self, feature_columns, behavior_feature_list, att_hidden_units=(80, 40), 
+        ffn_hidden_units=(80, 40), att_activation='sigmoid', ffn_activation='prelu', maxlen=40, dnn_dropout=0., embed_reg=1e-4):
         """
-        :param user_num: 用户数量
-        :param item_num: 物品数量
-        :param cate_num: 物品种类数量
-        :param cate_list: 物品种类列表
-        :param hidden_units: 隐藏层单元
+        DIN
+        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
+        :param behavior_feature_list: A list. the list of behavior feature names
+        :param att_hidden_units: A tuple or list. Attention hidden units.
+        :param ffn_hidden_units: A tuple or list. Hidden units list of FFN.
+        :param att_activation: A String. The activation of attention.
+        :param ffn_activation: A String. Prelu or Dice.
+        :param maxlen: A scalar. Maximum sequence length.
+        :param dropout: A scalar. The number of Dropout.
+        :param embed_reg: A scalar. The regularizer of embedding.
         """
         super(DIN, self).__init__()
-        self.cate_list = tf.convert_to_tensor(cate_list, dtype=tf.int32)
-        self.hidden_units = hidden_units
-        # self.user_embed = tf.keras.layers.Embedding(
-        #     input_dim=user_num, output_dim=hidden_units, embeddings_initializer='random_uniform',
-        #     embeddings_regularizer=tf.keras.regularizers.l2(0.01), name='user_embed')
-        self.item_embed = tf.keras.layers.Embedding(
-            input_dim=item_num, output_dim=self.hidden_units, embeddings_initializer='random_uniform',
-            embeddings_regularizer=tf.keras.regularizers.l2(0.01), name='item_embed')
-        self.cate_embed = tf.keras.layers.Embedding(
-            input_dim=cate_num, output_dim=self.hidden_units, embeddings_initializer='random_uniform',
-            embeddings_regularizer=tf.keras.regularizers.l2(0.01), name='cate_embed'
-        )
-        self.dense = tf.keras.layers.Dense(self.hidden_units)
-        self.bn1 = tf.keras.layers.BatchNormalization()
-        self.concat = tf.keras.layers.Concatenate(axis=-1)
-        self.att_dense1 = tf.keras.layers.Dense(80, activation='sigmoid')
-        self.att_dense2 = tf.keras.layers.Dense(40, activation='sigmoid')
-        self.att_dense3 = tf.keras.layers.Dense(1)
-        self.bn2 = tf.keras.layers.BatchNormalization()
-        self.concat2 = tf.keras.layers.Concatenate(axis=-1)
-        self.dense1 = tf.keras.layers.Dense(80, activation='sigmoid')
-        self.activation1 = tf.keras.layers.PReLU()
-        # self.activation1 = Dice()
-        self.dense2 = tf.keras.layers.Dense(40, activation='sigmoid')
-        self.activation2 = tf.keras.layers.PReLU()
-        # self.activation2 = Dice()
-        self.dense3 = tf.keras.layers.Dense(1, activation=None)
+        self.maxlen = maxlen
+
+        self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+
+        # len
+        self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
+        self.dense_len = len(self.dense_feature_columns)
+        self.seq_len = len(behavior_feature_list)
+
+        # other embedding layers
+        self.embed_sparse_layers = [Embedding(input_dim=feat['feat_num'],
+                                              input_length=1,
+                                              output_dim=feat['embed_dim'],
+                                              embeddings_initializer='random_uniform',
+                                              embeddings_regularizer=l2(embed_reg))
+                                    for feat in self.sparse_feature_columns
+                                    if feat['feat'] not in behavior_feature_list]
+        # behavior embedding layers, item id and category id
+        self.embed_seq_layers = [Embedding(input_dim=feat['feat_num'],
+                                              input_length=1,
+                                              output_dim=feat['embed_dim'],
+                                              embeddings_initializer='random_uniform',
+                                              embeddings_regularizer=l2(embed_reg))
+                                    for feat in self.sparse_feature_columns
+                                    if feat['feat'] in behavior_feature_list]
+
+        # attention layer
+        self.attention_layer = Attention_Layer(att_hidden_units, att_activation)
+
+        self.bn = BatchNormalization(trainable=True)
+        # ffn
+        self.ffn = [Dense(unit, activation=PReLU() if ffn_activation == 'prelu' else Dice())\
+             for unit in ffn_hidden_units]
+        self.dropout = Dropout(dnn_dropout)
+        self.dense_final = Dense(1)
 
     def call(self, inputs):
-        user, item, hist, sl = inputs[0], tf.squeeze(inputs[1], axis=1), inputs[2], tf.squeeze(inputs[3], axis=1)
-        # user_embed = self.u_embed(user)
-        item_embed = self.concat_embed(item)
-        hist_embed = self.concat_embed(hist)
-        # 经过attention的物品embedding
-        hist_att_embed = self.attention(item_embed, hist_embed, sl)
-        hist_att_embed = self.bn1(hist_att_embed)
-        hist_att_embed = tf.reshape(hist_att_embed, [-1, self.hidden_units * 2])
-        u_embed = self.dense(hist_att_embed)
-        item_embed = tf.reshape(item_embed, [-1, item_embed.shape[-1]])
-        # 联合用户行为embedding、候选物品embedding、【用户属性、上下文内容特征】
-        embed = self.concat2([u_embed, item_embed])
-        x = self.bn2(embed)
-        x = self.dense1(x)
-        x = self.activation1(x)
-        x = self.dense2(x)
-        x = self.activation2(x)
-        x = self.dense3(x)
-        outputs = tf.nn.sigmoid(x)
+        # dense_inputs and sparse_inputs is empty
+        dense_inputs, sparse_inputs, seq_inputs, item_inputs = inputs
+        # other
+        other_info = dense_inputs
+        for i in range(self.other_sparse_len):
+            other_info = tf.concat([other_info, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
+
+        # seq, item embedding and category embedding should concatenate
+        seq_embed = tf.concat([self.embed_seq_layers[i](seq_inputs[:, i]) for i in range(self.seq_len)], axis=-1)
+        item_embed = tf.concat([self.embed_seq_layers[i](item_inputs[:, i]) for i in range(self.seq_len)], axis=-1)
+    
+        # att
+        user_info = self.attention_layer([item_embed, seq_embed, seq_embed])  # (None, d * 2)
+
+        # concat user_info(att hist), cadidate item embedding, other features
+        if self.dense_len > 0 or self.other_sparse_len > 0:
+            info_all = tf.concat([user_info, item_embed, other_info], axis=-1)
+        else:
+            info_all = tf.concat([user_info, item_embed], axis=-1)
+
+        info_all = self.bn(info_all)
+
+        # ffn
+        for dense in self.ffn:
+            info_all = dense(info_all)
+
+        info_all = self.dropout(info_all)
+        outputs = tf.nn.sigmoid(self.dense_final(info_all))
         return outputs
 
     def summary(self):
-        user = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        item = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        sl = tf.keras.Input(shape=(1,), dtype=tf.int32)
-        hist = tf.keras.Input(shape=(431,), dtype=tf.int32)
-        tf.keras.Model(inputs=[user, item, hist, sl], outputs=self.call([user, item, hist, sl])).summary()
+        dense_inputs = Input(shape=(self.dense_len, ), dtype=tf.float32)
+        sparse_inputs = Input(shape=(self.other_sparse_len, ), dtype=tf.int32)
+        seq_inputs = Input(shape=(self.seq_len, self.maxlen), dtype=tf.int32)
+        item_inputs = Input(shape=(self.seq_len, ), dtype=tf.int32)
+        tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs, item_inputs],
+                    outputs=self.call([dense_inputs, sparse_inputs, seq_inputs, item_inputs])).summary()
 
-    def concat_embed(self, item):
-        """
-        拼接物品embedding和物品种类embedding
-        :param item: 物品id
-        :return: 拼接后的embedding
-        """
-        # cate = tf.transpose(tf.gather_nd(self.cate_list, [item]))
-        cate = tf.gather(self.cate_list, item)
-        cate = tf.squeeze(cate, axis=1) if cate.shape[-1] == 1 else cate
-        item_embed = self.item_embed(item)
-        item_cate_embed = self.cate_embed(cate)
-        embed = self.concat([item_embed, item_cate_embed])
-        return embed
 
-    def attention(self, queries, keys, keys_length):
-        """
-        activation unit
-        :param queries: item embedding
-        :param keys: hist embedding
-        :param keys_length: the number of hist_embed
-        :return:
-        """
-        # 候选物品的隐藏向量维度，hidden_unit * 2
-        queries_hidden_units = queries.shape[-1]
-        # 每个历史记录的物品embed都需要与候选物品的embed拼接，故候选物品embed重复keys.shape[1]次
-        # keys.shape[1]为最大的序列长度，即431，为了方便矩阵计算
-        # [None, 431 * hidden_unit * 2]
-        queries = tf.tile(queries, [1, keys.shape[1]])
-        # 重塑候选物品embed的shape
-        # [None, 431, hidden_unit * 2]
-        queries = tf.reshape(queries, [-1, keys.shape[1], queries_hidden_units])
-        # 拼接候选物品embed与hist物品embed
-        # [None, 431, hidden * 2 * 4]
-        embed = tf.concat([queries, keys, queries - keys, queries * keys], axis=-1)
-        # 全连接, 得到权重W
-        d_layer_1 = self.att_dense1(embed)
-        d_layer_2 = self.att_dense2(d_layer_1)
-        # [None, 431, 1]
-        d_layer_3 = self.att_dense3(d_layer_2)
-        # 重塑输出权重类型, 每个hist物品embed有对应权重值
-        # [None, 1, 431]
-        outputs = tf.reshape(d_layer_3, [-1, 1, keys.shape[1]])
+def test_model():
+    dense_features = [{'feat': 'a'}, {'feat': 'b'}]
+    sparse_features = [{'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8},
+                       {'feat': 'cate_id', 'feat_num': 100, 'embed_dim': 8},
+                       {'feat': 'adv_id', 'feat_num': 100, 'embed_dim': 8}]
+    behavior_list = ['item_id', 'cate_id']
+    features = [dense_features, sparse_features]
+    model = DIN(features, behavior_list)
+    model.summary()
 
-        # Mask
-        # 此处将为历史记录的物品embed令为True
-        # [None, 431]
-        key_masks = tf.sequence_mask(keys_length, keys.shape[1])
-        # 增添维度
-        # [None, 1, 431]
-        key_masks = tf.expand_dims(key_masks, 1)
-        # 填充矩阵
-        paddings = tf.ones_like(outputs) * (-2 ** 32 + 1)
-        # 构造输出矩阵，其实就是为了实现【sum pooling】。True即为原outputs的值，False为上述填充值，为很小的值，softmax后接近0
-        # [None, 1, 431] ----> 每个历史浏览物品的权重
-        outputs = tf.where(key_masks, outputs, paddings)
-        # Scale，keys.shape[-1]为hist_embed的隐藏单元数
-        outputs = outputs / (keys.shape[-1] ** 0.5)
-        # Activation，归一化
-        outputs = tf.nn.softmax(outputs)
-        # 对hist_embed进行加权
-        # [None, 1, 431] * [None, 431, hidden_unit * 2] = [None, 1, hidden_unit * 2]
-        outputs = tf.matmul(outputs, keys)
-        return outputs
+
+# test_model()
