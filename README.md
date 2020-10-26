@@ -12,7 +12,7 @@
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-开源项目`Recommender System with TF2.0`主要是对阅读过的部分推荐系统、CTR预估论文进行复现，包括**传统模型**（MF、FM、FFM等）、**神经网络模型**（WDL、DCN等）以及**序列模型**（DIN）。
+开源项目`Recommender System with TF2.0`主要是对阅读过的部分推荐系统、CTR预估论文进行复现，包括**Match（召回）**（NCF、SASRec、STAMP等）、**Rank（粗排）**（WDL、DCN等）。
 
 **建立原因：**
 
@@ -22,7 +22,7 @@
 
 **项目特点：**
 
-- 使用Tensorflow2.0进行复现；
+- 使用Tensorflow2.x进行复现；
 - 每个模型都是相互独立的，不存在依赖关系；
 - 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集；
 - 具有【[Wiki](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki)】，对于模型、实验数据集有详细的介绍和链接；
@@ -52,14 +52,13 @@
 
 
 
-|                         Paper\|Model                         |        Published in        |            Author            |
-| :----------------------------------------------------------: | :------------------------: | :--------------------------: |
-| Matrix Factorization Techniques for Recommender Systems\|**MF** | IEEE Computer Society,2009 |    Koren\|Yahoo Research     |
-|                Factorization Machines\|**FM**                |         ICDM, 2010         |        Steffen Rendle        |
-| Field-aware Factorization Machines for CTR Prediction｜**FFM** |        RecSys, 2016        | Yuchin Juan｜Criteo Research |
-| Neural network-based Collaborative Filtering\|[**NCF**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-network-based-Collaborative-Filtering) |         WWW, 2017          |         Xiangnan He          |
-|     Self-Attentive Sequential Recommendation｜**SASRec**     |         ICDM, 2018         |             UCSD             |
-| STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **STAMP** |         KDD, 2018          |           Qiao Liu           |
+|                         Paper\|Model                         |        Published in        |        Author         |
+| :----------------------------------------------------------: | :------------------------: | :-------------------: |
+| Matrix Factorization Techniques for Recommender Systems\|**MF** | IEEE Computer Society,2009 | Koren\|Yahoo Research |
+|                Factorization Machines\|**FM**                |         ICDM, 2010         |    Steffen Rendle     |
+| Neural network-based Collaborative Filtering\|[**NCF**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-network-based-Collaborative-Filtering) |         WWW, 2017          |      Xiangnan He      |
+|     Self-Attentive Sequential Recommendation｜**SASRec**     |         ICDM, 2018         |         UCSD          |
+| STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **STAMP** |         KDD, 2018          |       Qiao Liu        |
 
 &nbsp;
 
@@ -67,6 +66,7 @@
 
 |                         Paper｜Model                         | Published in |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
+| Field-aware Factorization Machines for CTR Prediction｜**FFM** | RecSys, 2016 |                 Yuchin Juan｜Criteo Research                 |
 | Wide & Deep Learning for Recommender Systems｜[**WDL**](WDL) |  DLRS, 2016  |                         Google Inc.                          |
 | Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](Deep_Crossing)** |  KDD, 2016   |                      Microsoft Research                      |
 | Product-based Neural Networks for User Response Prediction\|[**PNN**](PNN) |  ICDM, 2016  |                Shanghai Jiao Tong University                 |
@@ -88,4 +88,25 @@
 2、作者有一个自己的公众号：**推荐算法的小齿轮**，如果喜欢里面的内容，不妨点个关注。
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="30%"/></div>
+
+
+
+## 致谢
+
+项目中会存在一些代码Bug，感谢以下朋友指出问题：
+
+1. [wangzhe258369](https://github.com/wangzhe258369)：指出在DIN模型中`tf.keras.layers.BatchNormalization`默认行为是`training=False`，此时不会去更新BN中的moving_mean和moving_variance变量。但是重新修改了DIN模型代码内容时，再仔细查找了资料，[发现](https://www.it610.com/article/1276108622954250240.htm)：
+
+   > 如果使用模型调用fit()的话，是可以不给的（官方推荐是不给），因为在fit()的时候，模型会自己根据相应的阶段（是train阶段还是inference阶段）决定training值，这是由learning——phase机制实现的。
+
+2. **[boluochuile](https://github.com/boluochuile)**：发现SASRec模型训练出错，原因是验证集必须使用`tuple`的方式，已更正；
+
+3. **[boluochuile](https://github.com/boluochuile)**：指出SASRec模型中label赋值的问题，
+
+   ```python
+   data_df.loc[data_df.label >= 2, 'label'] = 1
+   data_df.loc[data_df.label < 2, 'label'] = 0
+   ```
+
+   应该颠倒，现在已经更正；
 
