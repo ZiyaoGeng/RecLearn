@@ -25,7 +25,8 @@
 - 使用Tensorflow2.x进行复现；
 - 每个模型都是相互独立的，不存在依赖关系；
 - 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集；
-- 具有【[Wiki](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki)】，对于模型、实验数据集有详细的介绍和链接；
+- 模型都附有`README.md`，对于模型的训练使用有详细的介绍；
+- 具有【[Wiki](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki)】；
 - 代码源文件参数、函数命名规范，并且带有标准的注释；
 
 
