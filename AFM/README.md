@@ -3,7 +3,7 @@
 ### 1. 论文
 Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks
 
-**创新**：基于Attention的Pooling层，与一般的Attention机制不同，具体可以看原文笔记  
+**创新**：基于Attention的Pooling层，与一般的Attention机制不同，具体可以看原文笔记。  
 
 原文笔记：  https://mp.weixin.qq.com/s/hPCS9Dw2vT2pwdWwPo0EJg
 
