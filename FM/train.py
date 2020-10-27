@@ -1,3 +1,10 @@
+'''
+Descripttion: 
+Author: Ziyao Geng
+Date: 2020-08-24 16:56:48
+LastEditors: ZiyaoGeng
+LastEditTime: 2020-10-27 13:45:18
+'''
 """
 Created on August 25, 2020
 
@@ -25,14 +32,14 @@ if __name__ == '__main__':
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 100000
+    sample_num = 5000000
     test_size = 0.2
 
     k = 10
 
     learning_rate = 0.001
-    batch_size = 512
-    epochs = 5
+    batch_size = 4096
+    epochs = 10
 
     # ========================== Create dataset =======================
     feature_columns, train, test = create_criteo_dataset(file=file,
