@@ -3,7 +3,7 @@
 ### 1. 论文
 Deep Interest Network for Click-Through Rate Prediction
 
-创新：**兴趣的提取**  
+**创新**：兴趣的提取  
 
 原文笔记： https://mp.weixin.qq.com/s/uIs_FpeowSEpP5fkVDq1Nw
 

@@ -58,7 +58,7 @@
 | Matrix Factorization Techniques for Recommender Systems\|**MF** | IEEE Computer Society,2009 | Koren\|Yahoo Research |
 |                Factorization Machines\|**FM**                |         ICDM, 2010         |    Steffen Rendle     |
 | Neural network-based Collaborative Filtering\|[**NCF**](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Neural-network-based-Collaborative-Filtering) |         WWW, 2017          |      Xiangnan He      |
-| Self-Attentive Sequential Recommendation｜**[SASRec](SASRec)** |         ICDM, 2018         |         UCSD          |
+| Self-Attentive Sequential Recommendation｜**[SASRec](SASRec) ** |         ICDM, 2018         |         UCSD          |
 | STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **STAMP** |         KDD, 2018          |       Qiao Liu        |
 
 &nbsp;
