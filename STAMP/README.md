@@ -60,7 +60,7 @@ class STAMP(tf.keras.Model):
 - K：评价指标的@K，`20`；
 - 
 
-- learning_rate：学习率，`0.0015；
+- learning_rate：学习率，`0.005`；
 - batch_size：`128`；
 - epoch：`30`；
 
