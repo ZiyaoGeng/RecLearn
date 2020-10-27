@@ -3,13 +3,11 @@ Descripttion: create Diginetica dataset
 Author: Ziyao Geng
 Date: 2020-10-23 19:52:53
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-26 09:56:48
+LastEditTime: 2020-10-27 10:00:03
 '''
 import pandas as pd
 import numpy as np
 import random
-import pickle
-import os
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -59,13 +57,13 @@ def create_diginetica_dataset(file, embed_dim=8, maxlen=40):
     """
     print('==========Data Preprocess Start============')
     # load dataset
-    data_df = pd.read_csv(file, sep=";").iloc[:100000] # (1235380, 5)
+    data_df = pd.read_csv(file, sep=";") # (1235380, 5)
     
     # filter out sessions of length of 1
     data_df['session_count'] = data_df.groupby('sessionId')['sessionId'].transform('count')
     data_df = data_df[data_df.session_count > 1]  # (1144686, 6)
 
-    # filter out items thar appear less than 5 times
+    # filter out items that appear less than 5 times
     data_df['item_count'] = data_df.groupby('itemId')['itemId'].transform('count')
     data_df = data_df[data_df.item_count >= 5]  # (1004834, 7)
 

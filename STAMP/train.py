@@ -3,7 +3,7 @@ Descripttion: train STAMP model
 Author: Ziyao Geng
 Date: 2020-10-25 09:27:23
 LastEditors: ZiyaoGeng
-LastEditTime: 2020-10-26 12:47:08
+LastEditTime: 2020-10-27 10:39:34
 '''
 from time import time
 import tensorflow as tf
@@ -23,8 +23,8 @@ if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = '../dataset/Diginetica/train-item-views.csv'
     maxlen = 8
+    
     embed_dim = 100
-
     K = 20
 
     learning_rate = 0.005
