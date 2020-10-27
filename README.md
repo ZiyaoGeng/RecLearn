@@ -26,7 +26,6 @@
 - 每个模型都是相互独立的，不存在依赖关系；
 - 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集；
 - 模型都附有`README.md`，对于模型的训练使用有详细的介绍；
-- 具有【[Wiki](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki)】；
 - 代码源文件参数、函数命名规范，并且带有标准的注释；
 
 
@@ -37,7 +36,7 @@
 
 1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
 
-2、需要环境Python3.7，Tensorflow2.0；
+2、实验环境：Python3.7，Tensorflow2.0-CPU/GPU；
 
 3、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
 
