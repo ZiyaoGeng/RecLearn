@@ -46,6 +46,19 @@
 
 &nbsp;
 
+## 数据集
+
+|                           Dataset                            |
+| :----------------------------------------------------------: |
+| [Movielens](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Movielens) |
+| [Amazon Dataset](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Amazon-Dataset) |
+| [Criteo Dataset](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Criteo-Dataset) |
+|                      Diginetica Dataset                      |
+
+
+
+&nbsp;
+
 ## 复现论文
 
 ### 1. 召回模型（Top-K推荐）
