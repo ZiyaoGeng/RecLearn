@@ -72,4 +72,4 @@ def create_explicit_ml_1m_dataset(file, latent_dim=4, test_size=0.2):
     return feature_columns, (train_X, train_y), (test_X, test_y)
 
 
-# create_explicit_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
+# create_explicit_ml_1m_dataset('../dataset/ml-1m/movies.dat')

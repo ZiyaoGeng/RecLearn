@@ -15,14 +15,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 class MF_layer(Layer):
-    def __init__(self, user_num, item_num, latent_dim, implicit=False, use_bias=False, user_reg=1e-4, item_reg=1e-4,
+    def __init__(self, user_num, item_num, latent_dim, use_bias=False, user_reg=1e-4, item_reg=1e-4,
                  user_bias_reg=1e-4, item_bias_reg=1e-4):
         """
         MF Layer
         :param user_num: user length
         :param item_num: item length
         :param latent_dim: latent number
-        :param implicit: whether implicit or not
         :param use_bias: whether using bias or not
         :param user_reg: regularization of user
         :param item_reg: regularization of item
@@ -33,7 +32,6 @@ class MF_layer(Layer):
         self.user_num = user_num
         self.item_num = item_num
         self.latent_dim = latent_dim
-        self.implicit = implicit
         self.use_bias = use_bias
         self.user_reg = user_reg
         self.item_reg = item_reg
@@ -74,9 +72,6 @@ class MF_layer(Layer):
         bias = tf.reshape((avg_score + user_bias + item_bias), shape=(-1, 1))
         # use bias
         outputs = bias + outputs if self.use_bias else outputs
-        # implicit expression dataset
-        if self.implicit:
-            outputs = tf.nn.sigmoid(outputs)
         return outputs
 
     def summary(self):

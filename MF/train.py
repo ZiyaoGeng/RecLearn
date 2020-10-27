@@ -29,8 +29,6 @@ if __name__ == '__main__':
     test_size = 0.2
 
     latent_dim = 32
-    # implicit dataset
-    implicit = False
     # use bias
     use_bias = True
 
@@ -43,19 +41,15 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = MF(feature_columns, implicit, use_bias)
+    model = MF(feature_columns, use_bias)
     model.summary()
     # ============================model checkpoint======================
     # check_path = '../save/mf_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
     # ============================Compile============================
-    if implicit:
-        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                      metrics=[AUC()])
-    else:
-        model.compile(loss='mse', optimizer=Adam(learning_rate=learning_rate),
-                      metrics=['mse'])
+    model.compile(loss='mse', optimizer=Adam(learning_rate=learning_rate),
+                    metrics=['mse'])
     # ==============================Fit==============================
     model.fit(
         train_X,
