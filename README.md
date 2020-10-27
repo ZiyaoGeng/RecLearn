@@ -51,7 +51,7 @@
 -   [Movielens](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Movielens)
 -   [Amazon Dataset](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Amazon-Dataset)
 -   [Criteo Dataset](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Criteo-Dataset)
-- Diginetica Dataset
+- [Diginetica Dataset](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/wiki/Diginetica-Dataset)
 
 
 
