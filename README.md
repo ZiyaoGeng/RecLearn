@@ -55,7 +55,6 @@
 |                         Paper\|Model                         |        Published in        |        Author         |
 | :----------------------------------------------------------: | :------------------------: | :-------------------: |
 | Matrix Factorization Techniques for Recommender Systems\|**[MF](MF)** | IEEE Computer Society,2009 | Koren\|Yahoo Research |
-|             Factorization Machines\|**[FM](FM)**             |         ICDM, 2010         |    Steffen Rendle     |
 | Neural network-based Collaborative Filtering\|[**NCF**](NCF) |         WWW, 2017          |      Xiangnan He      |
 | Self-Attentive Sequential Recommendation｜[**SASRec**](SASRec) |         ICDM, 2018         |         UCSD          |
 | STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **[STAMP](STAMP)** |         KDD, 2018          |       Qiao Liu        |
@@ -66,6 +65,7 @@
 
 |                         Paper｜Model                         | Published in |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
+|             Factorization Machines\|**[FM](FM)**             |  ICDM, 2010  |                        Steffen Rendle                        |
 | Field-aware Factorization Machines for CTR Prediction｜[**FFM**](FFM) | RecSys, 2016 |                 Yuchin Juan｜Criteo Research                 |
 | Wide & Deep Learning for Recommender Systems｜[**WDL**](WDL) |  DLRS, 2016  |                         Google Inc.                          |
 | Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Features\|**[Deep Crossing](Deep_Crossing)** |  KDD, 2016   |                      Microsoft Research                      |
