@@ -8,8 +8,6 @@ create implicit ml-1m dataset
 import pandas as pd
 import numpy as np
 import random
-import pickle
-import os
 from tqdm import tqdm
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
@@ -53,14 +51,14 @@ def create_implicit_ml_1m_dataset(file, embed_dim=8, maxlen=40):
 
     train_data, val_data, test_data = [], [], []
 
-    item_count = data_df['item_id'].max()
+    item_id_max = data_df['item_id'].max()
     for user_id, df in tqdm(data_df[['user_id', 'item_id']].groupby('user_id')):
         pos_list = df['item_id'].tolist()
 
         def gen_neg():
             neg = pos_list[0]
             while neg in pos_list:
-                neg = random.randint(1, item_count)
+                neg = random.randint(1, item_id_max)
                 return neg
 
         neg_list = [gen_neg() for i in range(len(pos_list) + 100)]
@@ -82,7 +80,10 @@ def create_implicit_ml_1m_dataset(file, embed_dim=8, maxlen=40):
     user_num, item_num = data_df['user_id'].max() + 1, data_df['item_id'].max() + 1
     feature_columns = [[],
                        [sparseFeature('item_id', item_num, embed_dim)]]
+    
+    # behavior
     behavior_list = ['item_id']
+
     # shuffle
     random.shuffle(train_data)
     random.shuffle(val_data)

@@ -22,8 +22,8 @@ if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     maxlen = 4
+    
     embed_dim = 32
-
     K = 10
     blocks = 2
     num_heads = 1

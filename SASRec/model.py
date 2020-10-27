@@ -34,12 +34,15 @@ class SASRec(tf.keras.Model):
         super(SASRec, self).__init__()
         self.maxlen = maxlen
         self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+        # len
         self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
         self.dense_len = len(self.dense_feature_columns)
         self.seq_len = len(behavior_feature_list)
+        # item embedding dimension
         self.item_embed = self.sparse_feature_columns[0]['embed_dim']
-        # d_model must be the same as embedding_dim, because of residual connect
+        # d_model must be the same as embedding_dim, because of residual connection
         self.d_model = self.item_embed
+        # other sparse features
         self.embed_sparse_layers = [Embedding(input_dim=feat['feat_num'],
                                               input_length=1,
                                               output_dim=feat['embed_dim'],
@@ -47,6 +50,7 @@ class SASRec(tf.keras.Model):
                                               embeddings_regularizer=l2(embed_reg))
                                     for feat in self.sparse_feature_columns
                                     if feat['feat'] not in behavior_feature_list]
+        # seq features
         self.embed_seq_layers = [Embedding(input_dim=feat['feat_num'],
                                               input_length=1,
                                               output_dim=feat['embed_dim'],
@@ -54,30 +58,42 @@ class SASRec(tf.keras.Model):
                                               embeddings_regularizer=l2(embed_reg))
                                     for feat in self.sparse_feature_columns
                                     if feat['feat'] in behavior_feature_list]
-
+        # attention block
         self.attention_block = [SelfAttentionBlock(self.d_model, num_heads, ffn_hidden_unit,
                                                    dropout, norm_training, causality) for b in range(blocks)]
         self.dense = Dense(self.item_embed, activation='relu')
 
     def call(self, inputs):
+        # dense_inputs and sparse_inputs is empty
         dense_inputs, sparse_inputs, seq_inputs, item_inputs = inputs
+        
+        # other
         x = dense_inputs
         for i in range(self.other_sparse_len):
             x = tf.concat([x, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
+
+        # Add item id embedding and other item embedding.
         seq_embed, item_embed = None, None
         for i in range(self.seq_len):
             seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
                 else seq_embed + self.embed_seq_layers[i](seq_inputs[:, i])
             item_embed = self.embed_seq_layers[i](item_inputs[:, i]) if item_embed is None \
                 else item_embed + self.embed_seq_layers[i](item_inputs[:, i])
+
+        # pos encoding
         pos_encoding = tf.expand_dims(self.positional_encoding(seq_inputs), axis=0)
         seq_embed += pos_encoding
         att_outputs = seq_embed
+
+        # attention
         for block in self.attention_block:
             att_outputs = block(att_outputs)
         att_outputs = Flatten()(att_outputs)
+
+        # try to concat other features
         if self.other_sparse_len != 0 or self.dense_len != 0:
             att_outputs = tf.concat([att_outputs, x], axis=-1)
+
         x = self.dense(att_outputs)
         # Predict
         outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(x, item_embed), axis=1, keepdims=True))
