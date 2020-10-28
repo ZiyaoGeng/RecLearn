@@ -3,7 +3,7 @@
 ### 1. 论文
 Field-aware Factorization Machines for CTR Prediction
 
-**创新**：FFM模型，但本实验只是为了测试，无法实际用途，参考网上给出的FFM库；
+**创新**：FFM模型，但本实验只是为了测试，无实际用途，参考FFM库https://github.com/ycjuan/libffm；
 
 
 
