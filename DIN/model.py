@@ -37,7 +37,7 @@ class DIN(Model):
         # len
         self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
         self.dense_len = len(self.dense_feature_columns)
-        self.seq_len = len(behavior_feature_list)
+        self.behavior_num = len(behavior_feature_list)
 
         # other embedding layers
         self.embed_sparse_layers = [Embedding(input_dim=feat['feat_num'],
@@ -68,18 +68,22 @@ class DIN(Model):
 
     def call(self, inputs):
         # dense_inputs and sparse_inputs is empty
+        # seq_inputs (None, maxlen, behavior_num)
+        # item_inputs (None, behavior_num)
         dense_inputs, sparse_inputs, seq_inputs, item_inputs = inputs
+        # attention ---> mask, if the element of seq_inputs is equal 0, it must be filled in. 
+        mask = tf.cast(tf.not_equal(seq_inputs[:, :, 0], 0), dtype=tf.float32)  # (None, maxlen)
         # other
         other_info = dense_inputs
         for i in range(self.other_sparse_len):
             other_info = tf.concat([other_info, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
 
         # seq, item embedding and category embedding should concatenate
-        seq_embed = tf.concat([self.embed_seq_layers[i](seq_inputs[:, i]) for i in range(self.seq_len)], axis=-1)
-        item_embed = tf.concat([self.embed_seq_layers[i](item_inputs[:, i]) for i in range(self.seq_len)], axis=-1)
+        seq_embed = tf.concat([self.embed_seq_layers[i](seq_inputs[:, :, i]) for i in range(self.behavior_num)], axis=-1)
+        item_embed = tf.concat([self.embed_seq_layers[i](item_inputs[:, i]) for i in range(self.behavior_num)], axis=-1)
     
         # att
-        user_info = self.attention_layer([item_embed, seq_embed, seq_embed])  # (None, d * 2)
+        user_info = self.attention_layer([item_embed, seq_embed, seq_embed, mask])  # (None, d * 2)
 
         # concat user_info(att hist), cadidate item embedding, other features
         if self.dense_len > 0 or self.other_sparse_len > 0:
@@ -100,8 +104,8 @@ class DIN(Model):
     def summary(self):
         dense_inputs = Input(shape=(self.dense_len, ), dtype=tf.float32)
         sparse_inputs = Input(shape=(self.other_sparse_len, ), dtype=tf.int32)
-        seq_inputs = Input(shape=(self.seq_len, self.maxlen), dtype=tf.int32)
-        item_inputs = Input(shape=(self.seq_len, ), dtype=tf.int32)
+        seq_inputs = Input(shape=(self.maxlen, self.behavior_num), dtype=tf.int32)
+        item_inputs = Input(shape=(self.behavior_num, ), dtype=tf.int32)
         tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs, item_inputs],
                     outputs=self.call([dense_inputs, sparse_inputs, seq_inputs, item_inputs])).summary()
 

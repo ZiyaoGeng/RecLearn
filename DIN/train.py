@@ -1,3 +1,10 @@
+'''
+Descripttion: 
+Author: Ziyao Geng
+Date: 2020-10-26 22:18:12
+LastEditors: ZiyaoGeng
+LastEditTime: 2020-11-04 23:23:15
+'''
 """
 Created on Oct 23, 2020
 
@@ -23,9 +30,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
     file = 'raw_data/remap.pkl'
-    maxlen = 40
+    maxlen = 20
     
-    embed_dim = 32
+    embed_dim = 8
     att_hidden_units= [80, 40] 
     ffn_hidden_units= [256, 128, 64]
     dnn_dropout = 0.5
@@ -33,7 +40,7 @@ if __name__ == '__main__':
     ffn_activation='prelu'
 
     learning_rate = 0.001
-    batch_size = 512
+    batch_size = 4096
     epochs = 5
     # ========================== Create dataset =======================
     feature_columns, behavior_list, train, val, test = create_amazon_electronic_dataset(file, embed_dim, maxlen)
