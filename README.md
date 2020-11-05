@@ -108,8 +108,10 @@
    ```
 
    应该颠倒，已更正；
+   
+4. **[dominic-z](https://github.com/dominic-z)**：指出DIN中Attention的mask问题，更改为从`seq_inputs`中得到mask，因为采用的是0填充（这里与重写之前的代码不同，之前是在每个mini-batch中选择最大的长度作为序列长度，不会存在序列过长被切割的问题，而现在为了方便，采用最普遍`padding`的方法）
 
-
+5. **[dominic-z](https://github.com/dominic-z)**：指出DIN训练中`seq_inputs`shape与model不匹配的问题，已更正，应该是`(batch_size,  maxlen, behavior_num)`，model相关内容进行更改，另外对于行为数量，之前的名称`seq_len`有歧义，改为`behavior_num`；**添加了重写之前的代码，在DIN/old目录下**
 
 &nbsp;
 
