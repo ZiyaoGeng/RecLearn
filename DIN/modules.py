@@ -1,3 +1,10 @@
+'''
+Descripttion: 
+Author: Ziyao Geng
+Date: 2020-10-26 22:18:54
+LastEditors: ZiyaoGeng
+LastEditTime: 2020-11-04 21:09:18
+'''
 """
 Created on Oct 26, 2020
 
@@ -24,7 +31,8 @@ class Attention_Layer(Layer):
         # query: candidate item  (None, d * 2), d is the dimension of embedding
         # key: hist items  (None, seq_len, d * 2) 
         # value: hist items  (None, seq_len, d * 2) 
-        q, k, v = inputs
+        # mask: (None, seq_len)
+        q, k, v, mask = inputs
         q = tf.tile(q, multiples=[1, k.shape[1]])  # (None, seq_len * d * 2)
         q = tf.reshape(q, shape=[-1, k.shape[1], k.shape[2]])  # (None, seq_len, d * 2)
 
@@ -38,11 +46,8 @@ class Attention_Layer(Layer):
         outputs = self.att_final_dense(info)  # (None, seq_len, 1)
         outputs = tf.squeeze(outputs, axis=-1)  # (None, seq_len)
 
-        # Key Masking
-        key_masks = tf.sign(tf.abs(tf.reduce_sum(k, axis=-1)))  # (None, seq_len)
-
         paddings = tf.ones_like(outputs) * (-2 ** 32 + 1)  # (None, seq_len)
-        outputs = tf.where(tf.equal(key_masks, 0), paddings, outputs)  # (None, seq_len)
+        outputs = tf.where(tf.equal(mask, 0), paddings, outputs)  # (None, seq_len)
 
         # softmax
         outputs = tf.nn.softmax(logits=outputs)  # (None, seq_len)
