@@ -99,7 +99,7 @@ class MF(tf.keras.Model):
         num_users, num_items = self.sparse_feature_columns[0]['feat_num'], \
                                self.sparse_feature_columns[1]['feat_num']
         latent_dim = self.sparse_feature_columns[0]['embed_dim']
-        self.mf_layer = MF_layer(num_users, num_items, latent_dim, implicit, use_bias,
+        self.mf_layer = MF_layer(num_users, num_items, latent_dim, use_bias,
                                  user_reg, item_reg, user_bias_reg, item_bias_reg)
 
     def call(self, inputs, **kwargs):
