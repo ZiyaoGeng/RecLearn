@@ -54,7 +54,7 @@ class MF_layer(Layer):
                                          initializer=tf.random_normal_initializer(),
                                          regularizer=l2(self.user_bias_reg),
                                          trainable=self.use_bias)
-        self.item_bias = self.add_weight(name='user_bias',
+        self.item_bias = self.add_weight(name='item_bias',
                                          shape=(self.item_num, 1),
                                          initializer=tf.random_normal_initializer(),
                                          regularizer=l2(self.item_bias_reg),
