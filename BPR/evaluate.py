@@ -55,7 +55,7 @@ def evaluate_model(model, test, K):
     test_df = pd.DataFrame(test_X[0], columns=['user_id'])
     # if pos score < neg score, pred = 1
     test_df['pred'] = (pos_score <= neg_score).astype(np.int32)
-    # groupny
+    # groupby
     tg = test_df.groupby('user_id')
     # calculate hit
     hit_rate = tg.apply(getHit).mean()
