@@ -58,12 +58,9 @@ def evaluate_model(model, test, K):
     # groupny
     tg = test_df.groupby('user_id')
     # calculate hit
-    hit = tg.apply(getHit)
-    hit_rate = hit.mean()
+    hit_rate = tg.apply(getHit).mean()
     # calculate ndcg
-    ndcg = tg.apply(getNDCG)
-    ndcg = ndcg.mean()
+    ndcg = tg.apply(getNDCG).mean()
     # calculate mrr
-    mrr = tg.apply(getMRR)
-    mrr = mrr.mean()
+    mrr = tg.apply(getMRR).mean()
     return hit_rate, ndcg, mrr
