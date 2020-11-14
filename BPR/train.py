@@ -10,7 +10,6 @@ import pandas as pd
 import tensorflow as tf
 from time import time
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping
 
 from model import BPR
 from evaluate import *
@@ -22,7 +21,7 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2'
 
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
@@ -68,7 +67,7 @@ if __name__ == '__main__':
         hit_rate, ndcg, mrr = evaluate_model(model, test, K)
         print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, NDCG = %.4f, MRR = %.4f'
               % (epoch + 1, t2 - t1, time() - t2, hit_rate, ndcg, mrr))
-        results.append([epoch, t2-t1, time()-t2, hit_rate, ndcg, mrr])
+        results.append([epoch + 1, t2 - t1, time() - t2, hit_rate, ndcg, mrr])
     # ========================== Write Log ===========================
     pd.DataFrame(results, columns=['Iteration', 'fit_time', 'evaluate_time', 
         'hit_rate', 'ndcg', 'mrr']).to_csv(

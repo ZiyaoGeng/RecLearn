@@ -30,6 +30,7 @@ def getNDCG(df):
     else:
         return 0.
 
+
 def getMRR(df):
     """
     calculate MRR

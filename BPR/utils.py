@@ -82,8 +82,8 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8):
 
     # create dataset
     def df_to_list(data):
-        return [np.array(train['user_id'].tolist()), 
-            np.array(train['pos_item'].tolist()), np.array(train['neg_item'].tolist())]
+        return [np.array(data['user_id'].tolist()),
+            np.array(data['pos_item'].tolist()), np.array(data['neg_item'].tolist())]
 
     train_X = df_to_list(train)
     val_X = df_to_list(val)

@@ -51,5 +51,5 @@ class BPR(Model):
 
 ### 6. 实验结果
 
-采用ml-1m数据集数据，最终测试集的结果为：`hit_rate@K:0.69, NDCG@K:0.58, MRR:0.33`
+采用ml-1m数据集数据，最终测试集的结果为：`hit_rate@K:0.5349, NDCG@K:0.40, MRR:0.22`
 
