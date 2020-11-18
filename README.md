@@ -30,6 +30,8 @@
 
 
 
+&nbsp;
+
 ## 重要更新
 
 1. 【2020.11.18】在Top-K模型中，不再考虑`dense_inputs`、`sparse_inputs`，并且`user_inputs`和`seq_inputs`不考虑多个类别，只将`id`特征作为输入（降低了模型的可扩展性，但是提高了模型的可读性）；
