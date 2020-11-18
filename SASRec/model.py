@@ -5,23 +5,20 @@ model: Self-Attentive Sequential Recommendation
 
 @author: Ziyao Geng
 """
-
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Layer, Dense, LayerNormalization, \
-    Dropout, Embedding, Flatten, Input
+    Dropout, Embedding, Input
 
 from modules import *
 
 
 class SASRec(tf.keras.Model):
-    def __init__(self, feature_columns, behavior_feature_list, blocks=1, num_heads=1, ffn_hidden_unit=128,
-                 dropout=0., maxlen=40, norm_training=True, causality=False, embed_reg=1e-4):
+    def __init__(self, item_feat_col, blocks=1, num_heads=1, ffn_hidden_unit=128,
+                 dropout=0., maxlen=40, norm_training=True, causality=False, embed_reg=1e-6):
         """
         SASRec model
-        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
-        :param behavior_feature_list: A list. the list of behavior feature names
+        :param item_feat_col: A dict contains 'feat_name', 'feat_num' and 'embed_dim'.
         :param blocks: A scalar. The Number of blocks.
         :param num_heads: A scalar. Number of heads.
         :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
@@ -32,99 +29,70 @@ class SASRec(tf.keras.Model):
         :param embed_reg: A scalar. The regularizer of embedding
         """
         super(SASRec, self).__init__()
+        # sequence length
         self.maxlen = maxlen
-        self.dense_feature_columns, self.sparse_feature_columns = feature_columns
-        # len
-        self.other_sparse_len = len(self.sparse_feature_columns) - len(behavior_feature_list)
-        self.dense_len = len(self.dense_feature_columns)
-        self.seq_len = len(behavior_feature_list)
-        # item embedding dimension
-        self.item_embed = self.sparse_feature_columns[0]['embed_dim']
+        # item feature columns
+        self.item_feat_col = item_feat_col
+        # embed_dim
+        self.embed_dim = self.item_feat_col['embed_dim']
         # d_model must be the same as embedding_dim, because of residual connection
-        self.d_model = self.item_embed
-        # other sparse features
-        self.embed_sparse_layers = [Embedding(input_dim=feat['feat_num'],
-                                              input_length=1,
-                                              output_dim=feat['embed_dim'],
-                                              embeddings_initializer='random_uniform',
-                                              embeddings_regularizer=l2(embed_reg))
-                                    for feat in self.sparse_feature_columns
-                                    if feat['feat'] not in behavior_feature_list]
-        # seq features
-        self.embed_seq_layers = [Embedding(input_dim=feat['feat_num'],
-                                              input_length=1,
-                                              output_dim=feat['embed_dim'],
-                                              embeddings_initializer='random_uniform',
-                                              embeddings_regularizer=l2(embed_reg))
-                                    for feat in self.sparse_feature_columns
-                                    if feat['feat'] in behavior_feature_list]
+        self.d_model = self.embed_dim
+        # item embedding
+        self.item_embedding = Embedding(input_dim=self.item_feat_col['feat_num'],
+                                        input_length=1,
+                                        output_dim=self.item_feat_col['embed_dim'],
+                                        mask_zero=True,
+                                        embeddings_initializer='random_uniform',
+                                        embeddings_regularizer=l2(embed_reg))
+        self.pos_embedding = Embedding(input_dim=self.maxlen,
+                                       input_length=1,
+                                       output_dim=self.embed_dim,
+                                       mask_zero=False,
+                                       embeddings_initializer='random_uniform',
+                                       embeddings_regularizer=l2(embed_reg))
         # attention block
         self.attention_block = [SelfAttentionBlock(self.d_model, num_heads, ffn_hidden_unit,
                                                    dropout, norm_training, causality) for b in range(blocks)]
-        self.dense = Dense(self.item_embed, activation='relu')
 
     def call(self, inputs):
-        # dense_inputs and sparse_inputs is empty
-        dense_inputs, sparse_inputs, seq_inputs, item_inputs = inputs
-        
-        # other
-        x = dense_inputs
-        for i in range(self.other_sparse_len):
-            x = tf.concat([x, self.embed_sparse_layers[i](sparse_inputs[:, i])], axis=-1)
-
-        # Add item id embedding and other item embedding.
-        seq_embed, item_embed = None, None
-        for i in range(self.seq_len):
-            seq_embed = self.embed_seq_layers[i](seq_inputs[:, i]) if seq_embed is None \
-                else seq_embed + self.embed_seq_layers[i](seq_inputs[:, i])
-            item_embed = self.embed_seq_layers[i](item_inputs[:, i]) if item_embed is None \
-                else item_embed + self.embed_seq_layers[i](item_inputs[:, i])
+        # inputs
+        seq_inputs, item_inputs = inputs  # (None, maxlen), (None, 1)
+        # mask
+        mask = tf.expand_dims(tf.cast(tf.not_equal(seq_inputs, 0), dtype=tf.float32), axis=-1)  # (None, maxlen, 1)
+        # seq info
+        seq_embed = self.item_embedding(seq_inputs)  # (None, maxlen, dim)
+        # item info
+        item_embed = self.item_embedding(tf.squeeze(item_inputs, axis=-1))  # (None, dim)
 
         # pos encoding
-        pos_encoding = tf.expand_dims(self.positional_encoding(seq_inputs), axis=0)
+        # pos_encoding = tf.expand_dims(positional_encoding(seq_inputs, self.embed_dim), axis=0)
+        pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
         seq_embed += pos_encoding
-        att_outputs = seq_embed
 
-        # attention
+        att_outputs = seq_embed  # (None, maxlen, dim)
+        att_outputs *= mask
+
+        # self-attention
         for block in self.attention_block:
-            att_outputs = block(att_outputs)
-        att_outputs = Flatten()(att_outputs)
+            att_outputs = block(att_outputs)  # (None, seq_len, dim)
+            att_outputs *= mask
 
-        # try to concat other features
-        if self.other_sparse_len != 0 or self.dense_len != 0:
-            att_outputs = tf.concat([att_outputs, x], axis=-1)
-
-        x = self.dense(att_outputs)
-        # Predict
-        outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(x, item_embed), axis=1, keepdims=True))
+        # Here is a difference from the original paper.
+        user_info = tf.reduce_mean(att_outputs, axis=1)  # (None, dim)
+        # predict
+        outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(user_info, item_embed), axis=1, keepdims=True))
         return outputs
 
-    def positional_encoding(self, seq_inputs):
-        encoded_vec = [pos / np.power(10000.0, 2 * i / self.d_model)
-                       for pos in range(seq_inputs.shape[-1]) for i in range(self.item_embed)]
-        encoded_vec[::2] = np.sin(encoded_vec[::2])
-        encoded_vec[1::2] = np.cos(encoded_vec[1::2])
-        encoded_vec = tf.reshape(tf.convert_to_tensor(encoded_vec, dtype=tf.float32), shape=(-1, self.item_embed))
-
-        return encoded_vec
-
     def summary(self):
-        dense_inputs = Input(shape=(self.dense_len, ), dtype=tf.float32)
-        sparse_inputs = Input(shape=(self.other_sparse_len, ), dtype=tf.int32)
-        seq_inputs = Input(shape=(self.seq_len, self.maxlen), dtype=tf.int32)
-        item_inputs = Input(shape=(self.seq_len, ), dtype=tf.int32)
-        tf.keras.Model(inputs=[dense_inputs, sparse_inputs, seq_inputs, item_inputs],
-                    outputs=self.call([dense_inputs, sparse_inputs, seq_inputs, item_inputs])).summary()
+        seq_inputs = Input(shape=(self.maxlen,), dtype=tf.int32)
+        item_inputs = Input(shape=(1,), dtype=tf.int32)
+        tf.keras.Model(inputs=[seq_inputs, item_inputs],
+                    outputs=self.call([seq_inputs, item_inputs])).summary()
 
 
 def test_model():
-    dense_features = [{'feat': 'a'}, {'feat': 'b'}]
-    sparse_features = [{'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8},
-                       {'feat': 'cate_id', 'feat_num': 100, 'embed_dim': 8},
-                       {'feat': 'adv_id', 'feat_num': 100, 'embed_dim': 8}]
-    behavior_list = ['item_id', 'cate_id']
-    features = [dense_features, sparse_features]
-    model = SASRec(features, behavior_list, num_heads=8)
+    item_feat = {'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8}
+    model = SASRec(item_feat, num_heads=8)
     model.summary()
 
 

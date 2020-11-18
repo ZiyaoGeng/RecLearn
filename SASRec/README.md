@@ -34,11 +34,11 @@ Self-Attentive Sequential Recommendation
 
 ```python
 class SASRec(tf.keras.Model):
-    def __init__(self, feature_columns, behavior_feature_list, blocks=1, num_heads=1, ffn_hidden_unit=128, dropout=0., maxlen=40, norm_training=True, causality=False, embed_reg=1e-4):
+    def __init__(self, item_feat_col, blocks=1, num_heads=1, ffn_hidden_unit=128,
+                 dropout=0., maxlen=40, norm_training=True, causality=False, embed_reg=1e-6):
         """
         SASRec model
-        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
-        :param behavior_feature_list: A list. the list of behavior feature names
+        :param item_feat_col: A dict contains 'feat_name', 'feat_num' and 'embed_dim'.
         :param blocks: A scalar. The Number of blocks.
         :param num_heads: A scalar. Number of heads.
         :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
@@ -55,25 +55,25 @@ class SASRec(tf.keras.Model):
 ### 5. 实验超参数
 
 - file：Amazon Electronic文件；
-- maxlen：最大序列长度，`40`；
+- trans_score：ml-1m分数转换，`1`；
+- maxlen：最大序列长度，`200`；
 - 
 - embed_dim：Embedding维度，`32`；
-- K：评价指标的@K，10；
 - blocks：block的个数，`2`；
 - num_heads：几头注意力，`1`；
-- ffn_hidden_unit：FFN的隐藏单元，` 256`；
+- ffn_hidden_unit：FFN的隐藏单元，` 50`；
 - dropout：`0.5`；
 - norm_training：是否使用Layer Normalization，`True`；
 - causality：是否使用，`False`；
+- K：评价指标的@K，`10`；
 - 
-
 - learning_rate：学习率，`0.001`；
+- epoch：`30`；
 - batch_size：`512`；
-- epoch：`5`；
 
 
 
 ### 6. 实验结果
 
-采用ml-1m数据集数据，最终测试集的结果为：
+采用ml-1m数据集数据，最终测试集的结果为：`0.774`，与原文的`0.824`差了`0.05`；
 

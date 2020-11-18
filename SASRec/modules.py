@@ -5,10 +5,19 @@ modules of SASRec: attention mechanism, multi-head attention, self-attention blo
 
 @author: Ziyao Geng
 """
-
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Flatten, Conv1D
+from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Conv1D
+
+
+# def positional_encoding(seq_inputs, embed_dim):
+#     encoded_vec = [pos / np.power(10000.0, 2 * i / embed_dim)
+#                    for pos in range(seq_inputs.shape[-1]) for i in range(embed_dim)]
+#     encoded_vec[::2] = np.sin(encoded_vec[::2])
+#     encoded_vec[1::2] = np.cos(encoded_vec[1::2])
+#     encoded_vec = tf.reshape(tf.convert_to_tensor(encoded_vec, dtype=tf.float32), shape=(-1, embed_dim))
+#     return encoded_vec
 
 
 def scaled_dot_product_attention(q, k, v, causality=True):
@@ -16,7 +25,7 @@ def scaled_dot_product_attention(q, k, v, causality=True):
     Attention Mechanism
     :param q: A 3d tensor with shape of (None, seq_len, depth), depth = d_model // num_heads
     :param k: A 3d tensor with shape of (None, seq_len, depth)
-    :param v: A 3d tensor with shape of (None, seq_len, depth_v)
+    :param v: A 3d tensor with shape of (None, seq_len, depth)
     :param causality: Boolean. If True, using causality, default True
     :return:
     """
@@ -47,7 +56,7 @@ def scaled_dot_product_attention(q, k, v, causality=True):
     query_masks = tf.tile(tf.expand_dims(query_masks, -1), [1, 1, q.shape[1]])  # (None, seq_len, seq_len)
     outputs *= query_masks
 
-    outputs = tf.matmul(outputs, v)  # (None, seq_len, depth_v)
+    outputs = tf.matmul(outputs, v)  # (None, seq_len, depth)
 
     return outputs
 
@@ -133,7 +142,7 @@ class SelfAttentionBlock(Layer):
     def call(self, inputs):
         x = inputs
         # self-attention
-        att_out = self.mha(x, x, x)
+        att_out = self.mha(x, x, x)  # （None, seq_len, d_model)
         att_out = self.dropout1(att_out)
         # residual add
         out1 = self.layernorm1(x + att_out)
