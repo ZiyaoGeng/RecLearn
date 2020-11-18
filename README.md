@@ -43,7 +43,7 @@
 
 1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
 
-2、实验环境：Python3.7，Tensorflow2.0-CPU/GPU；
+2、实验环境：Python3.7，Tensorflow2.x-CPU/GPU；
 
 3、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
 
@@ -100,7 +100,7 @@
 
 ## 致谢
 
-项目中会存在一些代码Bug，感谢以下朋友指出问题：
+项目中难免会存在一些代码Bug，感谢以下朋友指出问题：
 
 1. [wangzhe258369](https://github.com/wangzhe258369)：指出在DIN模型中`tf.keras.layers.BatchNormalization`默认行为是`training=False`，此时不会去更新BN中的moving_mean和moving_variance变量。但是重新修改了DIN模型代码内容时，再仔细查找了资料，[发现](https://www.it610.com/article/1276108622954250240.htm)：
 
