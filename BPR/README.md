@@ -37,9 +37,9 @@ class BPR(Model):
 ### 5. 实验超参数
 
 - file：ml-1m文件；
-- trans_score：阈值，`2`；
+- trans_score：阈值，`1`；
 - 
-- embed_dim：embedding维度，`16`；
+- embed_dim：embedding维度，`32`；
 - embed_reg：embedding正则化参数，`1e-6`；
 - K：top@k，`10`；
 - 
@@ -51,5 +51,5 @@ class BPR(Model):
 
 ### 6. 实验结果
 
-采用ml-1m数据集数据，最终测试集的结果为：`hit_rate@K:0.5349, NDCG@K:0.40, MRR:0.22`
+采用ml-1m数据集数据，最终测试集的结果为：`hit_rate@K:0.5442`，与SASRec中的baseline差`0.03`；
 

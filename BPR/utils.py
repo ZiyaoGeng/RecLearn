@@ -59,16 +59,16 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8):
         for i in range(1, len(pos_list)):
             if i == len(pos_list) - 1:
                 for neg in neg_list[i:]:
-                    test_data.append([[user_id], [pos_list[i]], [neg]])
+                    test_data.append([user_id, pos_list[i], neg])
             elif i == len(pos_list) - 2:
-                val_data.append([[user_id], [pos_list[i]], [neg_list[i]]])
+                val_data.append([user_id, pos_list[i], neg_list[i]])
             else:
-                train_data.append([[user_id], [pos_list[i]], [neg_list[i]]])
+                train_data.append([user_id, pos_list[i], neg_list[i]])
 
     # feature columns
     user_num, item_num = data_df['user_id'].max() + 1, data_df['item_id'].max() + 1
-    feature_columns = [[sparseFeature('user_id', user_num, embed_dim)],
-                       [sparseFeature('item_id', item_num, embed_dim)]]
+    feature_columns = [sparseFeature('user_id', user_num, embed_dim),
+                       sparseFeature('item_id', item_num, embed_dim)]
 
     # shuffle
     random.shuffle(train_data)
@@ -82,8 +82,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8):
 
     # create dataset
     def df_to_list(data):
-        return [np.array(data['user_id'].tolist()),
-            np.array(data['pos_item'].tolist()), np.array(data['neg_item'].tolist())]
+        return [data['user_id'].values, data['pos_item'].values, data['neg_item'].values]
 
     train_X = df_to_list(train)
     val_X = df_to_list(val)
