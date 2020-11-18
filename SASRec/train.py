@@ -27,7 +27,7 @@ if __name__ == '__main__':
     trans_score = 1
     maxlen = 200
 
-    embed_dim = 50
+    embed_dim = 32
     blocks = 2
     num_heads = 1
     ffn_hidden_unit = 50
@@ -61,7 +61,6 @@ if __name__ == '__main__':
             train_y,
             validation_data=(val_X, val_y),
             epochs=1,
-            # callbacks=[tensorboard, checkpoint],
             batch_size=batch_size,
         )
         # ===========================Test==============================
