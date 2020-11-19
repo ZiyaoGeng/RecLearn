@@ -68,7 +68,7 @@
 | Neural network-based Collaborative Filtering\|[**NCF**](NCF) |         WWW, 2017          |      Xiangnan He      |
 | Self-Attentive Sequential Recommendation｜[**SASRec**](SASRec) |         ICDM, 2018         |         UCSD          |
 | STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **[STAMP](STAMP)** |         KDD, 2018          |       Qiao Liu        |
-| Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding｜**[Caser](Caser)** |         WSDM, 2018         |      Jiaxi Tang       |
+| Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding｜[**Caser**](Caser) |         WSDM, 2018         |      Jiaxi Tang       |
 
 &nbsp;
 
