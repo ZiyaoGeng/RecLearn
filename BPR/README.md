@@ -40,7 +40,7 @@ class BPR(Model):
 - trans_score：阈值，`1`；
 - 
 - embed_dim：embedding维度，`32`；
-  - mode：尝试采用不同的计算相似度的形式，`inner product`或欧式距离，`inner`；
+- mode：尝试采用不同的计算相似度的形式，`inner product`或欧式距离，`inner`；
 - embed_reg：embedding正则化参数，`1e-6`；
 - K：top@k，`10`；
 - 
