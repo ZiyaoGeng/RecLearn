@@ -12,15 +12,18 @@ from tensorflow.keras.regularizers import l2
 
 
 class BPR(Model):
-    def __init__(self, feature_columns, embed_reg=1e-6):
+    def __init__(self, feature_columns, mode='inner', embed_reg=1e-6):
         """
         BPR
         :param feature_columns: A list. user feature columns + item feature columns
+        :mode: A string. 'inner' or 'dist'.
         :param embed_reg: A scalar.  The regularizer of embedding.
         """
         super(BPR, self).__init__()
         # feature columns
         self.user_fea_col, self.item_fea_col = feature_columns
+        # mode
+        self.mode = mode
         # user embedding
         self.user_embedding = Embedding(input_dim=self.user_fea_col['feat_num'],
                                         input_length=1,
@@ -43,12 +46,17 @@ class BPR(Model):
         # item
         pos_embed = self.item_embedding(tf.squeeze(pos_inputs, axis=-1))  # (None, dim)
         neg_embed = self.item_embedding(tf.squeeze(neg_inputs, axis=-1))  # (None, dim)
-        # calculate positive item scores and negative item scores
-        pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=1, keepdims=True)  # (None, 1)
-        neg_scores = tf.reduce_sum(tf.multiply(user_embed, neg_embed), axis=1, keepdims=True)  # (None, 1)
-        # add loss. Computes softplus: log(exp(features) + 1)
-        # self.add_loss(tf.reduce_mean(tf.math.softplus(neg_scores - pos_scores)))
-        self.add_loss(tf.reduce_mean(-tf.math.log(tf.nn.sigmoid(pos_scores - neg_scores))))
+        if self.mode == 'inner':
+            # calculate positive item scores and negative item scores
+            pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=1, keepdims=True)  # (None, 1)
+            neg_scores = tf.reduce_sum(tf.multiply(user_embed, neg_embed), axis=1, keepdims=True)  # (None, 1)
+            # add loss. Computes softplus: log(exp(features) + 1)
+            # self.add_loss(tf.reduce_mean(tf.math.softplus(neg_scores - pos_scores)))
+            self.add_loss(tf.reduce_mean(-tf.math.log(tf.nn.sigmoid(pos_scores - neg_scores))))
+        else:
+            pos_scores = tf.reduce_sum(tf.square(user_embed - pos_embed), axis=-1, keepdims=True)
+            neg_scores = tf.reduce_sum(tf.square(user_embed - neg_embed), axis=-1, keepdims=True)
+            self.add_loss(tf.reduce_sum(tf.maximum(neg_scores - pos_scores + 0.5, 0)))
         return pos_scores, neg_scores
 
     def summary(self):

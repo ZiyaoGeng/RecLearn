@@ -28,6 +28,7 @@ if __name__ == '__main__':
     trans_score = 1
 
     embed_dim = 32
+    mode = 'mode'
     embed_reg = 1e-6  # 1e-6
     K = 10
 
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     val_X = val
 
     # ============================Build Model==========================
-    model = BPR(feature_columns, embed_reg)
+    model = BPR(feature_columns, mode, embed_reg)
     model.summary()
     # =========================Compile============================
     model.compile(optimizer=Adam(learning_rate=learning_rate))
