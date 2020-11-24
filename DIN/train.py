@@ -1,10 +1,3 @@
-'''
-Descripttion: 
-Author: Ziyao Geng
-Date: 2020-10-26 22:18:12
-LastEditors: ZiyaoGeng
-LastEditTime: 2020-11-04 23:23:15
-'''
 """
 Created on Oct 23, 2020
 
@@ -36,8 +29,8 @@ if __name__ == '__main__':
     att_hidden_units = [80, 40]
     ffn_hidden_units = [256, 128, 64]
     dnn_dropout = 0.5
-    att_activation='sigmoid'
-    ffn_activation='prelu'
+    att_activation = 'sigmoid'
+    ffn_activation = 'prelu'
 
     learning_rate = 0.001
     batch_size = 4096
@@ -68,4 +61,4 @@ if __name__ == '__main__':
         batch_size=batch_size,
     )
     # ===========================Test==============================
-    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
+    print('test AUC: %f' % model.evaluate(test_X, test_y, batch_size=batch_size)[1])

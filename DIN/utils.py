@@ -63,23 +63,23 @@ def create_amazon_electronic_dataset(file, embed_dim=8, maxlen=40):
         neg_list = [gen_neg() for i in range(len(pos_list))]
         hist = []
         for i in range(1, len(pos_list)):
-            # hist.append([pos_list[i-1], cate_list[pos_list[i-1]]])
-            hist.append([pos_list[i - 1]])
+            hist.append([pos_list[i - 1], cate_list[pos_list[i-1]]])
+            hist_i = hist.copy()
             if i == len(pos_list) - 1:
-                # test_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                # test_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
-                test_data.append([hist, [pos_list[i]], 1])
-                test_data.append([hist, [neg_list[i]], 0])
+                test_data.append([hist_i, [pos_list[i], cate_list[pos_list[i]]], 1])
+                test_data.append([hist_i, [neg_list[i], cate_list[neg_list[i]]], 0])
+                # test_data.append([hist_i, [pos_list[i]], 1])
+                # test_data.append([hist_i, [neg_list[i]], 0])
             elif i == len(pos_list) - 2:
-                # val_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                # val_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
-                val_data.append([hist.copy(), [pos_list[i]], 1])
-                val_data.append([hist.copy(), [neg_list[i]], 0])
+                val_data.append([hist_i, [pos_list[i], cate_list[pos_list[i]]], 1])
+                val_data.append([hist_i, [neg_list[i], cate_list[neg_list[i]]], 0])
+                # val_data.append([hist_i, [pos_list[i]], 1])
+                # val_data.append([hist_i, [neg_list[i]], 0])
             else:
-                # train_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                # train_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
-                train_data.append([hist.copy(), [pos_list[i]], 1])
-                train_data.append([hist.copy(), [neg_list[i]], 0])
+                train_data.append([hist_i, [pos_list[i], cate_list[pos_list[i]]], 1])
+                train_data.append([hist_i, [neg_list[i], cate_list[neg_list[i]]], 0])
+                # train_data.append([hist_i, [pos_list[i]], 1])
+                # train_data.append([hist_i, [neg_list[i]], 0])
 
     # feature columns
     feature_columns = [[],
