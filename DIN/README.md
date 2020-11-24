@@ -71,4 +71,4 @@ class DIN(Model):
 
 ### 6. 实验结果
 
-采用Amazon-Electronic数据集数据，最终测试集的结果为：`AUC：0.738484`
+采用Amazon-Electronic数据集数据，最终测试集的结果为：`AUC：0.830086`
