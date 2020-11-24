@@ -50,7 +50,7 @@ def create_amazon_electronic_dataset(file, embed_dim=8, maxlen=40):
     reviews_df.columns = ['user_id', 'item_id', 'time']
 
     train_data, val_data, test_data = [], [], []
-    
+
     for user_id, hist in tqdm(reviews_df.groupby('user_id')):
         pos_list = hist['item_id'].tolist()
 
@@ -63,29 +63,29 @@ def create_amazon_electronic_dataset(file, embed_dim=8, maxlen=40):
         neg_list = [gen_neg() for i in range(len(pos_list))]
         hist = []
         for i in range(1, len(pos_list)):
-                # hist.append([pos_list[i-1], cate_list[pos_list[i-1]]])
-                hist.append([pos_list[i-1]])
-                if i == len(pos_list) - 1:
-                    # test_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                    # test_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
-                    test_data.append([hist, [pos_list[i]], 1])
-                    test_data.append([hist, [neg_list[i]], 0])
-                elif i == len(pos_list) - 2:
-                    # val_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                    # val_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
-                    val_data.append([hist, [pos_list[i]], 1])
-                    val_data.append([hist, [neg_list[i]], 0])
-                else:
-                    # train_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
-                    # train_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])    
-                    train_data.append([hist, [pos_list[i]], 1])
-                    train_data.append([hist, [neg_list[i]], 0])    
+            # hist.append([pos_list[i-1], cate_list[pos_list[i-1]]])
+            hist.append([pos_list[i - 1]])
+            if i == len(pos_list) - 1:
+                # test_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
+                # test_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
+                test_data.append([hist, [pos_list[i]], 1])
+                test_data.append([hist, [neg_list[i]], 0])
+            elif i == len(pos_list) - 2:
+                # val_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
+                # val_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
+                val_data.append([hist.copy(), [pos_list[i]], 1])
+                val_data.append([hist.copy(), [neg_list[i]], 0])
+            else:
+                # train_data.append([hist, [pos_list[i], cate_list[pos_list[i]]], 1])
+                # train_data.append([hist, [neg_list[i], cate_list[neg_list[i]]], 0])
+                train_data.append([hist.copy(), [pos_list[i]], 1])
+                train_data.append([hist.copy(), [neg_list[i]], 0])
 
     # feature columns
     feature_columns = [[],
-                       [sparseFeature('item_id', item_count, embed_dim), 
-                       ]]  # sparseFeature('cate_id', cate_count, embed_dim)
-    
+                       [sparseFeature('item_id', item_count, embed_dim),
+                        ]]  # sparseFeature('cate_id', cate_count, embed_dim)
+
     # behavior
     behavior_list = ['item_id']  # , 'cate_id'
 
@@ -106,12 +106,12 @@ def create_amazon_electronic_dataset(file, embed_dim=8, maxlen=40):
                np.array(train['target_item'].tolist())]
     train_y = train['label'].values
     val_X = [np.array([0] * len(val)), np.array([0] * len(val)),
-               pad_sequences(val['hist'], maxlen=maxlen),
-               np.array(val['target_item'].tolist())]
+             pad_sequences(val['hist'], maxlen=maxlen),
+             np.array(val['target_item'].tolist())]
     val_y = val['label'].values
     test_X = [np.array([0] * len(test)), np.array([0] * len(test)),
-               pad_sequences(test['hist'], maxlen=maxlen),
-               np.array(test['target_item'].tolist())]     
+              pad_sequences(test['hist'], maxlen=maxlen),
+              np.array(test['target_item'].tolist())]
     test_y = test['label'].values
     print('============Data Preprocess End=============')
     return feature_columns, behavior_list, (train_X, train_y), (val_X, val_y), (test_X, test_y)

@@ -1,10 +1,3 @@
-'''
-Descripttion: 
-Author: Ziyao Geng
-Date: 2020-10-26 22:18:54
-LastEditors: ZiyaoGeng
-LastEditTime: 2020-11-04 21:09:18
-'''
 """
 Created on Oct 26, 2020
 
@@ -20,7 +13,7 @@ from tensorflow.keras.layers import Layer, BatchNormalization, Dense
 
 
 class Attention_Layer(Layer):
-    def __init__(self, att_hidden_units, activation='sigmoid'):
+    def __init__(self, att_hidden_units, activation='prelu'):
         """
         """
         super(Attention_Layer, self).__init__()

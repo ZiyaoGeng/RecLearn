@@ -15,8 +15,8 @@ from modules import *
 
 
 class DIN(Model):
-    def __init__(self, feature_columns, behavior_feature_list, att_hidden_units=(80, 40), 
-        ffn_hidden_units=(80, 40), att_activation='sigmoid', ffn_activation='prelu', maxlen=40, dnn_dropout=0., embed_reg=1e-4):
+    def __init__(self, feature_columns, behavior_feature_list, att_hidden_units=(80, 40),
+                 ffn_hidden_units=(80, 40), att_activation='prelu', ffn_activation='prelu', maxlen=40, dnn_dropout=0., embed_reg=1e-4):
         """
         DIN
         :param feature_columns: A list. dense_feature_columns + sparse_feature_columns

@@ -11,7 +11,7 @@ Personalized Top-N Sequential Recommendation via Convolutional Sequence Embeddin
 
 ### 2. 模型结构
 
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_18.png" width="70%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_20.png" width="70%;" style="float:center"/></div>
 
 
 

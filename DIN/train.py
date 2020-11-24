@@ -25,7 +25,7 @@ from utils import *
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
 if __name__ == '__main__':
     # ========================= Hyper Parameters =======================
@@ -33,8 +33,8 @@ if __name__ == '__main__':
     maxlen = 20
     
     embed_dim = 8
-    att_hidden_units= [80, 40] 
-    ffn_hidden_units= [256, 128, 64]
+    att_hidden_units = [80, 40]
+    ffn_hidden_units = [256, 128, 64]
     dnn_dropout = 0.5
     att_activation='sigmoid'
     ffn_activation='prelu'
