@@ -11,8 +11,8 @@ from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
-from model import DeepFM
 
+from model import DeepFM
 from utils import create_criteo_dataset
 
 import os
@@ -21,6 +21,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 if __name__ == '__main__':
+    # =============================== GPU ==============================
+    # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # print(gpu)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '6, 7'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'

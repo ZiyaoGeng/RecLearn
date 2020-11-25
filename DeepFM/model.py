@@ -7,19 +7,18 @@ model: DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
 """
 
 import tensorflow as tf
-from tensorflow import keras 
-from tensorflow.keras import layers, optimizers, losses
+from tensorflow.keras import Model
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Embedding, Dropout, Dense, Input
+from tensorflow.keras.layers import Embedding, Dropout, Dense, Input, Layer
 
 
-class FM(layers.Layer):
+class FM(Layer):
 	"""
 	Wide part
 	"""
 	def __init__(self, k=10, w_reg=1e-4, v_reg=1e-4):
 		"""
-
+		Factorization Machine
 		:param k: A scalar. The dimension of the latent vector.
 		:param w_reg: A scalar. The regularization coefficient of parameter w.
 		:param v_reg: A scalar. The regularization coefficient of parameter v.
@@ -52,7 +51,7 @@ class FM(layers.Layer):
 		return first_order + second_order
 
 
-class DNN(layers.Layer):
+class DNN(Layer):
 	"""
 	Deep part
 	"""
@@ -75,7 +74,7 @@ class DNN(layers.Layer):
 		return x
 
 
-class DeepFM(keras.Model):
+class DeepFM(Model):
 	def __init__(self, feature_columns, k=10, hidden_units=(200, 200, 200), dnn_dropout=0.,
 				 activation='relu', fm_w_reg=1e-4, fm_v_reg=1e-4, embed_reg=1e-4):
 		"""
@@ -102,15 +101,6 @@ class DeepFM(keras.Model):
 		self.fm = FM(k, fm_w_reg, fm_v_reg)
 		self.dnn = DNN(hidden_units, activation, dnn_dropout)
 		self.dense = Dense(1, activation=None)
-		self.w1 = self.add_weight(name='wide_weight',
-								  shape=(1,),
-								  trainable=True)
-		self.w2 = self.add_weight(name='deep_weight',
-								  shape=(1,),
-								  trainable=True)
-		self.bias = self.add_weight(name='bias',
-									shape=(1,),
-									trainable=True)
 
 	def call(self, inputs, **kwargs):
 		dense_inputs, sparse_inputs = inputs
@@ -123,11 +113,10 @@ class DeepFM(keras.Model):
 		deep_outputs = self.dnn(stack)
 		deep_outputs = self.dense(deep_outputs)
 
-		outputs = tf.nn.sigmoid(
-			tf.add(tf.add(self.w1 * wide_outputs, self.w2 * deep_outputs), self.bias))
+		outputs = tf.nn.sigmoid(tf.add(wide_outputs, deep_outputs))
 		return outputs
 
 	def summary(self):
 		dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
 		sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
-		keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
+		Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
