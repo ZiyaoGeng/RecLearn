@@ -64,7 +64,7 @@ class DIN(Model):
 - ffn_activation：FFN中的激活函数，Prelu或Dice，`prelu`；
 - 
 - learning_rate：学习率，`0.001`；
-- batch_size：`512`；
+- batch_size：`1024`；
 - epoch：`5`；
 
 
