@@ -1,43 +1,37 @@
 """
-Created on Nov 19, 2020
+Created on Sept 11, 2020
 
 evaluate model
 
 @author: Ziyao Geng
 """
-
+import pandas as pd
 import numpy as np
 
 
-def getHit(pred_y, true_y):
+def getHit(df):
     """
     calculate hit rate
     :return:
     """
-    # reversed
-    pred_index = np.argsort(-pred_y)[:, :_K]
-    return sum([true_y[i] in pred_index[i] for i in range(len(pred_index))]) / len(pred_index)
+    df = df.sort_values('pred_y', ascending=False).reset_index()
+    if df[df.true_y == 1].index.tolist()[0] < _K:
+        return 1
+    else:
+        return 0
 
 
-def getNDCG(pred_y, true_y):
+def getNDCG(df):
     """
     calculate NDCG
     :return:
     """
-    pred_index = np.argsort(-pred_y)[:, :_K]
-    return sum([1 / np.log(np.where(true_y[i] == pred_index[i])[0][0] + 2)
-                for i in range(len(pred_index))
-                if len(np.where(true_y[i] == pred_index[i])[0]) != 0]) / len(pred_index)
-
-
-def getMRR(pred_y, true_y):
-    """
-    calculate MRR
-    :return:
-    """
-    pred_index = np.argsort(-pred_y)
-    return sum([1 / (np.where(true_y[i] == pred_index[i])[0][0] + 1)
-                for i in range(len(pred_index))]) / len(pred_index)
+    df = df.sort_values('pred_y', ascending=False).reset_index()
+    i = df[df.true_y == 1].index.tolist()[0]
+    if i < _K:
+        return np.log(2) / np.log(i+2)
+    else:
+        return 0.
 
 
 def evaluate_model(model, test, K):
@@ -46,14 +40,16 @@ def evaluate_model(model, test, K):
     :param model: model
     :param test: test set
     :param K: top K
-    :return: hit rate, ndcg, mrr
+    :return: hit rate, ndcg
     """
     global _K
     _K = K
     test_X, test_y = test
     pred_y = model.predict(test_X)
-    hit_rate = getHit(pred_y, test_y)
-    ndcg = getNDCG(pred_y, test_y)
-    mrr = getMRR(pred_y, test_y)
-
-    return hit_rate, ndcg, mrr
+    test_df = pd.DataFrame(test_y, columns=['true_y'])
+    test_df['user_id'] = test_X[0]
+    test_df['pred_y'] = pred_y
+    tg = test_df.groupby('user_id')
+    hit_rate = tg.apply(getHit).mean()
+    ndcg = tg.apply(getNDCG).mean()
+    return hit_rate, ndcg

@@ -20,6 +20,7 @@ class Caser(Model):
         :param hor_n: A scalar. The number of horizontal filters.
         :param hor_h: A scalar. Height of horizontal filters.
         :param ver_n: A scalar. The number of vertical filters.
+        :param dropout: A scalar. The number of dropout.
         :param activation: A string. 'relu', 'sigmoid' or 'tanh'.
         :param embed_reg: A scalar. The regularizer of embedding.
         """
@@ -43,14 +44,21 @@ class Caser(Model):
                                         input_length=1,
                                         output_dim=self.user_fea_col['embed_dim'],
                                         mask_zero=False,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
                                         input_length=1,
                                         output_dim=self.item_fea_col['embed_dim'],
                                         mask_zero=True,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
+                                        embeddings_regularizer=l2(embed_reg))
+        # item2 embedding
+        self.item2_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
+                                        input_length=1,
+                                        output_dim=self.item_fea_col['embed_dim'] * 2,
+                                        mask_zero=True,
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # horizontal conv
         self.hor_conv = Conv1D(filters=self.hor_n, kernel_size=self.hor_h)
@@ -61,11 +69,10 @@ class Caser(Model):
         # dense
         self.dense = Dense(self.embed_dim, activation=activation)
         self.dropout = Dropout(dropout)
-        self.dense_final = Dense(self.total_item, activation=None)
 
     def call(self, inputs):
         # input
-        user_inputs, seq_inputs = inputs
+        user_inputs, seq_inputs, item_inputs = inputs
         # user info
         user_embed = self.user_embedding(tf.squeeze(user_inputs, axis=-1))  # (None, dim)
         # seq info
@@ -81,20 +88,24 @@ class Caser(Model):
         seq_info = self.dropout(seq_info)
         # concat
         info = tf.concat([seq_info, user_embed], axis=-1)  # (None, 2 * d)
-        # pred
-        pred_y = tf.nn.sigmoid(self.dense_final(info))  # (None, total_num)
-        return pred_y
+        # item info
+        item_embed = self.item2_embedding(tf.squeeze(item_inputs, axis=-1))  # (None, dim)
+        # predict
+        outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(info, item_embed), axis=1, keepdims=True))
+        return outputs
 
     def summary(self):
         seq_inputs = Input(shape=(self.maxlen,), dtype=tf.int32)
         user_inputs = Input(shape=(1, ), dtype=tf.int32)
-        Model(inputs=[user_inputs, seq_inputs],
-              outputs=self.call([user_inputs, seq_inputs])).summary()
+        item_inputs = Input(shape=(1,), dtype=tf.int32)
+        Model(inputs=[user_inputs, seq_inputs, item_inputs],
+              outputs=self.call([user_inputs, seq_inputs, item_inputs])).summary()
 
 
 def test_model():
     user_features = {'feat': 'user_id', 'feat_num': 100, 'embed_dim': 8}
     seq_features = {'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8}
+
     features = [user_features, seq_features]
     model = Caser(features)
     model.summary()

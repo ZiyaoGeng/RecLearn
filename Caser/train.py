@@ -8,7 +8,7 @@ train Caser model
 import os
 import tensorflow as tf
 from time import time
-from tensorflow.keras.losses import SparseCategoricalCrossentropy, Reduction
+from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.optimizers import Adam
 
 from model import Caser
@@ -21,19 +21,19 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '5, 6, 7'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
     maxlen = 200
 
-    embed_dim = 32
+    embed_dim = 50  # 32
     hor_n = 8
     hor_h = 2
-    ver_n = 8
-    dropout = 0.5
+    ver_n = 4
+    dropout = 0.2
     activation = 'relu'
-    embed_reg = 1e-5
+    embed_reg = 1e-6
     K = 10
 
     learning_rate = 0.001
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     model = Caser(feature_columns, maxlen, hor_n, hor_h, ver_n, dropout, activation, embed_reg)
     model.summary()
     # =========================Compile============================
-    model.compile(loss=SparseCategoricalCrossentropy(), optimizer=Adam(learning_rate=learning_rate))
+    model.compile(loss=BinaryCrossentropy(), optimizer=Adam(learning_rate=learning_rate))
 
     results = []
     for epoch in range(1, epochs + 1):
@@ -64,11 +64,11 @@ if __name__ == '__main__':
         # ===========================Test==============================
         t2 = time()
         if epoch % 5 == 0:
-            hit_rate, ndcg, mrr = evaluate_model(model, test, K)
-            print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, NDCG= %.4f, , MRR = %.4f'
-                  % (epoch, t2 - t1, time() - t2, hit_rate, ndcg, mrr))
-            results.append([epoch + 1, t2 - t1, time() - t2, hit_rate, ndcg, mrr])
+            hit_rate, ndcg = evaluate_model(model, test, K)
+            print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, NDCG= %.4f'
+                  % (epoch, t2 - t1, time() - t2, hit_rate, ndcg))
+            results.append([epoch + 1, t2 - t1, time() - t2, hit_rate, ndcg])
     # ============================Write============================
-    # pd.DataFrame(results, columns=['Iteration', 'fit_time', 'evaluate_time', 'hit_rate', 'ndcg']).\
-    #     to_csv('log/Caser_log_maxlen_{}_dim_{}_hor_n_{}_ver_n_{}_K_{}_.csv'.
-    #            format(maxlen, embed_dim, hor_n, ver_n, K), index=False)
+    pd.DataFrame(results, columns=['Iteration', 'fit_time', 'evaluate_time', 'hit_rate', 'ndcg']).\
+        to_csv('log/Caser_log_maxlen_{}_dim_{}_hor_n_{}_ver_n_{}_K_{}_.csv'.
+               format(maxlen, embed_dim, hor_n, ver_n, K), index=False)
