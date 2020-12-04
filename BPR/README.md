@@ -24,10 +24,11 @@ BPR: Bayesian Personalized Ranking from Implicit Feedback
 
 ```python
 class BPR(Model):
-    def __init__(self, feature_columns, embed_reg=1e-6):
+    def __init__(self, feature_columns, mode='inner', embed_reg=1e-6):
         """
         BPR
         :param feature_columns: A list. user feature columns + item feature columns
+        :mode: A string. 'inner' or 'dist'.
         :param embed_reg: A scalar.  The regularizer of embedding.
         """
 ```
@@ -40,7 +41,7 @@ class BPR(Model):
 - trans_score：阈值，`1`；
 - 
 - embed_dim：embedding维度，`32`；
-- mode：尝试采用不同的计算相似度的形式，`inner product`或欧式距离，`inner`；
+- mode：尝试采用不同的计算相似度的形式，`inner product`或`dist`欧式距离，`inner`；
 - embed_reg：embedding正则化参数，`1e-6`；
 - K：top@k，`10`；
 - 
@@ -52,5 +53,8 @@ class BPR(Model):
 
 ### 6. 实验结果
 
-采用ml-1m数据集数据，最终测试集的结果为：`hit_rate@K:0.5442`，与SASRec中的baseline差`0.03`；
+采用测试集评估（1正样本，100负样本），结果：
+
+- 采用inner：`hit_rate@K:0.5442`，与SASRec中的baseline差`0.03`；
+- 采用dist：`hit_rate@K:0.4627`，与内积计算差距过大，需要调整；
 

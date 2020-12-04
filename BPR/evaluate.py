@@ -54,8 +54,11 @@ def evaluate_model(model, test, K):
     pos_score, neg_score = model.predict(test_X)
     # create dataframe
     test_df = pd.DataFrame(test_X[0], columns=['user_id'])
-    # if pos score < neg score, pred = 1
-    test_df['pred'] = (pos_score <= neg_score).astype(np.int32)
+    # if mode == 'inner', pos score < neg score, pred = 1
+    if model.mode == 'inner':
+        test_df['pred'] = (pos_score <= neg_score).astype(np.int32)
+    else:
+        test_df['pred'] = (pos_score >= neg_score).astype(np.int32)
     # groupby
     tg = test_df.groupby('user_id')
     # calculate hit

@@ -29,14 +29,14 @@ class BPR(Model):
                                         input_length=1,
                                         output_dim=self.user_fea_col['embed_dim'],
                                         mask_zero=False,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
                                         input_length=1,
                                         output_dim=self.item_fea_col['embed_dim'],
                                         mask_zero=True,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
 
     def call(self, inputs):
@@ -54,9 +54,13 @@ class BPR(Model):
             # self.add_loss(tf.reduce_mean(tf.math.softplus(neg_scores - pos_scores)))
             self.add_loss(tf.reduce_mean(-tf.math.log(tf.nn.sigmoid(pos_scores - neg_scores))))
         else:
+            # clip by norm
+            # user_embed = tf.clip_by_norm(user_embed, 1, -1)
+            # pos_embed = tf.clip_by_norm(pos_embed, 1, -1)
+            # neg_embed = tf.clip_by_norm(neg_embed, 1, -1)
             pos_scores = tf.reduce_sum(tf.square(user_embed - pos_embed), axis=-1, keepdims=True)
             neg_scores = tf.reduce_sum(tf.square(user_embed - neg_embed), axis=-1, keepdims=True)
-            self.add_loss(tf.reduce_sum(tf.maximum(neg_scores - pos_scores + 0.5, 0)))
+            self.add_loss(tf.reduce_sum(tf.nn.relu(pos_scores - neg_scores + 0.5)))
         return pos_scores, neg_scores
 
     def summary(self):

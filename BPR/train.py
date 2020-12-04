@@ -21,14 +21,14 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    # os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
 
     embed_dim = 32
-    mode = 'mode'
+    mode = 'inner'
     embed_reg = 1e-6  # 1e-6
     K = 10
 
@@ -67,4 +67,4 @@ if __name__ == '__main__':
             results.append([epoch, t2 - t1, time() - t2, hit_rate, ndcg, mrr])
     # ========================== Write Log ===========================
     pd.DataFrame(results, columns=['Iteration', 'fit_time', 'evaluate_time', 'hit_rate', 'ndcg', 'mrr'])\
-        .to_csv('log/BPR_log_dim_{}_K_{}.csv'.format(embed_dim, K), index=False)
+        .to_csv('log/BPR_log_dim_{}_mode_{}_K_{}.csv'.format(embed_dim, mode, K), index=False)
