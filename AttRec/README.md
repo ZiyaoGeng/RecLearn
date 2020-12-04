@@ -9,7 +9,7 @@ Next Item Recommendation with Self-Attentive Metric Learning
 
 ### 2. 模型结构
 
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_19.png" width="70%;" style="float:center"/></div>
+<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_18.png" width="70%;" style="float:center"/></div>
 
 
 
@@ -48,9 +48,9 @@ class AttRec(Model):
 
 - file：ml-1m文件；
 - trans_score：阈值，`1`；
-- maxlen：序列长度，`50`；
+- maxlen：序列长度，`5`；
 - 
-- embed_dim：embedding维度，`32`；
+- embed_dim：embedding维度，`100`；
 - embed_reg：embedding正则化参数，`1e-6`；
 - gamma：margin，`0.5`；
 - mode：尝试采用不同的计算相似度的形式，`inner product`或欧式距离，`inner`；
@@ -65,5 +65,10 @@ class AttRec(Model):
 
 ### 6. 实验结果
 
-采用ml-1m数据集数据，最终测试集的结果为：采用内积的形式下，`hit_rate@K:0.74`（没有调参，dist的效果有点问题）
+采用测试集评估（1正样本，100负样本），结果：
+
+- dist：`hit_rate@K:0.7541`，并没有按照原文的方法进行评估，而是与SASRec进行对照；
+- inner：`hit_rate@K:0.7535`，似乎与dist差距不大；
+
+
 

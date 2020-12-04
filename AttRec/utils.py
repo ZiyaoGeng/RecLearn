@@ -94,4 +94,4 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40):
     return feature_columns, train_X, val_X, test_X
 
 
-# create_implicit_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
+# create_implicit_ml_1m_dataset('../dataset/ml-1m/ratings.dat', maxlen=5)

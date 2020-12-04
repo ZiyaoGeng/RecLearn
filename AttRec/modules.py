@@ -25,6 +25,9 @@ class SelfAttention_Layer(Layer):
 
     def call(self, inputs, **kwargs):
         q, k, v, mask = inputs
+        # pos encoding
+        k += self.positional_encoding(k)
+        q += self.positional_encoding(q)
         # Nonlinear transformation
         q = tf.nn.relu(tf.matmul(q, self.W))  # (None, seq_len, dim)
         k = tf.nn.relu(tf.matmul(k, self.W))  # (None, seq_len, dim)
@@ -37,17 +40,24 @@ class SelfAttention_Layer(Layer):
         paddings = tf.ones_like(scaled_att_logits) * (-2 ** 32 + 1)
         outputs = tf.where(tf.equal(mask, 0), paddings, scaled_att_logits)  # (None, seq_len, seq_len)
         # softmax
-        outputs = tf.nn.softmax(logits=outputs)  # (None, seq_len, seq_len)
+        outputs = tf.nn.softmax(logits=outputs, axis=-1)  # (None, seq_len, seq_len)
         # output
         outputs = tf.matmul(outputs, v)  # (None, seq_len, dim)
         outputs = tf.reduce_mean(outputs, axis=1)  # (None, dim)
         return outputs
 
-    def positional_encoding(self, QK_input):
-        encoded_vec = [pos / np.power(10000.0, 2 * i / self.dim)
-                       for pos in range(QK_input.shape[1]) for i in range(self.dim)]
-        encoded_vec[::2] = np.sin(encoded_vec[::2])
-        encoded_vec[1::2] = np.cos(encoded_vec[1::2])
-        encoded_vec = tf.reshape(tf.convert_to_tensor(encoded_vec, dtype=tf.float32), shape=(-1, self.dim))
+    @staticmethod
+    def get_angles(pos, i, d_model):
+        angle_rates = 1 / np.power(10000, (2 * (i // 2)) / np.float32(d_model))
+        return pos * angle_rates
 
-        return encoded_vec
+    def positional_encoding(self, QK_input):
+        angle_rads = self.get_angles(np.arange(QK_input.shape[1])[:, np.newaxis],
+                                np.arange(self.dim)[np.newaxis, :], self.dim)
+        angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+        angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+        pos_encoding = angle_rads[np.newaxis, ...]
+
+        return tf.cast(pos_encoding, dtype=tf.float32)
+
+

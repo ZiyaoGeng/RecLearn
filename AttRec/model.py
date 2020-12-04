@@ -16,7 +16,7 @@ from modules import *
 
 
 class AttRec(Model):
-    def __init__(self, feature_columns, maxlen=40, mode='inner', gamma=0.5, w=0.5, embed_reg=1e-6):
+    def __init__(self, feature_columns, maxlen=40, mode='inner', gamma=0.5, w=0.5, embed_reg=1e-6, **kwargs):
         """
         AttRec
         :param feature_columns: A feature columns list. user + seq
@@ -26,7 +26,7 @@ class AttRec(Model):
         :param w: A scalar. The weight of short interest.
         :param embed_reg: A scalar. The regularizer of embedding.
         """
-        super(AttRec, self).__init__()
+        super(AttRec, self).__init__(**kwargs)
         # maxlen
         self.maxlen = maxlen
         # w
@@ -42,29 +42,22 @@ class AttRec(Model):
                                         input_length=1,
                                         output_dim=self.user_fea_col['embed_dim'],
                                         mask_zero=False,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
                                         input_length=1,
                                         output_dim=self.item_fea_col['embed_dim'],
                                         mask_zero=True,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
-        # item2 embedding
+        # item2 embedding, not share embedding
         self.item2_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
                                         input_length=1,
                                         output_dim=self.item_fea_col['embed_dim'],
                                         mask_zero=True,
-                                        embeddings_initializer='random_uniform',
+                                        embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
-        # pos embedding
-        self.pos_embedding = Embedding(input_dim=self.maxlen,
-                                       input_length=1,
-                                       output_dim=self.embed_dim,
-                                       mask_zero=False,
-                                       embeddings_initializer='random_uniform',
-                                       embeddings_regularizer=l2(embed_reg))
         # self-attention
         self.self_attention = SelfAttention_Layer()
 
@@ -72,6 +65,7 @@ class AttRec(Model):
         # input
         user_inputs, seq_inputs, pos_inputs, neg_inputs = inputs
         # mask
+        # mask = self.item_embedding.compute_mask(seq_inputs)
         mask = tf.cast(tf.not_equal(seq_inputs, 0), dtype=tf.float32)  # (None, maxlen)
         # user info
         user_embed = self.user_embedding(tf.squeeze(user_inputs, axis=-1))  # (None, dim)
@@ -83,10 +77,6 @@ class AttRec(Model):
         # item2 embed
         pos_embed2 = self.item2_embedding(tf.squeeze(pos_inputs, axis=-1))  # (None, dim)
         neg_embed2 = self.item2_embedding(tf.squeeze(neg_inputs, axis=-1))  # (None, dim)
-        # pos embedding
-        # seq_embed += tf.expand_dims(self.positional_encoding(seq_embed), axis=0)
-        pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
-        seq_embed += pos_encoding
 
         # short-term interest
         short_interest = self.self_attention([seq_embed, seq_embed, seq_embed, mask])  # (None, dim)
@@ -94,27 +84,33 @@ class AttRec(Model):
         # mode
         if self.mode == 'inner':
             # long-term interest, pos and neg
-            pos_long_interest = tf.multiply(user_embed, pos_embed)
-            neg_long_interest = tf.multiply(user_embed, neg_embed)
+            pos_long_interest = tf.multiply(user_embed, pos_embed2)
+            neg_long_interest = tf.multiply(user_embed, neg_embed2)
             # combine
-            pos_scores = self.w * tf.reduce_sum(tf.multiply(short_interest, pos_embed), axis=-1, keepdims=True) \
-                         + (1 - self.w) * tf.reduce_sum(pos_long_interest, axis=-1, keepdims=True)  # (None, 1)
-            neg_scores = self.w * tf.reduce_sum(tf.multiply(short_interest, neg_embed), axis=-1, keepdims=True) \
-                         + (1 - self.w) * tf.reduce_sum(neg_long_interest, axis=-1, keepdims=True)  # (None, 1)
+            pos_scores = self.w * tf.reduce_sum(pos_long_interest, axis=-1, keepdims=True) \
+                         + (1 - self.w) * tf.reduce_sum(tf.multiply(short_interest, pos_embed), axis=-1, keepdims=True)
+            neg_scores = self.w * tf.reduce_sum(neg_long_interest, axis=-1, keepdims=True) \
+                         + (1 - self.w) * tf.reduce_sum(tf.multiply(short_interest, neg_embed), axis=-1, keepdims=True)
             self.add_loss(tf.reduce_mean(-tf.math.log(tf.nn.sigmoid(pos_scores - neg_scores))))
         else:
+            # clip by norm
+            user_embed = tf.clip_by_norm(user_embed, 1, -1)
+            pos_embed = tf.clip_by_norm(pos_embed, 1, -1)
+            neg_embed = tf.clip_by_norm(neg_embed, 1, -1)
+            pos_embed2 = tf.clip_by_norm(pos_embed2, 1, -1)
+            neg_embed2 = tf.clip_by_norm(neg_embed2, 1, -1)
             # distance
             # long-term interest, pos and neg
             pos_long_interest = tf.square(user_embed - pos_embed2)  # (None, dim)
             neg_long_interest = tf.square(user_embed - neg_embed2)  # (None, dim)
             # combine. Here is a difference from the original paper.
-            pos_scores = self.w * tf.reduce_sum(tf.square(short_interest - pos_embed), axis=-1, keepdims=True) + \
-                         (1 - self.w) * tf.reduce_sum(pos_long_interest, axis=-1, keepdims=True)  # (None, 1)
-            neg_scores = self.w * tf.reduce_sum(tf.square(short_interest - neg_embed), axis=-1, keepdims=True) + \
-                         (1 - self.w) * tf.reduce_sum(neg_long_interest, axis=-1, keepdims=True)  # (None, 1)
+            pos_scores = self.w * tf.reduce_sum(pos_long_interest, axis=-1, keepdims=True) + \
+                         (1 - self.w) * tf.reduce_sum(tf.square(short_interest - pos_embed), axis=-1, keepdims=True)
+            neg_scores = self.w * tf.reduce_sum(neg_long_interest, axis=-1, keepdims=True) + \
+                         (1 - self.w) * tf.reduce_sum(tf.square(short_interest - neg_embed), axis=-1, keepdims=True)
             # minimize loss
-            # self.add_loss(tf.reduce_sum(tf.nn.relu(neg_scores - pos_scores + self.gamma)))
-            self.add_loss(tf.reduce_sum(tf.maximum(neg_scores - pos_scores + self.gamma, 0)))
+            # self.add_loss(tf.reduce_sum(tf.maximum(pos_scores - neg_scores + self.gamma, 0)))
+            self.add_loss(tf.reduce_sum(tf.nn.relu(pos_scores - neg_scores + self.gamma)))
         return pos_scores, neg_scores
 
     def summary(self):

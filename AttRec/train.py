@@ -23,14 +23,14 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '5, 6, 7'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
-    maxlen = 50
+    maxlen = 5
     
-    embed_dim = 32
+    embed_dim = 100
     embed_reg = 1e-6  # 1e-6
     gamma = 0.5
     mode = 'inner'  # 'inner' or 'dist'
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     learning_rate = 0.001
     epochs = 40
-    batch_size = 512
+    batch_size = 1024
     # ========================== Create dataset =======================
     feature_columns, train, val, test = create_implicit_ml_1m_dataset(file, trans_score, embed_dim, maxlen)
     train_X = train
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, NDCG = %.4f, MRR = %.4f'
                   % (epoch, t2 - t1, time() - t2, hit_rate, ndcg, mrr))
             results.append([epoch, t2 - t1, time() - t2, hit_rate, ndcg, mrr])
-        # ========================== Write Log ===========================
+    # ========================== Write Log ===========================
     pd.DataFrame(results, columns=['Iteration', 'fit_time', 'evaluate_time',
                                    'hit_rate', 'ndcg', 'mrr']).to_csv(
         'log/AttRec_log_maxlen_{}_dim_{}_K_{}_w_{}.csv'.format(maxlen, embed_dim, K, w), index=False)
