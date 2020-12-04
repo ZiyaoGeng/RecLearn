@@ -21,16 +21,16 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '5, 6, 7'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2'
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
     maxlen = 200
 
-    embed_dim = 32
+    embed_dim = 50
     blocks = 2
     num_heads = 1
-    ffn_hidden_unit = 50
+    ffn_hidden_unit = 64
     dropout = 0.2
     norm_training = True
     causality = False
@@ -41,12 +41,12 @@ if __name__ == '__main__':
     epochs = 30
     batch_size = 512
     # ========================== Create dataset =======================
-    feature_columns, train, val, test = create_implicit_ml_1m_dataset(file, trans_score, embed_dim, maxlen)
+    item_fea_col, train, val, test = create_implicit_ml_1m_dataset(file, trans_score, embed_dim, maxlen)
     train_X, train_y = train
     val_X, val_y = val
 
     # ============================Build Model==========================
-    model = SASRec(feature_columns, blocks, num_heads, ffn_hidden_unit, dropout,
+    model = SASRec(item_fea_col, blocks, num_heads, ffn_hidden_unit, dropout,
                    maxlen, norm_training, causality, embed_reg)
     model.summary()
     # =========================Compile============================
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         )
         # ===========================Test==============================
         t2 = time()
-        if epoch % 10 == 0:
+        if epoch % 5 == 0:
             hit_rate, ndcg = evaluate_model(model, test, K)
             print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, NDCG = %.4f, '
                   % (epoch, t2 - t1, time() - t2, hit_rate, ndcg))

@@ -73,7 +73,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40):
     # shuffle
     random.shuffle(train_data)
     random.shuffle(val_data)
-    random.shuffle(test_data)
+    # random.shuffle(test_data)
 
     # create dataframe
     train = pd.DataFrame(train_data, columns=['hist', 'target_item', 'label'])

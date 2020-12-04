@@ -14,11 +14,11 @@ from modules import *
 
 
 class SASRec(tf.keras.Model):
-    def __init__(self, item_feat_col, blocks=1, num_heads=1, ffn_hidden_unit=128,
+    def __init__(self, item_fea_col, blocks=1, num_heads=1, ffn_hidden_unit=128,
                  dropout=0., maxlen=40, norm_training=True, causality=False, embed_reg=1e-6):
         """
         SASRec model
-        :param item_feat_col: A dict contains 'feat_name', 'feat_num' and 'embed_dim'.
+        :param item_fea_col: A dict contains 'feat_name', 'feat_num' and 'embed_dim'.
         :param blocks: A scalar. The Number of blocks.
         :param num_heads: A scalar. Number of heads.
         :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
@@ -32,24 +32,24 @@ class SASRec(tf.keras.Model):
         # sequence length
         self.maxlen = maxlen
         # item feature columns
-        self.item_feat_col = item_feat_col
+        self.item_fea_col = item_fea_col
         # embed_dim
-        self.embed_dim = self.item_feat_col['embed_dim']
+        self.embed_dim = self.item_fea_col['embed_dim']
         # d_model must be the same as embedding_dim, because of residual connection
         self.d_model = self.embed_dim
         # item embedding
-        self.item_embedding = Embedding(input_dim=self.item_feat_col['feat_num'],
+        self.item_embedding = Embedding(input_dim=self.item_fea_col['feat_num'],
                                         input_length=1,
-                                        output_dim=self.item_feat_col['embed_dim'],
+                                        output_dim=self.item_fea_col['embed_dim'],
                                         mask_zero=True,
                                         embeddings_initializer='random_uniform',
                                         embeddings_regularizer=l2(embed_reg))
-        self.pos_embedding = Embedding(input_dim=self.maxlen,
-                                       input_length=1,
-                                       output_dim=self.embed_dim,
-                                       mask_zero=False,
-                                       embeddings_initializer='random_uniform',
-                                       embeddings_regularizer=l2(embed_reg))
+        # self.pos_embedding = Embedding(input_dim=self.maxlen,
+        #                                input_length=1,
+        #                                output_dim=self.embed_dim,
+        #                                mask_zero=False,
+        #                                embeddings_initializer='random_uniform',
+        #                                embeddings_regularizer=l2(embed_reg))
         # attention block
         self.attention_block = [SelfAttentionBlock(self.d_model, num_heads, ffn_hidden_unit,
                                                    dropout, norm_training, causality) for b in range(blocks)]
@@ -65,8 +65,8 @@ class SASRec(tf.keras.Model):
         item_embed = self.item_embedding(tf.squeeze(item_inputs, axis=-1))  # (None, dim)
 
         # pos encoding
-        # pos_encoding = tf.expand_dims(positional_encoding(seq_inputs, self.embed_dim), axis=0)
-        pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
+        pos_encoding = positional_encoding(seq_inputs, self.embed_dim)
+        # pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
         seq_embed += pos_encoding
 
         att_outputs = seq_embed  # (None, maxlen, dim)
@@ -74,7 +74,7 @@ class SASRec(tf.keras.Model):
 
         # self-attention
         for block in self.attention_block:
-            att_outputs = block(att_outputs)  # (None, seq_len, dim)
+            att_outputs = block([att_outputs, mask])  # (None, seq_len, dim)
             att_outputs *= mask
 
         # Here is a difference from the original paper.
@@ -91,8 +91,8 @@ class SASRec(tf.keras.Model):
 
 
 def test_model():
-    item_feat = {'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8}
-    model = SASRec(item_feat, num_heads=8)
+    item_fea_col = {'feat': 'item_id', 'feat_num': 100, 'embed_dim': 8}
+    model = SASRec(item_fea_col, num_heads=8)
     model.summary()
 
 

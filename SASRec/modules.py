@@ -11,21 +11,29 @@ from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Conv1D
 
 
-# def positional_encoding(seq_inputs, embed_dim):
-#     encoded_vec = [pos / np.power(10000.0, 2 * i / embed_dim)
-#                    for pos in range(seq_inputs.shape[-1]) for i in range(embed_dim)]
-#     encoded_vec[::2] = np.sin(encoded_vec[::2])
-#     encoded_vec[1::2] = np.cos(encoded_vec[1::2])
-#     encoded_vec = tf.reshape(tf.convert_to_tensor(encoded_vec, dtype=tf.float32), shape=(-1, embed_dim))
-#     return encoded_vec
+def get_angles(pos, i, d_model):
+    angle_rates = 1 / np.power(10000, (2 * (i // 2)) / np.float32(d_model))
+    return pos * angle_rates
 
 
-def scaled_dot_product_attention(q, k, v, causality=True):
+def positional_encoding(seq_inputs, embed_dim):
+    angle_rads = get_angles(np.arange(seq_inputs.shape[-1])[:, np.newaxis],
+                            np.arange(embed_dim)[np.newaxis, :], embed_dim)
+    angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+    angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+
+    pos_encoding = angle_rads[np.newaxis, ...]
+
+    return tf.cast(pos_encoding, dtype=tf.float32)
+
+
+def scaled_dot_product_attention(q, k, v, mask, causality=True):
     """
     Attention Mechanism
     :param q: A 3d tensor with shape of (None, seq_len, depth), depth = d_model // num_heads
     :param k: A 3d tensor with shape of (None, seq_len, depth)
     :param v: A 3d tensor with shape of (None, seq_len, depth)
+    :param mask:
     :param causality: Boolean. If True, using causality, default True
     :return:
     """
@@ -33,12 +41,9 @@ def scaled_dot_product_attention(q, k, v, causality=True):
     dk = tf.cast(k.shape[-1], dtype=tf.float32)
     # Scaled
     scaled_att_logits = mat_qk / tf.sqrt(dk)
-    # Key Masking
-    key_masks = tf.sign(tf.abs(tf.reduce_sum(k, axis=-1)))  # (None, seq_len)
-    key_masks = tf.tile(tf.expand_dims(key_masks, 1), [1, q.shape[1], 1])  # (None, seq_len, seq_len)
 
     paddings = tf.ones_like(scaled_att_logits) * (-2 ** 32 + 1)
-    outputs = tf.where(tf.equal(key_masks, 0), paddings, scaled_att_logits)  # (None, seq_len, seq_len)
+    outputs = tf.where(tf.equal(mask, 0), paddings, scaled_att_logits)  # (None, seq_len, seq_len)
 
     # Causality
     if causality:
@@ -50,12 +55,6 @@ def scaled_dot_product_attention(q, k, v, causality=True):
 
     # softmax
     outputs = tf.nn.softmax(logits=outputs)  # (None, seq_len, seq_len)
-
-    # Query Masking
-    query_masks = tf.sign(tf.abs(tf.reduce_sum(q, axis=-1)))  # (None, seq_len)
-    query_masks = tf.tile(tf.expand_dims(query_masks, -1), [1, 1, q.shape[1]])  # (None, seq_len, seq_len)
-    outputs *= query_masks
-
     outputs = tf.matmul(outputs, v)  # (None, seq_len, depth)
 
     return outputs
@@ -79,7 +78,7 @@ class MultiHeadAttention(Layer):
         self.wk = Dense(d_model, activation=None)
         self.wv = Dense(d_model, activation=None)
 
-    def call(self, q, k, v):
+    def call(self, q, k, v, mask):
         q = self.wq(q)  # (None, seq_len, d_model)
         k = self.wk(k)  # (None, seq_len, d_model)
         v = self.wv(v)  # (None, seq_len, d_model)
@@ -93,7 +92,7 @@ class MultiHeadAttention(Layer):
                        (-1, v.shape[1], v.shape[2] // self.num_heads))  # (None * num_heads, seq_len, d_model // num_heads)
 
         # attention
-        scaled_attention = scaled_dot_product_attention(q, k, v, self.causality)  # (None * num_heads, seq_len, d_model // num_heads)
+        scaled_attention = scaled_dot_product_attention(q, k, v, mask, self.causality)  # (None * num_heads, seq_len, d_model // num_heads)
 
         # Reshape
         outputs = tf.concat(tf.split(scaled_attention, self.num_heads, axis=0), axis=2)  # (N, seq_len, d_model)
@@ -140,9 +139,9 @@ class SelfAttentionBlock(Layer):
         self.dropout2 = Dropout(dropout)
 
     def call(self, inputs):
-        x = inputs
+        x, mask = inputs
         # self-attention
-        att_out = self.mha(x, x, x)  # （None, seq_len, d_model)
+        att_out = self.mha(x, x, x, mask)  # （None, seq_len, d_model)
         att_out = self.dropout1(att_out)
         # residual add
         out1 = self.layernorm1(x + att_out)
