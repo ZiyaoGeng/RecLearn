@@ -101,18 +101,22 @@
 
 2. **[boluochuile](https://github.com/boluochuile)**：发现SASRec模型训练出错，原因是验证集必须使用`tuple`的方式，已更正；
 
-3. **[boluochuile](https://github.com/boluochuile)**：指出SASRec模型中label赋值的问题，
-
-   ```python
-   data_df.loc[data_df.label >= 2, 'label'] = 1
-   data_df.loc[data_df.label < 2, 'label'] = 0
-   ```
-
-   应该颠倒，已更正；
-   
 4. **[dominic-z](https://github.com/dominic-z)**：指出DIN中Attention的mask问题，更改为从`seq_inputs`中得到mask，因为采用的是0填充（这里与重写之前的代码不同，之前是在每个mini-batch中选择最大的长度作为序列长度，不会存在序列过长被切割的问题，而现在为了方便，采用最普遍`padding`的方法）
 
-5. **[dominic-z](https://github.com/dominic-z)**：指出DIN训练中`seq_inputs`shape与model不匹配的问题，已更正，应该是`(batch_size,  maxlen, behavior_num)`，model相关内容进行更改，另外对于行为数量，之前的名称`seq_len`有歧义，改为`behavior_num`；**添加了重写之前的代码，在DIN/old目录下**
+4. **[dominic-z](https://github.com/dominic-z)**：指出DIN训练中`seq_inputs`shape与model不匹配的问题，已更正，应该是`(batch_size,  maxlen, behavior_num)`，model相关内容进行更改，另外对于行为数量，之前的名称`seq_len`有歧义，改为`behavior_num`；**添加了重写之前的代码，在DIN/old目录下**
+
+5. [**zhangfangkai**](https://github.com/zhangfangkai)、**[R7788380](https://github.com/R7788380)**：指出在使用movielens的`utils.py`文件中，`trans_score`并不能指定正负样本，应将
+
+   ```python
+   data_df.loc[data_df.label < trans_score, 'label'] = 0
+   data_df.loc[data_df.label >= trans_score, 'label'] = 1
+   ```
+
+   更改为：
+
+   ```python
+   data_df = data_df[data_df.label >= trans_score]
+   ```
 
 &nbsp;
 
