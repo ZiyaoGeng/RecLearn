@@ -36,8 +36,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8):
     data_df = pd.read_csv(file, sep="::", engine='python',
                           names=['user_id', 'item_id', 'label', 'Timestamp'])
     # implicit dataset
-    data_df.loc[data_df.label < trans_score, 'label'] = 0
-    data_df.loc[data_df.label >= trans_score, 'label'] = 1
+    data_df = data_df[data_df.label >= trans_score]
 
     # sort by time user and timestamp
     data_df = data_df.sort_values(by=['user_id', 'Timestamp'])
