@@ -65,6 +65,7 @@
 | :----------------------------------------------------------: | :------------------------: | :-------------------: |
 | Matrix Factorization Techniques for Recommender Systems\|**[MF](MF)** | IEEE Computer Society,2009 | Koren\|Yahoo Research |
 | BPR: Bayesian Personalized Ranking from Implicit Feedback\|**[MF-BPR](BPR)** |         UAI, 2009          |     Steﬀen Rendle     |
+|                        [**DNN**](DNN)                        |                            |                       |
 | Neural network-based Collaborative Filtering\|[**NCF**](NCF) |         WWW, 2017          |      Xiangnan He      |
 | Self-Attentive Sequential Recommendation｜[**SASRec**](SASRec) |         ICDM, 2018         |         UCSD          |
 | STAMP: Short-Term Attention/Memory Priority Model for Session-based Recommendation\| **[STAMP](STAMP)** |         KDD, 2018          |       Qiao Liu        |
