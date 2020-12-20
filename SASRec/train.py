@@ -1,9 +1,9 @@
 """
-Created on Sept 11, 2020
+Updated on Dec 20, 2020
 
 train SASRec model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 import os
 import tensorflow as tf
@@ -15,17 +15,20 @@ from model import SASRec
 from evaluate import *
 from utils import *
 
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 
 if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1, 2'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '6, 7'
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
     maxlen = 200
+    test_neg_num = 100
 
     embed_dim = 50
     blocks = 2
@@ -34,23 +37,25 @@ if __name__ == '__main__':
     dropout = 0.2
     norm_training = True
     causality = False
-    embed_reg = 1e-6
+    embed_reg = 0  # 1e-6
     K = 10
 
     learning_rate = 0.001
-    epochs = 30
+    epochs = 50
     batch_size = 512
     # ========================== Create dataset =======================
-    item_fea_col, train, val, test = create_implicit_ml_1m_dataset(file, trans_score, embed_dim, maxlen)
+    item_fea_col, train, val, test = create_ml_1m_dataset(file, trans_score, embed_dim, maxlen, test_neg_num)
     train_X, train_y = train
     val_X, val_y = val
 
     # ============================Build Model==========================
-    model = SASRec(item_fea_col, blocks, num_heads, ffn_hidden_unit, dropout,
-                   maxlen, norm_training, causality, embed_reg)
-    model.summary()
-    # =========================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate))
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = SASRec(item_fea_col, blocks, num_heads, ffn_hidden_unit, dropout,
+                       maxlen, norm_training, causality, embed_reg)
+        model.summary()
+        # =========================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate))
 
     results = []
     for epoch in range(1, epochs + 1):

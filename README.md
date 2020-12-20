@@ -12,7 +12,7 @@
   <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-开源项目`Recommender System with TF2.0`主要是对阅读过的部分推荐系统、CTR预估论文进行复现，包括**Match（召回）**（NCF、SASRec、STAMP等）、**Rank（粗排）**（WDL、DCN等）。
+开源项目`Recommender System with TF2.0`主要是对经典的推荐系统论文进行复现，包括**Matching（召回）**（NCF、SASRec、STAMP等）、**Ranking（粗排）**（WDL、DCN等）。
 
 **建立原因：**
 
@@ -23,7 +23,7 @@
 **项目特点：**
 
 - 使用Tensorflow2.x进行复现；
-- 每个模型都是相互独立的，不存在依赖关系；
+- 每个模型都是相互独立的，不存在依赖关系（当然因为这也增加了很多重复工作）；
 - 模型基本按照论文进行构建，实验尽量使用论文给出的的公共数据集；
 - 模型都附有`README.md`，对于模型的训练使用有详细的介绍；
 - 代码源文件参数、函数命名规范，并且带有标准的注释；
@@ -34,8 +34,10 @@
 
 ## 重要更新
 
-1. 【2020.11.18】在Top-K模型中，不再考虑`dense_inputs`、`sparse_inputs`，并且`user_inputs`和`seq_inputs`不考虑多个类别，只将`id`特征作为输入（降低了模型的可扩展性，但是提高了模型的可读性）；
-2. 【2020.11.18】BPR、SASRec模型进行了更新，加入了实验结果；
+- 【2020.12.20】在Top-K模型中，评估方式为正负样本1:100的模型（MF-BPR、SASRec等），之前评估代码效率太低，因此进行了调整（目前评估时间大幅度缩短），同时也更新了`utils.py`文件；
+- 【2020.11.18】在Top-K模型中，不再考虑`dense_inputs`、`sparse_inputs`，并且`user_inputs`和`seq_inputs`不考虑多个类别，只将`id`特征作为输入（降低了模型的可扩展性，但是提高了模型的可读性）；
+
+- 【2020.11.18】BPR、SASRec模型进行了更新，加入了实验结果；
 
 
 
@@ -43,13 +45,11 @@
 
 ## 实验
 
-1、通过git命令`git clone https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0.git`或者直接下载；
+1、实验环境：Python3.7，Tensorflow2.x-CPU/GPU；
 
-2、实验环境：Python3.7，Tensorflow2.x-CPU/GPU；
+2、合理调节所需模型文件内`train.py`的`file`路径；
 
-3、根据自己数据集的位置，合理更改所需模型文件内`train.py`的`file`路径；
-
-4、设置`超参数`，直接运行即可；
+3、设置超参数，直接运行即可；
 
 
 
@@ -123,7 +123,7 @@
 
 ## 联系方式
 
-1、对于项目有任何建议或问题，可以在`Issue`留言，或者可以添加作者微信`zgzjhzgzy`。
+1、对于项目有任何建议或问题，可以在`Issue`留言，或者添加作者微信`zgzjhzgzy`，当然也可以发邮件至`zggzy1996@163.com`。
 
 2、作者有一个自己的公众号：**推荐算法的小齿轮**，如果喜欢里面的内容，不妨点个关注。
 

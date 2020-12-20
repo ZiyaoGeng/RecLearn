@@ -1,37 +1,11 @@
 """
-Created on Sept 11, 2020
+Updated on Dec 20, 2020
 
 evaluate model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
-import pandas as pd
 import numpy as np
-
-
-def getHit(df):
-    """
-    calculate hit rate
-    :return:
-    """
-    df = df.sort_values('pred_y', ascending=False).reset_index()
-    if df[df.true_y == 1].index.tolist()[0] < _K:
-        return 1
-    else:
-        return 0
-
-
-def getNDCG(df):
-    """
-    calculate NDCG
-    :return:
-    """
-    df = df.sort_values('pred_y', ascending=False).reset_index()
-    i = df[df.true_y == 1].index.tolist()[0]
-    if i < _K:
-        return np.log(2) / np.log(i+2)
-    else:
-        return 0.
 
 
 def evaluate_model(model, test, K):
@@ -42,13 +16,11 @@ def evaluate_model(model, test, K):
     :param K: top K
     :return: hit rate, ndcg
     """
-    global _K
-    _K = K
-    test_X, test_y = test
-    pred_y = model.predict(test_X)
-    test_df = pd.DataFrame(test_y, columns=['user_id', 'true_y'])
-    test_df['pred_y'] = pred_y
-    tg = test_df.groupby('user_id')
-    hit_rate = tg.apply(getHit).mean()
-    ndcg = tg.apply(getNDCG).mean()
-    return hit_rate, ndcg
+    pred_y = - model.predict(test)
+    rank = pred_y.argsort().argsort()[:, -1]
+    hr, ndcg = 0.0, 0.0
+    for r in rank:
+        if r < K:
+            hr += 1
+            ndcg += 1 / np.log2(r + 2)
+    return hr / len(rank), ndcg / len(rank)

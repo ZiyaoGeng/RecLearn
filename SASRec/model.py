@@ -1,14 +1,13 @@
 """
-Created on Sept 10, 2020
+Updated on Dec 20, 2020
 
 model: Self-Attentive Sequential Recommendation
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Layer, Dense, LayerNormalization, \
-    Dropout, Embedding, Input
+from tensorflow.keras.layers import Layer, Dense, LayerNormalization, Dropout, Embedding, Input
 
 from modules import *
 
@@ -44,43 +43,42 @@ class SASRec(tf.keras.Model):
                                         mask_zero=True,
                                         embeddings_initializer='random_uniform',
                                         embeddings_regularizer=l2(embed_reg))
-        # self.pos_embedding = Embedding(input_dim=self.maxlen,
-        #                                input_length=1,
-        #                                output_dim=self.embed_dim,
-        #                                mask_zero=False,
-        #                                embeddings_initializer='random_uniform',
-        #                                embeddings_regularizer=l2(embed_reg))
+        self.pos_embedding = Embedding(input_dim=self.maxlen,
+                                       input_length=1,
+                                       output_dim=self.embed_dim,
+                                       mask_zero=False,
+                                       embeddings_initializer='random_uniform',
+                                       embeddings_regularizer=l2(embed_reg))
+        self.dropout = Dropout(dropout)
         # attention block
-        self.attention_block = [SelfAttentionBlock(self.d_model, num_heads, ffn_hidden_unit,
-                                                   dropout, norm_training, causality) for b in range(blocks)]
+        self.encoder_layer = [EncoderLayer(self.d_model, num_heads, ffn_hidden_unit,
+                                           dropout, norm_training, causality) for b in range(blocks)]
 
-    def call(self, inputs):
+    def call(self, inputs, training=None):
         # inputs
         seq_inputs, item_inputs = inputs  # (None, maxlen), (None, 1)
         # mask
         mask = tf.expand_dims(tf.cast(tf.not_equal(seq_inputs, 0), dtype=tf.float32), axis=-1)  # (None, maxlen, 1)
         # seq info
         seq_embed = self.item_embedding(seq_inputs)  # (None, maxlen, dim)
-        # item info
-        item_embed = self.item_embedding(tf.squeeze(item_inputs, axis=-1))  # (None, dim)
-
         # pos encoding
-        pos_encoding = positional_encoding(seq_inputs, self.embed_dim)
-        # pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
+        # pos_encoding = positional_encoding(seq_inputs, self.embed_dim)
+        pos_encoding = tf.expand_dims(self.pos_embedding(tf.range(self.maxlen)), axis=0)
         seq_embed += pos_encoding
-
+        seq_embed = self.dropout(seq_embed)
         att_outputs = seq_embed  # (None, maxlen, dim)
         att_outputs *= mask
 
         # self-attention
-        for block in self.attention_block:
+        for block in self.encoder_layer:
             att_outputs = block([att_outputs, mask])  # (None, seq_len, dim)
             att_outputs *= mask
 
-        # Here is a difference from the original paper.
-        user_info = tf.reduce_mean(att_outputs, axis=1)  # (None, dim)
-        # predict
-        outputs = tf.nn.sigmoid(tf.reduce_sum(tf.multiply(user_info, item_embed), axis=1, keepdims=True))
+        # user_info = tf.reduce_mean(att_outputs, axis=1)  # (None, dim)
+        user_info = tf.expand_dims(att_outputs[:, -1], axis=1)  # (None, 1, dim)
+        # item info
+        item_embed = self.item_embedding(item_inputs)  # (None, 1 / 101, dim)
+        outputs = tf.nn.sigmoid(tf.reduce_sum(user_info * item_embed, axis=-1))
         return outputs
 
     def summary(self):

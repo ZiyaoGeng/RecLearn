@@ -117,10 +117,10 @@ class FFN(Layer):
         return output
 
 
-class SelfAttentionBlock(Layer):
+class EncoderLayer(Layer):
     def __init__(self, d_model, num_heads=1, ffn_hidden_unit=128, dropout=0., norm_training=True, causality=True):
         """
-        Self Attention Block
+        Encoder Layer
         :param d_model: A scalar. The self-attention hidden size.
         :param num_heads: A scalar. Number of heads.
         :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
@@ -128,7 +128,7 @@ class SelfAttentionBlock(Layer):
         :param norm_training: Boolean. If True, using layer normalization, default True
         :param causality: Boolean. If True, using causality, default True
         """
-        super(SelfAttentionBlock, self).__init__()
+        super(EncoderLayer, self).__init__()
         self.mha = MultiHeadAttention(d_model, num_heads, causality)
         self.ffn = FFN(ffn_hidden_unit, d_model)
 
