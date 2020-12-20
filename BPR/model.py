@@ -1,9 +1,10 @@
 """
 Created on Nov 13, 2020
+Updated on Dec 20, 2020
 
 model: BPR: Bayesian Personalized Ranking from Implicit Feedback
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -42,14 +43,14 @@ class BPR(Model):
     def call(self, inputs):
         user_inputs, pos_inputs, neg_inputs = inputs  # (None, 1), (None, 1)
         # user info
-        user_embed = self.user_embedding(tf.squeeze(user_inputs, axis=-1))  # (None, dim)
+        user_embed = self.user_embedding(user_inputs)  # (None, 1, dim)
         # item
-        pos_embed = self.item_embedding(tf.squeeze(pos_inputs, axis=-1))  # (None, dim)
-        neg_embed = self.item_embedding(tf.squeeze(neg_inputs, axis=-1))  # (None, dim)
+        pos_embed = self.item_embedding(pos_inputs)  # (None, 1, dim)
+        neg_embed = self.item_embedding(neg_inputs)  # (None, 1, dim)
         if self.mode == 'inner':
             # calculate positive item scores and negative item scores
-            pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=1, keepdims=True)  # (None, 1)
-            neg_scores = tf.reduce_sum(tf.multiply(user_embed, neg_embed), axis=1, keepdims=True)  # (None, 1)
+            pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=-1)  # (None, 1)
+            neg_scores = tf.reduce_sum(tf.multiply(user_embed, neg_embed), axis=-1)  # (None, 1)
             # add loss. Computes softplus: log(exp(features) + 1)
             # self.add_loss(tf.reduce_mean(tf.math.softplus(neg_scores - pos_scores)))
             self.add_loss(tf.reduce_mean(-tf.math.log(tf.nn.sigmoid(pos_scores - neg_scores))))
@@ -58,10 +59,11 @@ class BPR(Model):
             # user_embed = tf.clip_by_norm(user_embed, 1, -1)
             # pos_embed = tf.clip_by_norm(pos_embed, 1, -1)
             # neg_embed = tf.clip_by_norm(neg_embed, 1, -1)
-            pos_scores = tf.reduce_sum(tf.square(user_embed - pos_embed), axis=-1, keepdims=True)
-            neg_scores = tf.reduce_sum(tf.square(user_embed - neg_embed), axis=-1, keepdims=True)
+            pos_scores = tf.reduce_sum(tf.square(user_embed - pos_embed), axis=-1)
+            neg_scores = tf.reduce_sum(tf.square(user_embed - neg_embed), axis=-1)
             self.add_loss(tf.reduce_sum(tf.nn.relu(pos_scores - neg_scores + 0.5)))
-        return pos_scores, neg_scores
+        logits = tf.concat([pos_scores, neg_scores], axis=-1)
+        return logits
 
     def summary(self):
         user_inputs = Input(shape=(1, ), dtype=tf.int32)
