@@ -17,7 +17,7 @@ def evaluate_model(model, test, K):
     :return: hit rate, ndcg
     """
     pred_y = - model.predict(test)
-    rank = pred_y.argsort().argsort()[:, -1]
+    rank = pred_y.argsort().argsort()[:, 0]
     hr, ndcg = 0.0, 0.0
     for r in rank:
         if r < K:

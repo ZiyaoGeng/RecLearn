@@ -8,7 +8,6 @@ train SASRec model
 import os
 import tensorflow as tf
 from time import time
-from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 
 from model import SASRec
@@ -23,7 +22,7 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '6, 7'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '5, 6'
     # ========================= Hyper Parameters =======================
     file = '../dataset/ml-1m/ratings.dat'
     trans_score = 1
@@ -45,8 +44,6 @@ if __name__ == '__main__':
     batch_size = 512
     # ========================== Create dataset =======================
     item_fea_col, train, val, test = create_ml_1m_dataset(file, trans_score, embed_dim, maxlen, test_neg_num)
-    train_X, train_y = train
-    val_X, val_y = val
 
     # ============================Build Model==========================
     mirrored_strategy = tf.distribute.MirroredStrategy()
@@ -55,16 +52,15 @@ if __name__ == '__main__':
                        maxlen, norm_training, causality, embed_reg)
         model.summary()
         # =========================Compile============================
-        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate))
+        model.compile(optimizer=Adam(learning_rate=learning_rate))
 
     results = []
     for epoch in range(1, epochs + 1):
         # ===========================Fit==============================
         t1 = time()
         model.fit(
-            train_X,
-            train_y,
-            validation_data=(val_X, val_y),
+            train,
+            validation_data=(val, None),
             epochs=1,
             batch_size=batch_size,
         )

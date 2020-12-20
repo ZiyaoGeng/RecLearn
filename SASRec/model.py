@@ -56,7 +56,7 @@ class SASRec(tf.keras.Model):
 
     def call(self, inputs, training=None):
         # inputs
-        seq_inputs, item_inputs = inputs  # (None, maxlen), (None, 1)
+        seq_inputs, pos_inputs, neg_inputs = inputs  # (None, maxlen), (None, 1), (None, 1)
         # mask
         mask = tf.expand_dims(tf.cast(tf.not_equal(seq_inputs, 0), dtype=tf.float32), axis=-1)  # (None, maxlen, 1)
         # seq info
@@ -77,15 +77,23 @@ class SASRec(tf.keras.Model):
         # user_info = tf.reduce_mean(att_outputs, axis=1)  # (None, dim)
         user_info = tf.expand_dims(att_outputs[:, -1], axis=1)  # (None, 1, dim)
         # item info
-        item_embed = self.item_embedding(item_inputs)  # (None, 1 / 101, dim)
-        outputs = tf.nn.sigmoid(tf.reduce_sum(user_info * item_embed, axis=-1))
-        return outputs
+        pos_info = self.item_embedding(pos_inputs)  # (None, 1, dim)
+        neg_info = self.item_embedding(neg_inputs)  # (None, 1/100, dim)
+        pos_logits = tf.reduce_sum(user_info * pos_info, axis=-1)  # (None, 1)
+        neg_logits = tf.reduce_sum(user_info * neg_info, axis=-1)  # (None, 1)
+        # loss
+        losses = tf.reduce_mean(- tf.math.log(tf.nn.sigmoid(pos_logits)) -
+                                tf.math.log(1 - tf.nn.sigmoid(neg_logits))) / 2
+        self.add_loss(losses)
+        logits = tf.concat([pos_logits, neg_logits], axis=-1)
+        return logits
 
     def summary(self):
         seq_inputs = Input(shape=(self.maxlen,), dtype=tf.int32)
-        item_inputs = Input(shape=(1,), dtype=tf.int32)
-        tf.keras.Model(inputs=[seq_inputs, item_inputs],
-                    outputs=self.call([seq_inputs, item_inputs])).summary()
+        pos_inputs = Input(shape=(1,), dtype=tf.int32)
+        neg_inputs = Input(shape=(1,), dtype=tf.int32)
+        tf.keras.Model(inputs=[seq_inputs, pos_inputs, neg_inputs],
+                       outputs=self.call([seq_inputs, pos_inputs, neg_inputs])).summary()
 
 
 def test_model():

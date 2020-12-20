@@ -43,18 +43,6 @@
 
 &nbsp;
 
-## 实验
-
-1、实验环境：Python3.7，Tensorflow2.x-CPU/GPU；
-
-2、合理调节所需模型文件内`train.py`的`file`路径；
-
-3、设置超参数，直接运行即可；
-
-
-
-&nbsp;
-
 ## 复现论文
 
 ### 1. 召回模型（Top-K推荐）
@@ -89,6 +77,18 @@
 | DeepFM: A Factorization-Machine based Neural Network for CTR Prediction\|**[DeepFM](DeepFM)** | IJCAI, 2017  | Harbin Institute of Technology\|Noah’s Ark Research Lab, Huawei |
 | xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**[xDeepFM](xDeepFM)** |  KDD, 2018   |        University of Science and Technology of China         |
 | Deep Interest Network for Click-Through Rate Prediction\|**[DIN](DIN)** |  KDD, 2018   |                        Alibaba Group                         |
+
+&nbsp;
+
+
+
+## 讨论
+
+Github推出了**Discussions**功能，作者会将一些重要的更新/代码进行分享。
+
+1.  评估函数：[evaluate.py](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/discussions/26)
+
+
 
 &nbsp;
 

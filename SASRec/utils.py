@@ -61,15 +61,16 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40, test_neg_n
             hist_i = pos_list[:i]
             if i == len(pos_list) - 1:
                 test_data['hist'].append(hist_i)
-                test_data['item_list_id'].append(neg_list[i:] + [pos_list[i]])  # positive sample is at the end
+                test_data['pos_id'].append(pos_list[i])
+                test_data['neg_id'].append(neg_list[i:])
             elif i == len(pos_list) - 2:
-                val_data['hist'].extend([hist_i, hist_i])
-                val_data['item_id'].extend([pos_list[i], neg_list[i]])
-                val_data['label'].extend([1, 0])
+                val_data['hist'].append(hist_i)
+                val_data['pos_id'].append(pos_list[i])
+                val_data['neg_id'].append(neg_list[i])
             else:
-                train_data['hist'].extend([hist_i, hist_i])
-                train_data['item_id'].extend([pos_list[i], neg_list[i]])
-                train_data['label'].extend([1, 0])
+                train_data['hist'].append(hist_i)
+                train_data['pos_id'].append(pos_list[i])
+                train_data['neg_id'].append(neg_list[i])
     # item feature columns
     user_num, item_num = data_df['user_id'].max() + 1, data_df['item_id'].max() + 1
     item_feat_col = sparseFeature('item_id', item_num, embed_dim)
@@ -78,13 +79,14 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40, test_neg_n
     random.shuffle(val_data)
     # padding
     print('==================Padding===================')
-    train_X = [pad_sequences(train_data['hist'], maxlen=maxlen), np.array(train_data['item_id'])]
-    train_y = np.array(train_data['label'])
-    val_X = [pad_sequences(val_data['hist'], maxlen=maxlen), np.array(val_data['item_id'])]
-    val_y = np.array(val_data['label'])
-    test_X = [pad_sequences(test_data['hist'], maxlen=maxlen), np.array(test_data['item_list_id'])]
+    train = [pad_sequences(train_data['hist'], maxlen=maxlen), np.array(train_data['pos_id']),
+               np.array(train_data['neg_id'])]
+    val = [pad_sequences(val_data['hist'], maxlen=maxlen), np.array(val_data['pos_id']),
+             np.array(val_data['neg_id'])]
+    test = [pad_sequences(test_data['hist'], maxlen=maxlen), np.array(test_data['pos_id']),
+             np.array(test_data['neg_id'])]
     print('============Data Preprocess End=============')
-    return item_feat_col, (train_X, train_y), (val_X, val_y), test_X
+    return item_feat_col, train, val, test
 
 
 # create_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
