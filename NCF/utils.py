@@ -1,49 +1,90 @@
+"""
+Updated on Dec 20, 2020
 
+create implicit ml-1m dataset
+
+@author: Ziyao Geng(zggzy1996@163.com)
+"""
+import pandas as pd
 import numpy as np
+import random
+from tqdm import tqdm
+from collections import defaultdict
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
-# get train instances
-def get_train_instances(train, num_negatives):
-    user_input, item_input, labels = [], [], []
-    num_items = train.shape[1]
-    for (u, i) in train.keys():
-        # positive instance
-        user_input.append(u)
-        item_input.append(i)
-        labels.append(1)
-        # negative instances
-        for t in range(num_negatives):
-            j = np.random.randint(num_items)
-            while (u, j) in train:
-                j = np.random.randint(num_items)
-            user_input.append(u)
-            item_input.append(j)
-            labels.append(0)
-    return user_input, item_input, labels
+def sparseFeature(feat, feat_num, embed_dim=4):
+    """
+    create dictionary for sparse feature
+    :param feat: feature name
+    :param feat_num: the total number of sparse features that do not repeat
+    :param embed_dim: embedding dimension
+    :return:
+    """
+    return {'feat': feat, 'feat_num': feat_num, 'embed_dim': embed_dim}
 
 
-def load_pretrain_model(model, gmf_model, mlp_model, num_layers):
-    # MF embeddings
-    gmf_user_embeddings = gmf_model.get_layer('user_embedding').get_weights()
-    gmf_item_embeddings = gmf_model.get_layer('item_embedding').get_weights()
-    model.get_layer('mf_embedding_user').set_weights(gmf_user_embeddings)
-    model.get_layer('mf_embedding_item').set_weights(gmf_item_embeddings)
+def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, test_neg_num=100):
+    """
+    :param file: A string. dataset path.
+    :param trans_score: A scalar. Greater than it is 1, and less than it is 0.
+    :param embed_dim: A scalar. latent factor.
+    :param test_neg_num: A scalar. The number of test negative samples
+    :return: user_num, item_num, train_df, test_df
+    """
+    print('==========Data Preprocess Start=============')
+    data_df = pd.read_csv(file, sep="::", engine='python',
+                          names=['user_id', 'item_id', 'label', 'Timestamp'])
+    # filtering
+    data_df['item_count'] = data_df.groupby('item_id')['item_id'].transform('count')
+    data_df = data_df[data_df.item_count >= 5]
+    # trans score
+    data_df = data_df[data_df.label >= trans_score]
+    # sort
+    data_df = data_df.sort_values(by=['user_id', 'Timestamp'])
+    # split dataset and negative sampling
+    print('============Negative Sampling===============')
+    train_data, val_data, test_data = defaultdict(list), defaultdict(list), defaultdict(list)
+    item_id_max = data_df['item_id'].max()
+    for user_id, df in tqdm(data_df[['user_id', 'item_id']].groupby('user_id')):
+        pos_list = df['item_id'].tolist()
 
-    # MLP embeddings
-    mlp_user_embeddings = mlp_model.get_layer('user_embedding').get_weights()
-    mlp_item_embeddings = mlp_model.get_layer('item_embedding').get_weights()
-    model.get_layer('mlp_embedding_user').set_weights(mlp_user_embeddings)
-    model.get_layer('mlp_embedding_item').set_weights(mlp_item_embeddings)
+        def gen_neg():
+            neg = pos_list[0]
+            while neg in set(pos_list):
+                neg = random.randint(1, item_id_max)
+                return neg
 
-    # MLP layers
-    for i in range(1, num_layers):
-        mlp_layer_weights = mlp_model.get_layer('layer%d' % i).get_weights()
-        model.get_layer('layer%d' % i).set_weights(mlp_layer_weights)
+        neg_list = [gen_neg() for i in range(len(pos_list) + test_neg_num)]
+        for i in range(1, len(pos_list)):
+            hist_i = pos_list[:i]
+            if i == len(pos_list) - 1:
+                test_data['user_id'].append(user_id)
+                test_data['pos_id'].append(pos_list[i])
+                test_data['neg_id'].append(neg_list[i:])
+            elif i == len(pos_list) - 2:
+                val_data['user_id'].append(user_id)
+                val_data['pos_id'].append(pos_list[i])
+                val_data['neg_id'].append(neg_list[i])
+            else:
+                train_data['user_id'].append(user_id)
+                train_data['pos_id'].append(pos_list[i])
+                train_data['neg_id'].append(neg_list[i])
+    # feature columns
+    user_num, item_num = data_df['user_id'].max() + 1, data_df['item_id'].max() + 1
+    item_feat_col = [sparseFeature('user_id', user_num, embed_dim),
+                       sparseFeature('item_id', item_num, embed_dim)]
+    # shuffle
+    random.shuffle(train_data)
+    random.shuffle(val_data)
+    train = [np.array(train_data['user_id']), np.array(train_data['pos_id']),
+               np.array(train_data['neg_id'])]
+    val = [np.array(val_data['user_id']), np.array(val_data['pos_id']),
+             np.array(val_data['neg_id'])]
+    test = [np.array(test_data['user_id']), np.array(test_data['pos_id']),
+              np.array(test_data['neg_id'])]
+    print('============Data Preprocess End=============')
+    return item_feat_col, train, val, test
 
-    # Prediction weights
-    gmf_prediction = gmf_model.get_layer('prediction').get_weights()
-    mlp_prediction = mlp_model.get_layer('prediction').get_weights()
-    new_weights = np.concatenate((gmf_prediction[0], mlp_prediction[0]), axis=0)
-    new_b = gmf_prediction[1] + mlp_prediction[1]
-    model.get_layer('prediction').set_weights([0.5 * new_weights, 0.5 * new_b])
-    return model
+
+# create_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
