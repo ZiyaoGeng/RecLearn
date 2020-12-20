@@ -77,14 +77,14 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, test_neg_num=100):
     # shuffle
     random.shuffle(train_data)
     random.shuffle(val_data)
-    train_X = [np.array(train_data['user_id']), np.array(train_data['pos_id']),
+    train = [np.array(train_data['user_id']), np.array(train_data['pos_id']),
                np.array(train_data['neg_id'])]
-    val_X = [np.array(val_data['user_id']), np.array(val_data['pos_id']),
+    val = [np.array(val_data['user_id']), np.array(val_data['pos_id']),
              np.array(val_data['neg_id'])]
-    test_X = [np.array(test_data['user_id']), np.array(test_data['pos_id']),
+    test = [np.array(test_data['user_id']), np.array(test_data['pos_id']),
               np.array(test_data['neg_id'])]
     print('============Data Preprocess End=============')
-    return item_feat_col, train_X, val_X, test_X
+    return item_feat_col, train, val, test
 
 
 # create_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
