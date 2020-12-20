@@ -72,8 +72,8 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, test_neg_num=100):
                 train_data['neg_id'].append(neg_list[i])
     # feature columns
     user_num, item_num = data_df['user_id'].max() + 1, data_df['item_id'].max() + 1
-    item_feat_col = [sparseFeature('user_id', user_num, embed_dim),
-                       sparseFeature('item_id', item_num, embed_dim)]
+    feat_col = [sparseFeature('user_id', user_num, embed_dim),
+                sparseFeature('item_id', item_num, embed_dim)]
     # shuffle
     random.shuffle(train_data)
     random.shuffle(val_data)
@@ -84,7 +84,7 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, test_neg_num=100):
     test = [np.array(test_data['user_id']), np.array(test_data['pos_id']),
               np.array(test_data['neg_id'])]
     print('============Data Preprocess End=============')
-    return item_feat_col, train, val, test
+    return feat_col, train, val, test
 
 
 # create_ml_1m_dataset('../dataset/ml-1m/ratings.dat')
