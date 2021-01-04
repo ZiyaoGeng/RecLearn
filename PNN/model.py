@@ -78,7 +78,7 @@ class PNN(keras.Model):
             self.w_p = self.add_weight(name='w_p',
                                        shape=(len(self.sparse_feature_columns)*( len(self.sparse_feature_columns)-1  )//2, self.embed_dim, hidden_units[0]),
                                        initializer='random_uniform',
-                                       reguarizer=l2(w_p_reg),
+                                       regularizer=l2(w_p_reg),
                                        trainable=True)
         # out
         else:
