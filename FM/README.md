@@ -47,7 +47,7 @@ class FM(tf.keras.Model):
 
 - file：Criteo文件；
 - read_part：是否读取部分数据，`True`；
-- sample_num：读取部分时，样本数量，`5000000`；
+- sample_num：读取部分时，样本数量，`1000000`；
 - test_size：测试集比例，`0.2`；
 - 
 - embed_dim：Embedding维度，`8`；
@@ -62,5 +62,5 @@ class FM(tf.keras.Model):
 
 ### 6. 实验结果
 
-采用Criteo数据集数据，最终测试集的结果为：
+采用Criteo数据集数据，最终测试集的结果为：`AUC：0.763465`
 
