@@ -76,14 +76,14 @@ class PNN(keras.Model):
                                    )
         if mode == 'in':
             self.w_p = self.add_weight(name='w_p',
-                                       shape=(self.field_num, self.field_num, hidden_units[0]),
+                                       shape=(len(self.sparse_feature_columns)*( len(self.sparse_feature_columns)-1  )//2, self.embed_dim, hidden_units[0]),
                                        initializer='random_uniform',
-                                       reguarizer=l2(w_p_reg),
+                                       regularizer=l2(w_p_reg),
                                        trainable=True)
         # out
         else:
             self.w_p = self.add_weight(name='w_p',
-                                       shape=(self.embed_dim, self.embed_dim, hidden_units[0]),
+                                       shape=(len(self.sparse_feature_columns)*( len(self.sparse_feature_columns)-1  )//2,self.embed_dim, self.embed_dim, hidden_units[0]),
                                        initializer='random_uniform',
                                        regularizer=l2(w_p_reg),
                                        trainable=True)
@@ -100,17 +100,25 @@ class PNN(keras.Model):
         embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
                  for i in range(sparse_inputs.shape[1])]
         embed = tf.transpose(tf.convert_to_tensor(embed), [1, 0, 2])  # (None, field_num, embed_dim)
-        z = embed  # (None, field, embed_dim)
+        l_z = tf.tensordot(embed, self.w_z, axes=2)  # (None, hidden[0])
+        # product layer
+        row = []
+        col = []
+        for i in range(len(self.sparse_feature_columns) - 1):
+            for j in range(i + 1, len(self.sparse_feature_columns)):
+                row.append(i)
+                col.append(j)
+        p = tf.gather(embed,row,axis=1)
+        q = tf.gather(embed,col, axis=1)
         # product layer
         if self.mode == 'in':
-            p = tf.matmul(embed, tf.transpose(embed, [0, 2, 1]))  # (None, field_num, field_num)
+            l_p = tf.tensordot( p*q, self.w_p, axes=2)  # (None, hidden[0])
         else:  # out
-            f_sum = tf.reduce_sum(embed, axis=1, keepdims=True)  # (None, 1 embed_num)
-            p = tf.matmul(tf.transpose(f_sum, [0, 2, 1]), f_sum)  # (None, embed_num, embed_num)
+            u = tf.expand_dims(q, 2)  # (None, field_num(field_num-1)/2, 1, emb_num)
+            v = tf.expand_dims(p, 2)  # (None, field_num(field_num-1)/2, 1, emb_num)
+            l_p = tf.tensordot(tf.matmul(tf.transpose(u, [0, 1, 3, 2]), v), self.w_p, axes=3) # (None, hidden[0])
 
-        l_z = tf.tensordot(z, self.w_z, axes=2)  # (None, h_unit)
-        l_p = tf.tensordot(p, self.w_p, axes=2)  # (None, h_unit)
-        l_1 = tf.nn.relu(tf.concat([l_z + l_p + self.l_b, dense_inputs], axis=-1))
+        l_1 = tf.nn.relu(tf.concat([l_z+l_p+self.l_b, dense_inputs], axis=-1))
         # dnn layer
         dnn_x = self.dnn_network(l_1)
         outputs = tf.nn.sigmoid(self.dense_final(dnn_x))
