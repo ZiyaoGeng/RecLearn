@@ -1,9 +1,10 @@
 """
 Created on July 20, 2020
+Updated on Jan 5, 2021
 
 train PNN model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
@@ -21,6 +22,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 if __name__ == '__main__':
+    # =============================== GPU ==============================
+    # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # print(gpu)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
     # ========================= Hyper Parameters =======================
     file = '../dataset/Criteo/train.txt'
     read_part = True
@@ -28,7 +33,7 @@ if __name__ == '__main__':
     test_size = 0.2
 
     embed_dim = 8
-    mode = 'in'
+    mode = 'out'  # "in", "out"
     dnn_dropout = 0.5
     hidden_units = [256, 128, 64]
 
@@ -44,15 +49,17 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = PNN(feature_columns, hidden_units, dnn_dropout)
-    model.summary()
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = PNN(feature_columns, hidden_units, dnn_dropout)
+        model.summary()
+        # =========================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                      metrics=[AUC()])
     # ============================model checkpoint======================
     # check_path = 'save/pnn_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # =========================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                  metrics=[AUC()])
     # ===========================Fit==============================
     model.fit(
         train_X,
