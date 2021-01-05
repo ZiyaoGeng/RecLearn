@@ -50,15 +50,17 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = DeepFM(feature_columns, k=k, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
-    model.summary()
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = DeepFM(feature_columns, k=k, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
+        model.summary()
+        # ============================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                      metrics=[AUC()])
     # ============================model checkpoint======================
     # check_path = '../save/deepfm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # ============================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                  metrics=[AUC()])
     # ==============================Fit==============================
     model.fit(
         train_X,
@@ -69,4 +71,4 @@ if __name__ == '__main__':
         validation_split=0.1
     )
     # ===========================Test==============================
-    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
+    print('test AUC: %f' % model.evaluate(test_X, test_y, batch_size=batch_size)[1])
