@@ -21,6 +21,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 if __name__ == '__main__':
+    # =============================== GPU ==============================
+    # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # print(gpu)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
@@ -44,21 +48,23 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = NFM(feature_columns, hidden_units, dropout_rate=dnn_dropout)
-    model.summary()
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = NFM(feature_columns, hidden_units, dnn_dropout=dnn_dropout)
+        model.summary()
+        # =========================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                      metrics=[AUC()])
     # ============================model checkpoint======================
     # check_path = 'save/nfm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # =========================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                  metrics=[AUC()])
     # ===========================Fit==============================
     model.fit(
         train_X,
         train_y,
         epochs=epochs,
-        callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
+        callbacks=[EarlyStopping(monitor='val_loss', patience=1, restore_best_weights=True)],  # checkpoint
         batch_size=batch_size,
         validation_split=0.1
     )

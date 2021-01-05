@@ -85,9 +85,9 @@ def create_criteo_dataset(file, embed_dim=8, read_part=True, sample_num=100000, 
 
     train, test = train_test_split(data_df, test_size=test_size)
 
-    train_X = [train[dense_features].values, train[sparse_features].values.astype('int32')]
+    train_X = [train[dense_features].values.astype('float32'), train[sparse_features].values.astype('int32')]
     train_y = train['label'].values.astype('int32')
-    test_X = [test[dense_features].values, test[sparse_features].values.astype('int32')]
+    test_X = [test[dense_features].values.astype('float32'), test[sparse_features].values.astype('int32')]
     test_y = test['label'].values.astype('int32')
 
     return feature_columns, (train_X, train_y), (test_X, test_y)
