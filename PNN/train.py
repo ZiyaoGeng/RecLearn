@@ -70,4 +70,4 @@ if __name__ == '__main__':
         validation_split=0.1
     )
     # ===========================Test==============================
-    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
+    print('test AUC: %f' % model.evaluate(test_X, test_y, batch_size=batch_size)[1])
