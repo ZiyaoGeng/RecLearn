@@ -30,12 +30,14 @@ Attentional Factorization Machines: Learning the Weight of Feature Interactions 
 
 ```python
 class AFM(keras.Model):
-    def __init__(self, feature_columns, mode, activation='relu', embed_reg=1e-4):
+    def __init__(self, feature_columns, mode, att_vector=8, activation='relu', dropout=0.5, embed_reg=1e-4):
         """
         AFM 
         :param feature_columns: A list. dense_feature_columns and sparse_feature_columns
-        :param mode:A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
+        :param mode: A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
+        :param att_vector: A scalar. attention vector.
         :param activation: A string. Activation function of attention.
+        :param dropout: A scalar. Dropout.
         :param embed_reg: A scalar. the regularizer of embedding
         """
 ```
@@ -50,7 +52,11 @@ class AFM(keras.Model):
 - test_size：测试集比例，`0.2`；
 - 
 - embed_dim：Embedding维度，`8`；
+- att_vector：attention层隐藏单元，`8`；
 - mode：Pooling的类型, `att`；
+- dropout：`0.5`;
+- activation：`relu`；
+- embed_reg：`1e-5`；
 - 
 - learning_rate：学习率，`0.001`；
 - batch_size：`4096`；
