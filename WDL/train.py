@@ -1,5 +1,6 @@
 """
 Created on July 10, 2020
+Updated on Jan 8, 2021
 
 train model
 
@@ -21,6 +22,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 if __name__ == '__main__':
+    # =============================== GPU ==============================
+    # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # print(gpu)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
@@ -45,15 +50,17 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = WideDeep(feature_columns, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
-    model.summary()
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = WideDeep(feature_columns, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
+        model.summary()
+        # ============================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                      metrics=[AUC()])
     # ============================model checkpoint======================
     # check_path = '../save/wide_deep_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # ============================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                  metrics=[AUC()])
     # ==============================Fit==============================
     model.fit(
         train_X,
@@ -64,4 +71,4 @@ if __name__ == '__main__':
         validation_split=0.1
     )
     # ===========================Test==============================
-    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
+    print('test AUC: %f' % model.evaluate(test_X, test_y, batch_size=batch_size)[1])

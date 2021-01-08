@@ -86,7 +86,7 @@ class WideDeep(tf.keras.Model):
         deep_out = self.dnn_network(x)
         deep_out = self.final_dense(deep_out)
         # out
-        outputs = tf.nn.sigmoid(0.5 * (wide_out + deep_out))
+        outputs = tf.nn.sigmoid(0.5 * wide_out + 0.5 * deep_out)
         return outputs
 
     def summary(self, **kwargs):
