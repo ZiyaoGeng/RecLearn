@@ -21,15 +21,23 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 if __name__ == '__main__':
+    # =============================== GPU ==============================
+    # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # print(gpu)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 100000
+    sample_num = 5000000
     test_size = 0.2
 
     embed_dim = 8
-    mode = 'avg'  # 'max', 'avg'
+    att_vector = 8
+    mode = 'att'  # 'max', 'avg'
+    dropout = 0.5
+    activation = 'relu'
+    embed_reg = 1e-5
 
     learning_rate = 0.001
     batch_size = 4096
@@ -44,15 +52,17 @@ if __name__ == '__main__':
     train_X, train_y = train
     test_X, test_y = test
     # ============================Build Model==========================
-    model = AFM(feature_columns, mode)
-    model.summary()
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
+        model = AFM(feature_columns, mode, att_vector, activation, dropout, embed_reg)
+        model.summary()
+        # =========================Compile============================
+        model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
+                      metrics=[AUC()])
     # ============================model checkpoint======================
     # check_path = 'save/afm_weights.epoch_{epoch:04d}.val_loss_{val_loss:.4f}.ckpt'
     # checkpoint = tf.keras.callbacks.ModelCheckpoint(check_path, save_weights_only=True,
     #                                                 verbose=1, period=5)
-    # =========================Compile============================
-    model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
-                  metrics=[AUC()])
     # ===========================Fit==============================
     model.fit(
         train_X,
@@ -63,4 +73,4 @@ if __name__ == '__main__':
         validation_split=0.1
     )
     # ===========================Test==============================
-    print('test AUC: %f' % model.evaluate(test_X, test_y)[1])
+    print('test AUC: %f' % model.evaluate(test_X, test_y, batch_size=batch_size)[1])
