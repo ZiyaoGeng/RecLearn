@@ -7,9 +7,7 @@ xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Sy
 
 原文笔记： https://mp.weixin.qq.com/s/TohOmVpQzNlA3vXv0gpobg
 
-### 2
-
-### . 模型结构
+### 2. 模型结构
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_12.png" width="50%;" style="float:center"/></div>
 
