@@ -86,6 +86,7 @@
 Github推出了**Discussions**功能，作者会将一些重要的更新/代码进行分享。
 
 1.  评估函数：[evaluate.py](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/discussions/26)
+2.  Criteo数据集：链接:https://pan.baidu.com/s/19O0jLKrDGpp6SAWFtgsJvg  密码:vufh
 
 
 
