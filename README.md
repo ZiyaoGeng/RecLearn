@@ -5,14 +5,15 @@
 ## Recommender System with TF2.0---v0.0.3
 
 <p align="left">
-  <img src='https://img.shields.io/badge/python-3.7-blue'>
+  <img src='https://img.shields.io/badge/python-3.7+-blue'>
+    <img src='https://img.shields.io/badge/Tensorflow-2.0+-blue'>
   <img src='https://img.shields.io/badge/NumPy-1.17-brightgreen'>
   <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
   <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
-  <img src='https://img.shields.io/badge/Tensorflow-2.0-brightgreen'>
 </p>  
 
-开源项目`Recommender System with TF2.0`主要是对经典的推荐算法论文进行复现，包括**Matching（召回）**（NCF、SASRec、STAMP等）、**Ranking（排序）**（WDL、DCN等）。
+
+开源项目`Recommender System with TF2.0`主要是对经典的推荐算法论文进行复现，包括**Matching（召回）**（MF、BPR、SASRec等）、**Ranking（排序）**（DeepFM、DCN等）。
 
 **建立原因：**
 
