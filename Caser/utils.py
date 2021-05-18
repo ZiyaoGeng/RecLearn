@@ -35,8 +35,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40):
     data_df = pd.read_csv(file, sep="::", engine='python',
                           names=['user_id', 'item_id', 'label', 'Timestamp'])
     # implicit dataset
-    data_df.loc[data_df.label < trans_score, 'label'] = 0
-    data_df.loc[data_df.label >= trans_score, 'label'] = 1
+    data_df = data_df[data_df.label >= trans_score]
 
     # sort
     data_df = data_df.sort_values(by=['user_id', 'Timestamp'])
@@ -51,7 +50,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40):
             neg = pos_list[0]
             while neg in pos_list:
                 neg = random.randint(1, item_id_max)
-                return neg
+            return neg
 
         neg_list = [gen_neg() for i in range(len(pos_list) + 100)]
         for i in range(1, len(pos_list)):

@@ -52,7 +52,7 @@ def create_implicit_ml_1m_dataset(file, trans_score=2, embed_dim=8, maxlen=40):
             neg = pos_list[0]
             while neg in pos_list:
                 neg = random.randint(1, item_id_max)
-                return neg
+            return neg
 
         neg_list = [gen_neg() for i in range(len(pos_list) + 100)]
         for i in range(1, len(pos_list)):

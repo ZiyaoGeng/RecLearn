@@ -53,7 +53,7 @@ def create_ml_1m_dataset(file, trans_score=2, embed_dim=8, test_neg_num=100):
             neg = pos_list[0]
             while neg in set(pos_list):
                 neg = random.randint(1, item_id_max)
-                return neg
+            return neg
 
         neg_list = [gen_neg() for i in range(len(pos_list) + test_neg_num)]
         for i in range(1, len(pos_list)):
