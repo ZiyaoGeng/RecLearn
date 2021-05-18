@@ -2,7 +2,7 @@
   <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/logo.jpg' width='36%'/>
 </div>
 
-## 前言
+## Recommender System with TF2.0---v0.0.3
 
 <p align="left">
   <img src='https://img.shields.io/badge/python-3.7-blue'>
@@ -34,9 +34,15 @@
 
 ## 重要更新
 
+- 【2021.05.18】更新内容较多，分为以下：
+  - 创建`data_process`文件，将CTR模型中的`utils.py`移动到该文件夹下，并改名为`criteo.py`，以后所有模型训练时统一调用该文件夹下处理后的数据；
+  - Criteo数据处理方式改变，对于密集型数据（`I1-I13`）采用离散化分桶，与离散型数据合并；
+  - 逐步修正每个模型采用离散型输入；
+  - DeepFM模型之前构建模型有误，Wide部分与Deep部分应该共享Embedding；
+  - FM、DeepFM模型构建一阶特征时取消占内存的`tf.ont_hot`，改用`tf.nn.embedding_lookup`，通过映射方式实现；
+  - 逐步为CTR模型增加使用全量Criteo数据集的结果；
 - 【2020.12.20】在Top-K模型中，评估方式为正负样本1:100的模型（MF-BPR、SASRec等），之前评估代码效率太低，因此进行了调整（目前评估时间大幅度缩短），同时也更新了`utils.py`文件；
 - 【2020.11.18】在Top-K模型中，不再考虑`dense_inputs`、`sparse_inputs`，并且`user_inputs`和`seq_inputs`不考虑多个类别，只将`id`特征作为输入（降低了模型的可扩展性，但是提高了模型的可读性）；
-
 - 【2020.11.18】BPR、SASRec模型进行了更新，加入了实验结果；
 
 
