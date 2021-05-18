@@ -8,6 +8,7 @@ Deep & Cross Network for Ad Click Predictions
 原文笔记：https://mp.weixin.qq.com/s/DkoaMaXhlgQv1NhZHF-7og
 
 
+
 ### 2. 模型结构
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_4.png" width="40%;" style="float:center"/></div>
@@ -16,24 +17,25 @@ Deep & Cross Network for Ad Click Predictions
 
 ### 3. 实验数据集
 
-采用Criteo数据集进行测试。数据集的处理见`utils`文件，主要分为：
+采用Criteo数据集进行测试。数据集的处理见`../data_process`文件，主要分为：
+
 1. 考虑到Criteo文件过大，因此可以通过`read_part`和`sample_sum`读取部分数据进行测试；
-3. 对缺失数据进行填充；
-4. 对密集数据`I1-I13`进行归一化处理，对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
-5. 整理得到`feature_columns`；
-6. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
+2. 对缺失数据进行填充；
+3. 对密集数据`I1-I13`进行离散化分桶（bins=100），对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
+4. 整理得到`feature_columns`；
+5. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
 
 
 
 ### 4. 模型API
 
 ```python
-class DCN(keras.Model):
+class DCN(Model):
     def __init__(self, feature_columns, hidden_units, activation='relu',
-                 dnn_dropout=0., embed_reg=1e-4, cross_w_reg=1e-4, cross_b_reg=1e-4):
+                 dnn_dropout=0., embed_reg=1e-6, cross_w_reg=1e-6, cross_b_reg=1e-6):
         """
         Deep&Cross Network
-        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
+        :param feature_columns: A list. sparse column feature information.
         :param hidden_units: A list. Neural network hidden units.
         :param activation: A string. Activation function of dnn.
         :param dnn_dropout: A scalar. Dropout of dnn.
@@ -64,6 +66,8 @@ class DCN(keras.Model):
 
 ### 6. 实验结果
 
-采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC：0.787266`
-
-
+1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC: 0.782310`；
+2. 采用Criteo数据集全部内容：
+   - 学习参数：235,236,225；
+   - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：344s；
+   - 测试集结果：`AUC: 0.792959, loss: 0.4691`；
