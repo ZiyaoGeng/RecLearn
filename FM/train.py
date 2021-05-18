@@ -3,18 +3,17 @@ Created on August 25, 2020
 
 train FM model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
-from model import FM
 
-from utils import create_criteo_dataset
+from model import FM
+from data_process.criteo import create_criteo_dataset
 
 import os
 
@@ -25,15 +24,16 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
+    # If you have GPU, and the value is GPU serial number.
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 1000000
+    sample_num = 5000000
     test_size = 0.2
 
-    k = 10
+    k = 8
 
     learning_rate = 0.001
     batch_size = 4096
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         train_X,
         train_y,
         epochs=epochs,
-        callbacks=[EarlyStopping(monitor='val_loss', patience=1, restore_best_weights=True)],  # checkpoint
+        callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
         batch_size=batch_size,
         validation_split=0.1
     )
