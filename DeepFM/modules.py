@@ -7,7 +7,7 @@ modules of DeepFM: FM, DNN
 """
 import tensorflow as tf
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Dropout, Dense, Layer, Embedding
+from tensorflow.keras.layers import Dropout, Dense, Layer
 
 
 class FM(Layer):
@@ -24,13 +24,12 @@ class FM(Layer):
         super(FM, self).__init__()
         self.feature_length = feature_length
         self.w_reg = w_reg
-        self.w = Embedding(input_dim=self.feature_length,
-                           input_length=1,
-                           output_dim=1,
-                           embeddings_initializer='random_normal',
-                           embeddings_regularizer=l2(w_reg),
-                           name='fm_w'
-                           )
+
+    def build(self, input_shape):
+        self.w = self.add_weight(name='w', shape=(self.feature_length, 1),
+                                 initializer='random_normal',
+                                 regularizer=l2(self.w_reg),
+                                 trainable=True)
 
     def call(self, inputs, **kwargs):
         """
@@ -40,7 +39,7 @@ class FM(Layer):
         """
         sparse_inputs, embed_inputs = inputs['sparse_inputs'], inputs['embed_inputs']
         # first order
-        first_order = tf.reduce_sum(self.w(sparse_inputs), axis=1)  # (batch_size, 1)
+        first_order = tf.reduce_sum(tf.nn.embedding_lookup(self.w, sparse_inputs), axis=1)  # (batch_size, 1)
         # second order
         square_sum = tf.square(tf.reduce_sum(embed_inputs, axis=1, keepdims=True))  # (batch_size, 1, embed_dim)
         sum_square = tf.reduce_sum(tf.square(embed_inputs), axis=1, keepdims=True)  # (batch_size, 1, embed_dim)

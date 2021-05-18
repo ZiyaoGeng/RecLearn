@@ -17,7 +17,7 @@ Factorization Machines
 
 ### 3. 实验数据集
 
-采用Criteo数据集进行测试。数据集的处理见`utils`文件，主要分为：
+采用Criteo数据集进行测试。数据集的处理见`../data_process`文件，主要分为：
 
 1. 考虑到Criteo文件过大，因此可以通过`read_part`和`sample_sum`读取部分数据进行测试；
 2. 对缺失数据进行填充；

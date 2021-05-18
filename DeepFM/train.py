@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 500
+    sample_num = 5000000
     test_size = 0.2
 
     embed_dim = 8

@@ -20,7 +20,7 @@ DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
 采用Criteo数据集进行测试。数据集的处理见`../data_process`文件，主要分为：
 1. 考虑到Criteo文件过大，因此可以通过`read_part`和`sample_sum`读取部分数据进行测试；
 3. 对缺失数据进行填充；
-4. 对密集数据`I1-I13`进行归一化处理，对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
+4. 对密集数据`I1-I13`进行离散化分桶（bins=100），对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
 5. 整理得到`feature_columns`；
 6. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
 
@@ -34,7 +34,7 @@ class DeepFM(Model):
 				 activation='relu', fm_w_reg=1e-6, embed_reg=1e-6):
 		"""
 		DeepFM
-		:param feature_columns: A list. a list containing dense and sparse column feature information.
+		:param feature_columns: A list. sparse column feature information.
 		:param hidden_units: A list. A list of dnn hidden units.
 		:param dnn_dropout: A scalar. Dropout of dnn.
 		:param activation: A string. Activation function of dnn.
@@ -64,9 +64,8 @@ class DeepFM(Model):
 
 ### 6. 实验结果
 
-1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC：0.783924`；
+1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC：0.782840`；
 2. 采用Criteo数据集全部内容：
-   - 学习参数：264,588,132
    - 单个Epoch运行时间【Tesla V100S-PCI】：320s；
    - 测试集结果：`AUC:0.800745， loss:0.4650`；
 
