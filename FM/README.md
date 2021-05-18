@@ -64,6 +64,7 @@ class FM_Layer(Layer):
 
 1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC: 0.778358, loss: 0.4765`；
 2. 采用Criteo数据集全部内容：
+   - 学习参数：264,501,784；
    - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：320s；
    - 测试集结果：`AUC: 0.800745, loss: 0.4650`；
 
