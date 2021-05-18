@@ -3,7 +3,7 @@ Created on July 31, 2020
 
 train DeepFM model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
@@ -13,7 +13,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
 
 from model import DeepFM
-from utils import create_criteo_dataset
+from data_process.criteo import create_criteo_dataset
 
 import os
 
@@ -24,16 +24,16 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '6, 7'
+    # If you have GPU, and the value is GPU serial number.
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
     read_part = True
-    sample_num = 5000000
+    sample_num = 500
     test_size = 0.2
 
     embed_dim = 8
-    k = 10
     dnn_dropout = 0.5
     hidden_units = [256, 128, 64]
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # ============================Build Model==========================
     mirrored_strategy = tf.distribute.MirroredStrategy()
     with mirrored_strategy.scope():
-        model = DeepFM(feature_columns, k=k, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
+        model = DeepFM(feature_columns, hidden_units=hidden_units, dnn_dropout=dnn_dropout)
         model.summary()
         # ============================Compile============================
         model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         train_X,
         train_y,
         epochs=epochs,
-        callbacks=[EarlyStopping(monitor='val_loss', patience=1, restore_best_weights=True)],  # checkpoint,
+        callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint,
         batch_size=batch_size,
         validation_split=0.1
     )
