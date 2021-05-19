@@ -8,6 +8,7 @@ Neural Factorization Machines for Sparse Predictive Analytics
 原文笔记：https://mp.weixin.qq.com/s/1en7EyP3C2TP3-d4Ha0rSQ
 
 
+
 ### 2. 模型结构
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_8.png" width="40%;" style="float:center"/></div>
@@ -63,6 +64,9 @@ class NFM(Model):
 
 ### 6. 实验结果
 
-采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC：0.776491`
-
+1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC: 0.776235, loss: 0.4773`；
+2. 采用Criteo数据集全部内容：
+   - 学习参数：264,501,784；
+   - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：323s；
+   - 测试集结果：`AUC: 0.787504, loss: 0.4762`；
 
