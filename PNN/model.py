@@ -1,47 +1,26 @@
 """
 Created on July 20, 2020
+Updated on May 19, 2021
 
 model: Product-based Neural Networks for User Response Prediction
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import Input
+from tensorflow.keras import Model
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.layers import Embedding, Dense, Layer, Dropout
+from tensorflow.keras.layers import Embedding, Dense, Layer, Dropout, Input
+
+from modules import DNN
 
 
-class DNN(Layer):
-    """
-	Deep Neural Network
-	"""
-
-    def __init__(self, hidden_units, activation='relu', dropout=0.):
-        """
-		:param hidden_units: A list. Neural network hidden units.
-		:param activation: A string. Activation function of dnn.
-		:param dropout: A scalar. Dropout number.
-		"""
-        super(DNN, self).__init__()
-        self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
-        self.dropout = Dropout(dropout)
-
-    def call(self, inputs, **kwargs):
-        x = inputs
-        for dnn in self.dnn_network:
-            x = dnn(x)
-        x = self.dropout(x)
-        return x
-
-
-class PNN(keras.Model):
+class PNN(Model):
     def __init__(self, feature_columns, hidden_units, mode='in', dnn_dropout=0.,
-                 activation='relu', embed_reg=1e-4, w_z_reg=1e-4, w_p_reg=1e-4, l_b_reg=1e-4):
+                 activation='relu', embed_reg=1e-6, w_z_reg=1e-6, w_p_reg=1e-6, l_b_reg=1e-6):
         """
         Product-based Neural Networks
-        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
+        :param feature_columns: A list. sparse column feature information.
         :param hidden_units: A list. Neural network hidden units.
         :param mode: A string. 'in' IPNN or 'out'OPNN.
         :param activation: A string. Activation function of dnn.
@@ -54,7 +33,7 @@ class PNN(keras.Model):
         super(PNN, self).__init__()
         # inner product or outer product
         self.mode = mode
-        self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+        self.sparse_feature_columns = feature_columns
         # the number of feature fields
         self.field_num = len(self.sparse_feature_columns)
         self.embed_dim = self.sparse_feature_columns[0]['embed_dim']
@@ -98,10 +77,10 @@ class PNN(keras.Model):
         self.dense_final = Dense(1)
 
     def call(self, inputs):
-        dense_inputs, sparse_inputs = inputs
-        embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
+        sparse_inputs = inputs
+        sparse_embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
                  for i in range(sparse_inputs.shape[1])]
-        embed = tf.transpose(tf.convert_to_tensor(embed), [1, 0, 2])  # (None, field_num, embed_dim)
+        sparse_embed = tf.transpose(tf.convert_to_tensor(sparse_embed), [1, 0, 2])  # (None, field_num, embed_dim)
         # product layer
         row = []
         col = []
@@ -109,8 +88,8 @@ class PNN(keras.Model):
             for j in range(i + 1, len(self.sparse_feature_columns)):
                 row.append(i)
                 col.append(j)
-        p = tf.gather(embed, row, axis=1)
-        q = tf.gather(embed, col, axis=1)
+        p = tf.gather(sparse_embed, row, axis=1)
+        q = tf.gather(sparse_embed, col, axis=1)
         if self.mode == 'in':
             l_p = tf.tensordot(p*q, self.w_p, axes=2)  # (None, hidden[0])
         else:  # out
@@ -118,15 +97,13 @@ class PNN(keras.Model):
             v = tf.expand_dims(p, 2)  # (None, field_num(field_num-1)/2, 1, emb_dim)
             l_p = tf.tensordot(tf.matmul(tf.transpose(u, [0, 1, 3, 2]), v), self.w_p, axes=3)  # (None, hidden[0])
 
-        l_z = tf.tensordot(embed, self.w_z, axes=2)  # (None, hidden[0])
-        l_1 = tf.nn.relu(tf.concat([l_z + l_p + self.l_b, dense_inputs], axis=-1))
+        l_z = tf.tensordot(sparse_embed, self.w_z, axes=2)  # (None, hidden[0])
+        l_1 = tf.nn.relu(tf.concat([l_z + l_p + self.l_b], axis=-1))
         # dnn layer
         dnn_x = self.dnn_network(l_1)
         outputs = tf.nn.sigmoid(self.dense_final(dnn_x))
         return outputs
 
     def summary(self):
-        dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
         sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
-        keras.Model(inputs=[dense_inputs, sparse_inputs],
-                    outputs=self.call([dense_inputs, sparse_inputs])).summary()
+        Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()

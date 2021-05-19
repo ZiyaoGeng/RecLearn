@@ -13,8 +13,8 @@ from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
 
-from utils import create_criteo_dataset
 from model import PNN
+from data_process.criteo import create_criteo_dataset
 
 import os
 
@@ -25,7 +25,8 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
+    # If you have GPU, and the value is GPU serial number.
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     # ========================= Hyper Parameters =======================
     file = '../dataset/Criteo/train.txt'
     read_part = True
