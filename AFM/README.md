@@ -74,5 +74,5 @@ class AFM(Model):
 2. 采用Criteo数据集全部内容：
    - 学习参数：235,112,786；
    - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：411s；
-   - 测试集结果（att）： `AUC: 0.787504, loss: 0.4762`；
+   - 测试集结果（att）： `AUC: 0.787135, loss: 0.4692`；
 
