@@ -1,23 +1,23 @@
 """
 Created on August 3, 2020
+Updated on May 19, 2021
 
 model: Attentional Factorization Machines: Learning the Weight of Feature Interactions via Attention Networks
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 import itertools
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+from tensorflow.keras import Model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Embedding, Dropout, Dense, Dropout, Input
 
 
-class AFM(keras.Model):
-    def __init__(self, feature_columns, mode, att_vector=8, activation='relu', dropout=0.5, embed_reg=1e-4):
+class AFM(Model):
+    def __init__(self, feature_columns, mode, att_vector=8, activation='relu', dropout=0.5, embed_reg=1e-6):
         """
         AFM 
-        :param feature_columns: A list. dense_feature_columns and sparse_feature_columns
+        :param feature_columns: A list. sparse column feature information.
         :param mode: A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
         :param att_vector: A scalar. attention vector.
         :param activation: A string. Activation function of attention.
@@ -25,7 +25,7 @@ class AFM(keras.Model):
         :param embed_reg: A scalar. the regularizer of embedding
         """
         super(AFM, self).__init__()
-        self.dense_feature_columns, self.sparse_feature_columns = feature_columns
+        self.sparse_feature_columns = feature_columns
         self.mode = mode
         self.embed_layers = {
             'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
@@ -43,7 +43,7 @@ class AFM(keras.Model):
 
     def call(self, inputs):
         # Input Layer
-        dense_inputs, sparse_inputs = inputs
+        sparse_inputs = inputs
         # Embedding Layer 
         embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
         embed = tf.transpose(tf.convert_to_tensor(embed), perm=[1, 0, 2])  # (None, len(sparse_inputs), embed_dim)
@@ -72,9 +72,8 @@ class AFM(keras.Model):
         return outputs
 
     def summary(self):
-        dense_inputs = Input(shape=(len(self.dense_feature_columns),), dtype=tf.float32)
         sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
-        keras.Model(inputs=[dense_inputs, sparse_inputs], outputs=self.call([dense_inputs, sparse_inputs])).summary()
+        Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()
 
     def attention(self, bi_interaction):
         a = self.attention_W(bi_interaction)  # (None, (len(sparse) * len(sparse) - 1) / 2, t)

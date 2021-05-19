@@ -1,9 +1,10 @@
 """
 Created on August 3, 2020
+Updated on May 19, 2021
 
 train AFM model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
@@ -11,9 +12,9 @@ from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
-from model import AFM
 
-from utils import create_criteo_dataset
+from model import AFM
+from data_process.criteo import create_criteo_dataset
 
 import os
 
@@ -24,7 +25,8 @@ if __name__ == '__main__':
     # =============================== GPU ==============================
     # gpu = tf.config.experimental.list_physical_devices(device_type='GPU')
     # print(gpu)
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
+    # If you have GPU, and the value is GPU serial number.
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     # ========================= Hyper Parameters =======================
     # you can modify your file path
     file = '../dataset/Criteo/train.txt'
