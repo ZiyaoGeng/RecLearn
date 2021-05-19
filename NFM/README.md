@@ -16,23 +16,24 @@ Neural Factorization Machines for Sparse Predictive Analytics
 
 ### 3. 实验数据集
 
-采用Criteo数据集进行测试。数据集的处理见`utils`文件，主要分为：
+采用Criteo数据集进行测试。数据集的处理见`../data_process`文件，主要分为：
+
 1. 考虑到Criteo文件过大，因此可以通过`read_part`和`sample_sum`读取部分数据进行测试；
-3. 对缺失数据进行填充；
-4. 对密集数据`I1-I13`进行归一化处理，对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
-5. 整理得到`feature_columns`；
-6. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
+2. 对缺失数据进行填充；
+3. 对密集数据`I1-I13`进行离散化分桶（bins=100），对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
+4. 整理得到`feature_columns`；
+5. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
 
 
 
 ### 4. 模型API
 
 ```python
-class NFM(keras.Model):
+class NFM(Model):
     def __init__(self, feature_columns, hidden_units, dnn_dropout=0., activation='relu', bn_use=True, embed_reg=1e-4):
         """
         NFM architecture
-        :param feature_columns: A list. dense_feature_columns + sparse_feature_columns
+        :param feature_columns: A list. sparse column feature information.
         :param hidden_units: A list. Neural network hidden units.
         :param activation: A string. Activation function of dnn.
         :param dnn_dropout: A scalar. Dropout of dnn.
