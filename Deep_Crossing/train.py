@@ -3,7 +3,7 @@ Created on July 27, 2020
 
 train Deep Crossing model
 
-@author: Ziyao Geng
+@author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
