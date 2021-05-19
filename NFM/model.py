@@ -15,7 +15,7 @@ from modules import DNN
 
 
 class NFM(Model):
-    def __init__(self, feature_columns, hidden_units, dnn_dropout=0., activation='relu', bn_use=True, embed_reg=1e-4):
+    def __init__(self, feature_columns, hidden_units, dnn_dropout=0., activation='relu', bn_use=True, embed_reg=1e-6):
         """
         NFM architecture
         :param feature_columns: A list. sparse column feature information.
