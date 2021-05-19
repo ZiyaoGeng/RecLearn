@@ -66,7 +66,7 @@ if __name__ == '__main__':
         train_X,
         train_y,
         epochs=epochs,
-        callbacks=[EarlyStopping(monitor='val_auc', patience=2, restore_best_weights=True)],  # checkpoint
+        callbacks=[EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)],  # checkpoint
         batch_size=batch_size,
         validation_split=0.1
     )
