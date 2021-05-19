@@ -8,6 +8,7 @@ Deep Crossing: Web-Scale Modeling without Manually Crafted Combinatorial Feature
 原文笔记：https://mp.weixin.qq.com/s/WXnvkoRFxwFpflStAuW7kQ
 
 
+
 ### 2. 模型结构
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/tf_6.png" width="40%;" style="float:center"/></div>
@@ -63,6 +64,6 @@ class Deep_Crossing(Model):
 
 1. 采用Criteo数据集中前`500w`条数据，最终测试集的结果为：`AUC: 0.782631, loss: 0.4670`；
 2. 采用Criteo数据集全部内容：
-   - 学习参数：264,501,784；
-   - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：323s；
-   - 测试集结果：`AUC: 0.787504, loss: 0.4762`；
+   - 学习参数：235,393,945；
+   - 单个Epoch运行时间【GPU：Tesla V100S-PCI】：303s；
+   - 测试集结果：`AUC: 0.793536, loss: 0.4693`；
