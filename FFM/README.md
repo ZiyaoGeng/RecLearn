@@ -15,11 +15,11 @@ Field-aware Factorization Machines for CTR Prediction
 
 ### 3. 实验数据集
 
-采用Criteo数据集进行测试。数据集的处理见`utils`文件，主要分为：
+采用Criteo数据集进行测试。数据集的处理见`../data_process`文件，主要分为：
 
 1. 考虑到Criteo文件过大，因此可以通过`read_part`和`sample_sum`读取部分数据进行测试；
 2. 对缺失数据进行填充；
-3. 对密集数据`I1-I13`进行归一化处理，对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
+3. 对密集数据`I1-I13`进行离散化分桶（bins=100），对稀疏数据`C1-C26`进行重新编码`LabelEncoder`；
 4. 整理得到`feature_columns`；
 5. 切分数据集，最后返回`feature_columns, (train_X, train_y), (test_X, test_y)`；
 
@@ -28,11 +28,11 @@ Field-aware Factorization Machines for CTR Prediction
 ### 4. 模型API
 
 ```python
-class FFM(tf.keras.Model):
-    def __init__(self, feature_columns, k, w_reg=1e-4, v_reg=1e-4):
+class FFM(Model):
+    def __init__(self, feature_columns, k, w_reg=1e-6, v_reg=1e-6):
         """
         FFM architecture
-        :param feature_columns:  a list containing dense and sparse column feature information
+        :param feature_columns: A list. sparse column feature information.
         :param k: the latent vector
         :param w_reg: the regularization coefficient of parameter w
 		:param field_reg_reg: the regularization coefficient of parameter v
@@ -58,5 +58,4 @@ class FFM(tf.keras.Model):
 
 ### 6. 实验结果
 
-采用Criteo数据集数据，最终测试集的结果为：
-
+采用Criteo数据集中前`100w`条数据，最终测试集的结果为：`AUC:0.665989 `【500w因为参数量太大，直接oom】
