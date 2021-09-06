@@ -51,7 +51,7 @@ class NFM(Model):
         sparse_embed = 0.5 * (tf.pow(tf.reduce_sum(sparse_embed, axis=1), 2) -
                        tf.reduce_sum(tf.pow(sparse_embed, 2), axis=1))  # (None, embed_dim)
         # Concat
-        x = tf.concat([dense_inputs, sparse_embed], axis=-1)
+        x = sparse_embed
         # BatchNormalization
         x = self.bn(x, training=self.bn_use)
         # Hidden Layers
