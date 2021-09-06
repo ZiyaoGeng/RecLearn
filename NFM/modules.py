@@ -7,7 +7,7 @@ modules of NFM: DNN
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense, Dropout, Layer
 
 
 class DNN(Layer):
