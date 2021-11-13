@@ -23,10 +23,10 @@ def main():
     fea_cols = {
         'user_num': 6040,
         'item_num': 4000,
-        'embed_dim': 8
     }
     params = {
         'fea_cols': fea_cols,
+        'embed_dim': 8,
         'hidden_units': [256, 128, 64],
         'activation': 'relu',
         'dnn_dropout': 0.3,

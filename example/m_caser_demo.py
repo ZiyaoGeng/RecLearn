@@ -28,10 +28,10 @@ def main():
         'user_num': user_num,
         'item_num': item_num,
         'seq_len': seq_len,
-        'embed_dim': 50
     }
     params = {
         'fea_cols': fea_cols,
+        'embed_dim': 50,
         'hor_n': 8,
         'hor_h': 2,
         'ver_n': 4,

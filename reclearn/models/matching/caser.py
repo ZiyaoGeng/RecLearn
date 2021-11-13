@@ -13,10 +13,11 @@ from reclearn.models.losses import get_loss
 
 
 class Caser(Model):
-    def __init__(self, fea_cols, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
+    def __init__(self, fea_cols, embed_dim=16, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
         """
         AttRec
         :param fea_col: A dict contains 'user_num', 'item_num', 'seq_len' and 'embed_dim'.
+        :param embed_dim: A scalar. The dimension of embedding for user, item and other features.
         :param hor_n: A scalar. The number of horizontal filters.
         :param hor_h: A scalar. Height of horizontal filters.
         :param ver_n: A scalar. The number of vertical filters.
@@ -31,19 +32,19 @@ class Caser(Model):
         # user embedding
         self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'] // 2,
+                                        output_dim=embed_dim // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'] // 2,
+                                        output_dim=embed_dim // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item2 embedding
         self.item2_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # seq_len

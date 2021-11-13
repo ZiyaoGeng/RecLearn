@@ -14,11 +14,12 @@ from reclearn.models.losses import get_loss
 
 
 class SASRec(Model):
-    def __init__(self, fea_cols, blocks=1, num_heads=1, ffn_hidden_unit=128,
+    def __init__(self, fea_cols, embed_dim=16, blocks=1, num_heads=1, ffn_hidden_unit=128,
                  dnn_dropout=0., layer_norm_eps=1e-6, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
         """
         SASRec model
-        :param fea_col: A dict contains 'item_num', 'seq_len' and 'embed_dim'.
+        :param fea_cols: A dict contains 'item_num', 'seq_len'.
+        :param embed_dim: A scalar. The dimension of embedding for user, item and other features.
         :param blocks: A scalar. The Number of blocks.
         :param num_heads: A scalar. Number of heads.
         :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
@@ -33,17 +34,17 @@ class SASRec(Model):
         # item embedding
         self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         self.pos_embedding = Embedding(input_dim=fea_cols['seq_len'],
                                        input_length=1,
-                                       output_dim=fea_cols['embed_dim'],
+                                       output_dim=embed_dim,
                                        embeddings_initializer='random_normal',
                                        embeddings_regularizer=l2(embed_reg))
         self.dropout = Dropout(dnn_dropout)
         # multi encoder block
-        self.encoder_layer = [TransformerEncoder(fea_cols['embed_dim'], num_heads, ffn_hidden_unit,
+        self.encoder_layer = [TransformerEncoder(embed_dim, num_heads, ffn_hidden_unit,
                                            dnn_dropout, layer_norm_eps) for _ in range(blocks)]
         # loss name
         self.loss_name = loss_name

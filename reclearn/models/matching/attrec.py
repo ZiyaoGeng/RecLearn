@@ -15,10 +15,11 @@ from reclearn.models.losses import get_loss
 
 
 class AttRec(Model):
-    def __init__(self, fea_cols, mode='inner', loss_name="bpr_loss", gamma=0.5, w=0.5, embed_reg=1e-8, seed=None):
+    def __init__(self, fea_cols, embed_dim=16, mode='inner', loss_name="bpr_loss", gamma=0.5, w=0.5, embed_reg=1e-8, seed=None):
         """
         AttRec
         :param fea_col: A dict contains 'item_num', 'seq_len' and 'embed_dim'.
+        :param embed_dim: A scalar. The dimension of embedding for user, item and other features.
         :param gamma: A scalar. if mode == 'dist', gamma is the margin.
         :param mode: A string. inner or dist.
         :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
@@ -31,19 +32,19 @@ class AttRec(Model):
         # user embedding
         self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item2 embedding, not share embedding
         self.item2_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # self-attention
