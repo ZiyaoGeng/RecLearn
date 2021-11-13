@@ -25,6 +25,8 @@ RecLearn对`Recommender System with TF2.0`中`master`分支的内容进行了归
 RecLearn上传在pypi上，可以使用`pip`进行安装：
 
 ```
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps reclearn
+
 pip install reclearn
 ```
 

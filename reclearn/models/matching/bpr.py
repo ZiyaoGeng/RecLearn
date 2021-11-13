@@ -13,11 +13,10 @@ from reclearn.models.losses import bpr_loss
 
 
 class BPR(Model):
-    def __init__(self, fea_cols, embed_dim=16, embed_reg=1e-6, seed=None):
+    def __init__(self, fea_cols, embed_reg=1e-6, seed=None):
         """
         BPR
         :param fea_cols:  A dict containing {'user_num':, 'item_num:, ...}
-        :param embed_dim: A scalar. The dimension of embedding for user, item and other features.
         :param embed_reg: A scalar. The regularizer of embedding.
         :param seed: A int scalar.
         """
@@ -25,13 +24,13 @@ class BPR(Model):
         # user embedding
         self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
                                         input_length=1,
-                                        output_dim=embed_dim,
+                                        output_dim=fea_cols['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
         self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
                                         input_length=1,
-                                        output_dim=embed_dim,
+                                        output_dim=fea_cols['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # seed

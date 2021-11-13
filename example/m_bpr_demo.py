@@ -20,11 +20,12 @@ def main():
     fea_cols = {
         'user_num': 6040,
         'item_num': 4000,
+        'embed_dim': 8
     }
     # data = ml.load_ml(train_path, neg_num)
     dataset = ml.generate_ml(train_path, neg_num)
     dataset = dataset.map(lambda user, pos, neg: {'user': user, 'pos_item': pos, 'neg_item': neg}).shuffle(batch_size).batch(batch_size)
-    model = BPR(fea_cols, embed_dim=64)
+    model = BPR(fea_cols)
     model.compile(optimizer=Adam(learning_rate=learning_rate))
     model.fit(
         x=dataset,

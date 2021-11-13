@@ -28,10 +28,10 @@ def main():
         'user_num': user_num,
         'item_num': item_num,
         'seq_len': seq_len,
+        'embed_dim': 64
     }
     params = {
         'fea_cols': fea_cols,
-        'embed_dim': 64,
         'mode': 'inner',
         'loss_name': 'hinge_loss',
         'gamma': 0.5,

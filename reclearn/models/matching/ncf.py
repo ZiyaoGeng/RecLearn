@@ -14,12 +14,11 @@ from reclearn.models.losses import bpr_loss, hinge_loss
 
 
 class NCF(Model):
-    def __init__(self, fea_cols, embed_dim=16, hidden_units=None, activation='relu', dnn_dropout=0.,
+    def __init__(self, fea_cols, hidden_units=None, activation='relu', dnn_dropout=0.,
                  is_batch_norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=1e-6, seed=None):
         """
         NCF model
         :param fea_cols: A dict containing {'user_num':, 'item_num:, ...}
-        :param embed_dim: A scalar. The dimension of embedding for user, item and other features.
         :param hidden_units: A list. The list of hidden layer units's numbers, such as [64, 32, 16, 8].
         :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
         :param dnn_dropout: A scalar. The rate of dropout .
@@ -35,25 +34,25 @@ class NCF(Model):
         # MF user embedding
         self.mf_user_embedding = Embedding(input_dim=fea_cols['user_num'],
                                            input_length=1,
-                                           output_dim=embed_dim,
+                                           output_dim=fea_cols['embed_dim'],
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MF item embedding
         self.mf_item_embedding = Embedding(input_dim=fea_cols['item_num'],
                                            input_length=1,
-                                           output_dim=embed_dim,
+                                           output_dim=fea_cols['embed_dim'],
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MLP user embedding
         self.mlp_user_embedding = Embedding(input_dim=fea_cols['user_num'],
                                             input_length=1,
-                                            output_dim=embed_dim,
+                                            output_dim=fea_cols['embed_dim'],
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # MLP item embedding
         self.mlp_item_embedding = Embedding(input_dim=fea_cols['user_num'],
                                             input_length=1,
-                                            output_dim=embed_dim,
+                                            output_dim=fea_cols['embed_dim'],
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # dnn

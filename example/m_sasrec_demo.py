@@ -32,10 +32,10 @@ def main():
     fea_cols = {
         'item_num': item_num,
         'seq_len': seq_len,
+        'embed_dim': 64
     }
     params = {
         'fea_cols': fea_cols,
-        'embed_dim': 64,
         'blocks': 2,
         'num_heads': 2,
         'ffn_hidden_unit': 64,

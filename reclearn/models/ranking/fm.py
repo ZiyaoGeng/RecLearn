@@ -9,7 +9,7 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Layer, Input
 from tensorflow.keras.regularizers import l2
 
-from reclearn.layers.core import FM_Layer
+from reclearn.layers import FM_Layer
 
 
 class FM(Model):
