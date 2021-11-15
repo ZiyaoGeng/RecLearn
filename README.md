@@ -13,7 +13,9 @@
   <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
 </p>  
 
-RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master)branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. The implemented recommendation algorithms are classified according to two application stages in the industry:
+[简体中文](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/blob/reclearn/README_CN.md)｜[English](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn)
+
+RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. The implemented recommendation algorithms are classified according to two application stages in the industry:
 
 - matching recommendation stage
 - ranking  recommendeation stage
