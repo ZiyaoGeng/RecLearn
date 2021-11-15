@@ -12,48 +12,48 @@ from tensorflow.keras.layers import Embedding, Dropout, Dense, Dropout, Input
 
 
 class AFM(Model):
-    def __init__(self, fea_cols, mode, att_vector=8, activation='relu', dropout=0.5, embed_reg=1e-6):
+    def __init__(self, feature_columns, mode, att_dim=8, activation='relu', dnn_dropout=0., embed_reg=0.):
         """
-        AFM
-        :param fea_cols: A list. sparse column feature information.
+        Attentional Factorization Machines
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
         :param mode: A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
-        :param att_vector: A scalar. attention vector.
+        :param att_dim: A scalar. attention vector dimension.
         :param activation: A string. Activation function of attention.
-        :param dropout: A scalar. Dropout.
-        :param embed_reg: A scalar. the regularizer of embedding
+        :param dnn_dropout: A scalar. Dropout of MLP.
+        :param embed_reg: A scalar. The regularization coefficient of embedding.
         """
         super(AFM, self).__init__()
-        self.fea_cols = fea_cols
+        self.feature_columns = feature_columns
         self.mode = mode
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+            feat['feat_name']: Embedding(input_dim=feat['feat_num'],
                                          input_length=1,
                                          output_dim=feat['embed_dim'],
-                                         embeddings_initializer='random_uniform',
+                                         embeddings_initializer='random_normal',
                                          embeddings_regularizer=l2(embed_reg))
-            for i, feat in enumerate(self.fea_cols)
+            for feat in self.feature_columns
         }
+        self.embed_dim = self.feature_columns[0]['embed_dim']
+        self.field_num = len(self.feature_columns)
         if self.mode == 'att':
-            self.attention_W = Dense(units=att_vector, activation=activation, use_bias=True)
+            self.attention_W = Dense(units=att_dim, activation=activation)
             self.attention_dense = Dense(units=1, activation=None)
-        self.dropout = Dropout(dropout)
+        self.dropout = Dropout(dnn_dropout)
         self.dense = Dense(units=1, activation=None)
 
     def call(self, inputs):
-        # Input Layer
-        sparse_inputs = inputs
         # Embedding Layer
-        embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i]) for i in range(sparse_inputs.shape[1])]
-        embed = tf.transpose(tf.convert_to_tensor(embed), perm=[1, 0, 2])  # (None, len(sparse_inputs), embed_dim)
+        sparse_embed = tf.concat([self.embed_layers[feat_name](value) for feat_name, value in inputs.items()], axis=-1)
+        sparse_embed = tf.reshape(sparse_embed, [-1, self.field_num, self.embed_dim])  # (None, filed_num, embed_dim)
         # Pair-wise Interaction Layer
         row = []
         col = []
-        for r, c in itertools.combinations(range(len(self.sparse_feature_columns)), 2):
+        for r, c in itertools.combinations(range(self.field_num), 2):
             row.append(r)
             col.append(c)
-        p = tf.gather(embed, row, axis=1)  # (None, (len(sparse) * len(sparse) - 1) / 2, k)
-        q = tf.gather(embed, col, axis=1)  # (None, (len(sparse) * len(sparse) - 1) / 2, k)
-        bi_interaction = p * q  # (None, (len(sparse) * len(sparse) - 1) / 2, k)
+        p = tf.gather(sparse_embed, row, axis=1)  # (None, (field_num * (field_num - 1)) / 2, k)
+        q = tf.gather(sparse_embed, col, axis=1)  # (None, (field_num * (field_num - 1)) / 2, k)
+        bi_interaction = p * q  # (None, (field_num * (field_num - 1)) / 2, k)
         # mode
         if self.mode == 'max':
             # MaxPooling Layer
@@ -63,19 +63,23 @@ class AFM(Model):
             x = tf.reduce_mean(bi_interaction, axis=1)  # (None, k)
         else:
             # Attention Layer
-            x = self.attention(bi_interaction)  # (None, k)
+            x = self._attention(bi_interaction)  # (None, k)
         # Output Layer
         outputs = tf.nn.sigmoid(self.dense(x))
 
         return outputs
 
-    def summary(self):
-        sparse_inputs = Input(shape=(len(self.fea_cols),), dtype=tf.int32)
-        Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()
-
-    def attention(self, bi_interaction):
-        a = self.attention_W(bi_interaction)  # (None, (len(sparse) * len(sparse) - 1) / 2, t)
-        a = self.attention_dense(a)  # (None, (len(sparse) * len(sparse) - 1) / 2, 1)
-        a_score = tf.nn.softmax(a, axis=1)  # (None, (len(sparse) * len(sparse) - 1) / 2, 1)
+    def _attention(self, bi_interaction):
+        print(bi_interaction)
+        a = self.attention_W(bi_interaction)  # (None, (field_num * (field_num - 1)) / 2, embed_dim)
+        a = self.attention_dense(a)  # (None, (field_num * (field_num - 1)) / 2, 1)
+        a_score = tf.nn.softmax(a, axis=1)  # (None, (field_num * (field_num - 1)) / 2, 1)
         outputs = tf.reduce_sum(bi_interaction * a_score, axis=1)  # (None, embed_dim)
         return outputs
+
+    def summary(self):
+        inputs = {
+            feat['feat_name']: Input(shape=(), dtype=tf.int32, name=feat['feat_name'])
+            for feat in self.feature_columns
+        }
+        Model(inputs=inputs, outputs=self.call(inputs)).summary()

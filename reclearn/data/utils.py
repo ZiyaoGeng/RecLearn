@@ -9,30 +9,10 @@ import time
 import numpy as np
 
 
-def sparseFeature(feat, feat_num, embed_dim=4):
-    """
-    create dictionary for sparse feature
-    :param feat: feature name
-    :param feat_num: the total number of sparse features that do not repeat
-    :param embed_dim: embedding dimension
-    :return:
-    """
-    return {'feat_name': feat, 'feat_num': feat_num, 'embed_dim': embed_dim}
-
-
-def denseFeature(feat):
-    """
-    create dictionary for dense feature
-    :param feat: dense feature name
-    :return:
-    """
-    return {'feat_name': feat}
-
-
 def mkSubFile(lines, head, srcName, sub_dir_name, sub):
     root_path, file = os.path.split(srcName)
     file_name, suffix = file.split('.')
-    split_file_name = file_name + "_" + str(sub) + "." + suffix
+    split_file_name = file_name + "_" + str(sub).zfill(2) + "." + suffix
     split_file = os.path.join(root_path, sub_dir_name, split_file_name)
     if not os.path.exists(os.path.join(root_path, sub_dir_name)):
         os.mkdir(os.path.join(root_path, sub_dir_name))

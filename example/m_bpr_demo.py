@@ -1,8 +1,7 @@
-import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 
 from reclearn.models.matching import BPR
-from reclearn.datasets import movielens as ml
+from reclearn.data.datasets import movielens as ml
 
 import os
 

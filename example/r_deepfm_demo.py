@@ -1,7 +1,6 @@
 """
-Created on Aug 25, 2020
-Updated on Nov 14, 2021
-train FM demo
+Created on Nov 14, 2021
+train DeepFM demo
 @author: Ziyao Geng(zggzy1996@163.com)
 """
 import tensorflow as tf
@@ -9,7 +8,7 @@ from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import AUC
 
-from reclearn.models.ranking import FM
+from reclearn.models.ranking import DeepFM
 from reclearn.data.datasets.criteo import get_split_file_path, get_fea_map, create_criteo_dataset
 
 import pickle
@@ -25,10 +24,12 @@ if __name__ == '__main__':
     file = 'data/criteo/train.txt'
     learning_rate = 0.001
     batch_size = 4096
+    embed_dim = 8
     model_params = {
-        'k': 8,
-        'w_reg': 0.,
-        'v_reg': 0.
+        'hidden_units': [256, 128, 64],
+        'dnn_dropout': 0.5,
+        'fm_w_reg': 0.,
+        'embed_reg': 0.
     }
     # TODO: Split dataset
     # If you want to split the file
@@ -44,11 +45,11 @@ if __name__ == '__main__':
     # fea_map = get_fea_map(fea_map_path='data/criteo/split/fea_map.pkl')
     # TODO: Load test data
     print("load test file: %s" % split_file_list[-1])
-    feature_columns, test_data = create_criteo_dataset(split_file_list[-1], fea_map)
+    feature_columns, test_data = create_criteo_dataset(split_file_list[-1], fea_map, embed_dim=embed_dim)
     # TODO: Build Model
     mirrored_strategy = tf.distribute.MirroredStrategy()
     with mirrored_strategy.scope():
-        model = FM(feature_columns=feature_columns, **model_params)
+        model = DeepFM(feature_columns=feature_columns, **model_params)
         model.summary()
         model.compile(loss=binary_crossentropy, optimizer=Adam(learning_rate=learning_rate),
                       metrics=[AUC()])

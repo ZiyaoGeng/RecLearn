@@ -7,47 +7,47 @@ Reference: "Product-based Neural Networks for User Response Prediction", ICDM, 2
 
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Embedding, Dense, Layer, Dropout, Input
+from tensorflow.keras.regularizers import l2
 
 from reclearn.layers import MLP
 
 
 class PNN(Model):
-    def __init__(self, fea_cols, hidden_units, mode='in', dnn_dropout=0.,
-                 activation='relu', embed_reg=1e-6, w_z_reg=1e-6, w_p_reg=1e-6, l_b_reg=1e-6):
+    def __init__(self, feature_columns, hidden_units, mode='in', dnn_dropout=0.,
+                 activation='relu', embed_reg=0., w_z_reg=0., w_p_reg=0., l_b_reg=0.):
         """
         Product-based Neural Networks
-        :param fea_cols: A list. sparse column feature information.
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
         :param hidden_units: A list. Neural network hidden units.
-        :param mode: A string. 'in' IPNN or 'out'OPNN.
-        :param activation: A string. Activation function of dnn.
-        :param dnn_dropout: A scalar. Dropout of dnn.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param w_z_reg: A scalar. The regularizer of w_z_ in product layer
-        :param w_p_reg: A scalar. The regularizer of w_p in product layer
-        :param l_b_reg: A scalar. The regularizer of l_b in product layer
+        :param mode: A string. 'in' IPNN or 'out' OPNN.
+        :param activation: A string. Activation function of MLP.
+        :param dnn_dropout: A scalar. Dropout of MLP.
+        :param embed_reg: A scalar. The regularization coefficient of embedding.
+        :param w_z_reg: A scalar. The regularization coefficient of w_z_ in product layer.
+        :param w_p_reg: A scalar. The regularization coefficient of w_p in product layer.
+        :param l_b_reg: A scalar. The regularization coefficient of l_b in product layer.
         """
         super(PNN, self).__init__()
         # inner product or outer product
         self.mode = mode
-        self.fea_cols = fea_cols
+        self.feature_columns = feature_columns
         # the number of feature fields
-        self.field_num = len(self.fea_cols)
-        self.embed_dim = self.fea_cols[0]['embed_dim']
+        self.field_num = len(self.feature_columns)
+        self.embed_dim = self.feature_columns[0]['embed_dim']
         # The embedding dimension of each feature field must be the same
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+            feat['feat_name']: Embedding(input_dim=feat['feat_num'],
                                          input_length=1,
                                          output_dim=feat['embed_dim'],
-                                         embeddings_initializer='random_uniform',
+                                         embeddings_initializer='random_normal',
                                          embeddings_regularizer=l2(embed_reg))
-            for i, feat in enumerate(self.sparse_feature_columns)
+            for feat in self.feature_columns
         }
         # parameters
         self.w_z = self.add_weight(name='w_z',
                                    shape=(self.field_num, self.embed_dim, hidden_units[0]),
-                                   initializer='random_uniform',
+                                   initializer='random_normal',
                                    regularizer=l2(w_z_reg),
                                    trainable=True
                                    )
@@ -55,7 +55,7 @@ class PNN(Model):
             self.w_p = self.add_weight(name='w_p',
                                        shape=(self.field_num * (self.field_num - 1) // 2, self.embed_dim,
                                               hidden_units[0]),
-                                       initializer='random_uniform',
+                                       initializer='random_normal',
                                        reguarizer=l2(w_p_reg),
                                        trainable=True)
         # out
@@ -63,11 +63,11 @@ class PNN(Model):
             self.w_p = self.add_weight(name='w_p',
                                        shape=(self.field_num * (self.field_num - 1) // 2, self.embed_dim,
                                               self.embed_dim, hidden_units[0]),
-                                       initializer='random_uniform',
+                                       initializer='random_normal',
                                        regularizer=l2(w_p_reg),
                                        trainable=True)
         self.l_b = self.add_weight(name='l_b', shape=(hidden_units[0], ),
-                                   initializer='random_uniform',
+                                   initializer='random_normal',
                                    regularizer=l2(l_b_reg),
                                    trainable=True)
         # dnn
@@ -75,15 +75,14 @@ class PNN(Model):
         self.dense_final = Dense(1)
 
     def call(self, inputs):
-        sparse_inputs = inputs
-        sparse_embed = [self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
-                 for i in range(sparse_inputs.shape[1])]
-        sparse_embed = tf.transpose(tf.convert_to_tensor(sparse_embed), [1, 0, 2])  # (None, field_num, embed_dim)
+        # embedding
+        sparse_embed = tf.concat([self.embed_layers[feat_name](value) for feat_name, value in inputs.items()], axis=-1)
+        sparse_embed = tf.reshape(sparse_embed, [-1, self.field_num, self.embed_dim])  # (None, filed_num, embed_dim)
         # product layer
         row = []
         col = []
-        for i in range(len(self.sparse_feature_columns) - 1):
-            for j in range(i + 1, len(self.sparse_feature_columns)):
+        for i in range(self.field_num - 1):
+            for j in range(i + 1, self.field_num):
                 row.append(i)
                 col.append(j)
         p = tf.gather(sparse_embed, row, axis=1)
@@ -103,5 +102,8 @@ class PNN(Model):
         return outputs
 
     def summary(self):
-        sparse_inputs = Input(shape=(len(self.fea_cols),), dtype=tf.int32)
-        Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()
+        inputs = {
+            feat['feat_name']: Input(shape=(), dtype=tf.int32, name=feat['feat_name'])
+            for feat in self.feature_columns
+        }
+        Model(inputs=inputs, outputs=self.call(inputs)).summary()

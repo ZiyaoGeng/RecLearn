@@ -1,50 +1,49 @@
 """
 Created on July 13, 2020
-Updated on May 18, 2021
+Updated on Nov 14, 2021
 Reference: "Deep & Cross Network for Ad Click Predictions", ADKDD, 2017
 @author: Ziyao Geng(zggzy1996@163.com)
 """
 
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.regularizers import l2
 from tensorflow.keras.layers import Embedding, Dense, Input
+from tensorflow.keras.regularizers import l2
 
 from reclearn.layers import CrossNetwork, MLP
 
 
 class DCN(Model):
     def __init__(self, feature_columns, hidden_units, activation='relu',
-                 dnn_dropout=0., embed_reg=1e-6, cross_w_reg=1e-6, cross_b_reg=1e-6):
+                 dnn_dropout=0., embed_reg=0., cross_w_reg=0., cross_b_reg=0.):
         """
         Deep&Cross Network
-        :param feature_columns: A list. sparse column feature information.
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
         :param hidden_units: A list. Neural network hidden units.
-        :param activation: A string. Activation function of dnn.
-        :param dnn_dropout: A scalar. Dropout of dnn.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param cross_w_reg: A scalar. The regularizer of cross network.
-        :param cross_b_reg: A scalar. The regularizer of cross network.
+        :param activation: A string. Activation function of MLP.
+        :param dnn_dropout: A scalar. Dropout of MLP.
+        :param embed_reg: A scalar. The regularization coefficient of embedding.
+        :param cross_w_reg: A scalar. The regularization coefficient of cross network.
+        :param cross_b_reg: A scalar. The regularization coefficient of cross network.
         """
         super(DCN, self).__init__()
-        self.sparse_feature_columns = feature_columns
+        self.feature_columns = feature_columns
         self.layer_num = len(hidden_units)
         self.embed_layers = {
-            'embed_' + str(i): Embedding(input_dim=feat['feat_num'],
+            feat['feat_name']: Embedding(input_dim=feat['feat_num'],
                                          input_length=1,
                                          output_dim=feat['embed_dim'],
-                                         embeddings_initializer='random_uniform',
+                                         embeddings_initializer='random_normal',
                                          embeddings_regularizer=l2(embed_reg))
-            for i, feat in enumerate(self.sparse_feature_columns)
+            for feat in self.feature_columns
         }
         self.cross_network = CrossNetwork(self.layer_num, cross_w_reg, cross_b_reg)
         self.dnn_network = MLP(hidden_units, activation, dnn_dropout)
         self.dense_final = Dense(1, activation=None)
 
     def call(self, inputs):
-        sparse_inputs = inputs
-        sparse_embed = tf.concat([self.embed_layers['embed_{}'.format(i)](sparse_inputs[:, i])
-                                  for i in range(sparse_inputs.shape[1])], axis=-1)
+        # embedding,  (batch_size, embed_dim * fields)
+        sparse_embed = tf.concat([self.embed_layers[feat_name](value) for feat_name, value in inputs.items()], axis=-1)
         x = sparse_embed
         # Cross Network
         cross_x = self.cross_network(x)
@@ -56,5 +55,8 @@ class DCN(Model):
         return outputs
 
     def summary(self):
-        sparse_inputs = Input(shape=(len(self.sparse_feature_columns),), dtype=tf.int32)
-        Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()
+        inputs = {
+            feat['feat_name']: Input(shape=(), dtype=tf.int32, name=feat['feat_name'])
+            for feat in self.feature_columns
+        }
+        Model(inputs=inputs, outputs=self.call(inputs)).summary()

@@ -1,9 +1,7 @@
-import tensorflow as tf
-
 from tensorflow.keras.optimizers import Adam
 from time import time
 from reclearn.models.matching import Caser
-from reclearn.datasets import movielens as ml
+from reclearn.data.datasets import movielens as ml
 from reclearn.evaluator import eval_pos_neg
 import os
 

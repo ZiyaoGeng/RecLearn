@@ -5,10 +5,10 @@ core layers
 """
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Dense, Dropout, BatchNormalization, LayerNormalization, Conv1D
+from tensorflow.keras.layers import Layer, Dense, Dropout, BatchNormalization, LayerNormalization, Conv1D, ReLU
 from tensorflow.keras.regularizers import l2
 
-from reclearn.layers.utils import scaled_dot_product_attention, split_heads
+from reclearn.layers.utils import scaled_dot_product_attention, split_heads, index_mapping
 
 
 class Linear(Layer):
@@ -193,20 +193,21 @@ class SelfAttention(Layer):
 
 
 class FM_Layer(Layer):
-    def __init__(self, fea_cols, k, w_reg=1e-8, v_reg=1e-8):
+    def __init__(self, feature_columns, k, w_reg=0., v_reg=0.):
         """
         Factorization Machines
-        :param fea_cols: A list. sparse column feature information.
-        :param k: the latent vector
-        :param w_reg: the regularization coefficient of parameter w
-        :param v_reg: the regularization coefficient of parameter v
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+        :param k: A scalar. The latent vector.
+        :param w_reg: A scalar. The regularization coefficient of parameter w.
+		:param v_reg: A scalar. The regularization coefficient of parameter v.
         """
         super(FM_Layer, self).__init__()
-        self.fea_cols = fea_cols
-        self.index_mapping = []
+        self.feature_columns = feature_columns
+        self.field_num = len(feature_columns)
+        self.map_dict = {}
         self.feature_length = 0
-        for feat in self.fea_cols:
-            self.index_mapping.append(self.feature_length)
+        for feat in self.feature_columns:
+            self.map_dict[feat['feat_name']] = self.feature_length
             self.feature_length += feat['feat_num']
         self.k = k
         self.w_reg = w_reg
@@ -227,7 +228,8 @@ class FM_Layer(Layer):
 
     def call(self, inputs):
         # mapping
-        inputs = inputs + tf.convert_to_tensor(self.index_mapping)
+        inputs = index_mapping(inputs, self.map_dict)
+        inputs = tf.concat([value for _, value in inputs.items()], axis=-1)
         # first order
         first_order = self.w0 + tf.reduce_sum(tf.nn.embedding_lookup(self.w, inputs), axis=1)  # (batch_size, 1)
         # second order
@@ -241,24 +243,24 @@ class FM_Layer(Layer):
 
 
 class FFM_Layer(Layer):
-    def __init__(self, sparse_feature_columns, k, w_reg=1e-6, v_reg=1e-6):
+    def __init__(self, feature_columns, k, w_reg=0., v_reg=0.):
         """
-        :param dense_feature_columns: A list. sparse column feature information.
-        :param k: A scalar. The latent vector
-        :param w_reg: A scalar. The regularization coefficient of parameter w
-		:param v_reg: A scalar. The regularization coefficient of parameter v
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+        :param k: A scalar. The latent vector.
+        :param w_reg: A scalar. The regularization coefficient of parameter w.
+		:param v_reg: A scalar. The regularization coefficient of parameter v.
         """
         super(FFM_Layer, self).__init__()
-        self.sparse_feature_columns = sparse_feature_columns
+        self.feature_columns = feature_columns
+        self.field_num = len(self.feature_columns)
         self.k = k
         self.w_reg = w_reg
         self.v_reg = v_reg
-        self.index_mapping = []
+        self.map_dict = {}
         self.feature_length = 0
-        for feat in self.sparse_feature_columns:
-            self.index_mapping.append(self.feature_length)
+        for feat in self.feature_columns:
+            self.map_dict[feat['feat_name']] = self.feature_length
             self.feature_length += feat['feat_num']
-        self.field_num = len(self.sparse_feature_columns)
 
     def build(self, input_shape):
         self.w0 = self.add_weight(name='w0', shape=(1,),
@@ -274,8 +276,9 @@ class FFM_Layer(Layer):
                                  regularizer=l2(self.v_reg),
                                  trainable=True)
 
-    def call(self, inputs, **kwargs):
-        inputs = inputs + tf.convert_to_tensor(self.index_mapping)
+    def call(self, inputs):
+        inputs = index_mapping(inputs, self.map_dict)
+        inputs = tf.concat([value for _, value in inputs.items()], axis=-1)
         # first order
         first_order = self.w0 + tf.reduce_sum(tf.nn.embedding_lookup(self.w, inputs), axis=1)  # (batch_size, 1)
         # field second order
@@ -288,11 +291,9 @@ class FFM_Layer(Layer):
 
 
 class Residual_Units(Layer):
-    """
-    Residual Units
-    """
     def __init__(self, hidden_unit, dim_stack):
         """
+        Residual Units
         :param hidden_unit: A list. Neural network hidden units.
         :param dim_stack: A scalar. The dimension of inputs unit.
         """
@@ -310,11 +311,11 @@ class Residual_Units(Layer):
 
 
 class CrossNetwork(Layer):
-    def __init__(self, layer_num, reg_w=1e-6, reg_b=1e-6):
+    def __init__(self, layer_num, reg_w=0., reg_b=0.):
         """CrossNetwork
-        :param layer_num: A scalar. The depth of cross network
-        :param reg_w: A scalar. The regularizer of w
-        :param reg_b: A scalar. The regularizer of b
+        :param layer_num: A scalar. The depth of cross network.
+        :param reg_w: A scalar. The regularization coefficient of w.
+        :param reg_b: A scalar. The regularization coefficient of b.
         """
         super(CrossNetwork, self).__init__()
         self.layer_num = layer_num
@@ -340,7 +341,7 @@ class CrossNetwork(Layer):
                             )
             for i in range(self.layer_num)]
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         x_0 = tf.expand_dims(inputs, axis=2)  # (batch_size, dim, 1)
         x_l = x_0  # (None, dim, 1)
         for i in range(self.layer_num):
@@ -378,6 +379,7 @@ class New_FM(Layer):
           embed_inputs is 3D tensor with shape `(batch_size, fields, embed_dim)`
         """
         sparse_inputs, embed_inputs = inputs['sparse_inputs'], inputs['embed_inputs']
+        sparse_inputs = tf.concat([value for _, value in sparse_inputs.items()], axis=-1)
         # first order
         first_order = tf.reduce_sum(tf.nn.embedding_lookup(self.w, sparse_inputs), axis=1)  # (batch_size, 1)
         # second order
@@ -388,7 +390,7 @@ class New_FM(Layer):
 
 
 class CIN(Layer):
-    def __init__(self, cin_size, l2_reg=1e-4):
+    def __init__(self, cin_size, l2_reg=0.):
         """CIN
         :param cin_size: A list. [H_1, H_2 ,..., H_k], a list of the number of layers
         :param l2_reg: A scalar. L2 regularization.
@@ -413,29 +415,21 @@ class CIN(Layer):
             for i in range(len(self.field_nums) - 1)
         }
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         dim = inputs.shape[-1]
         hidden_layers_results = [inputs]
         # split dimension 2 for convenient calculation
         split_X_0 = tf.split(hidden_layers_results[0], dim, 2)  # dim * (None, field_nums[0], 1)
         for idx, size in enumerate(self.cin_size):
             split_X_K = tf.split(hidden_layers_results[-1], dim, 2)  # dim * (None, filed_nums[i], 1)
-
             result_1 = tf.matmul(split_X_0, split_X_K, transpose_b=True)  # (dim, None, field_nums[0], field_nums[i])
-
             result_2 = tf.reshape(result_1, shape=[dim, -1, self.embedding_nums * self.field_nums[idx]])
-
             result_3 = tf.transpose(result_2, perm=[1, 0, 2])  # (None, dim, field_nums[0] * field_nums[i])
-
             result_4 = tf.nn.conv1d(input=result_3, filters=self.cin_W['CIN_W_' + str(idx)], stride=1,
                                     padding='VALID')
-
             result_5 = tf.transpose(result_4, perm=[0, 2, 1])  # (None, field_num[i+1], dim)
-
             hidden_layers_results.append(result_5)
-
         final_results = hidden_layers_results[1:]
         result = tf.concat(final_results, axis=1)  # (None, H_1 + ... + H_K, dim)
         result = tf.reduce_sum(result,  axis=-1)  # (None, dim)
-
         return result

@@ -14,17 +14,17 @@ from reclearn.layers import FFM_Layer
 
 
 class FFM(Model):
-    def __init__(self, fea_cols, k, w_reg=1e-6, v_reg=1e-6):
+    def __init__(self, feature_columns, k=8, w_reg=0., v_reg=0.):
         """
-        FFM architecture
-        :param fea_cols: A list. sparse column feature information.
-        :param k: the latent vector
-        :param w_reg: the regularization coefficient of parameter w
-		:param field_reg_reg: the regularization coefficient of parameter v
+        Field-aware Factorization Machines
+        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+        :param k: A scalar. The latent vector.
+        :param w_reg: A scalar. The regularization coefficient of parameter w.
+		:param v_reg: A scalar. The regularization coefficient of parameter v.
         """
         super(FFM, self).__init__()
-        self.fea_cols = fea_cols
-        self.ffm = FFM_Layer(self.sparse_feature_columns, k, w_reg, v_reg)
+        self.feature_columns = feature_columns
+        self.ffm = FFM_Layer(self.feature_columns, k, w_reg, v_reg)
 
     def call(self, inputs):
         ffm_out = self.ffm(inputs)
@@ -32,5 +32,8 @@ class FFM(Model):
         return outputs
 
     def summary(self):
-        sparse_inputs = Input(shape=(len(self.fea_cols),), dtype=tf.int32)
-        tf.keras.Model(inputs=sparse_inputs, outputs=self.call(sparse_inputs)).summary()
+        inputs = {
+            feat['feat_name']: Input(shape=(), dtype=tf.int32, name=feat['feat_name'])
+            for feat in self.feature_columns
+        }
+        Model(inputs=inputs, outputs=self.call(inputs)).summary()

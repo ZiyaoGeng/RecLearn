@@ -30,3 +30,12 @@ def split_heads(x, seq_len, num_heads, depth):
     """
     x = tf.reshape(x, (-1, seq_len, num_heads, depth))
     return tf.transpose(x, perm=[0, 2, 1, 3])
+
+
+def index_mapping(inputs_dict, map_dict):
+    outputs_dict = {}
+    for key, value in inputs_dict.items():
+        if map_dict.get(key) is None:
+            raise ValueError("map dict error!")
+        outputs_dict[key] = tf.reshape(value + tf.convert_to_tensor(map_dict[key]), [-1, 1])
+    return outputs_dict
