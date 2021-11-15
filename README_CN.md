@@ -2,6 +2,7 @@
   <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/logo.jpg' width='36%'/>
 </div>
 
+
 ## RecLearn
 
 <p align="left">
@@ -13,22 +14,22 @@
   <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
 </p>  
 
-RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master)branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. The implemented recommendation algorithms are classified according to two application stages in the industry:
+RecLearn（Recommender Learning）对`Recommender System with TF2.0`中[master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master)分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。实现的推荐算法按照工业界的两个应用阶段进行分类：
 
 - matching recommendation stage
 - ranking  recommendeation stage
 
 &nbsp;
 
-## Installation
+## 安装
 
-RecLearn is on PyPI, so you can use `pip` to install it.
+RecLearn已经上传在pypi上，可以使用`pip`进行安装：
 
 ```
 pip install reclearn
 ```
 
-dependent environment：
+所依赖的环境：
 
 - python3.7+
 - Tensorflow2.6+
@@ -36,27 +37,23 @@ dependent environment：
 
 &nbsp;
 
-## Quick Start
+## 快速开始
 
-In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn/example), we have given a demo of each of the recommended models.
+在`example`中，给出了每一个推荐模型的demo。
 
-**Firstly，building dataset.**
+首先，构建数据集。
 
+然后，建立模型。
 
-
-**Then, constructing model.**
-
-
-
-**Finally, Compile, Fit and Predict**
+最后，编译、学习以及预测。
 
 &nbsp;
 
 
 
-## Model List
+## 复现论文列表
 
-### 1. Matching Stage
+### 1. 召回模型（Top-K推荐）
 
 |                         Paper\|Model                         |  Published  |    Author     |
 | :----------------------------------------------------------: | :---------: | :-----------: |
@@ -68,7 +65,7 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 
 &nbsp;
 
-### 2. Ranking Stage
+### 2. 排序模型（CTR预估）
 
 |                         Paper｜Model                         |  Published   |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |
@@ -86,9 +83,4 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 
 &nbsp;
 
-## Discussion
-
-1. If you have any suggestions or questions about the project, you can leave a comment on `Issue` or email `zggzy1996@163.com`.
-2. wechat：
-
-<div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="20%"/></div>
+&nbsp;
