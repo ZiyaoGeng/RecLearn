@@ -13,7 +13,7 @@
   <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
 </p>  
 
-RecLearn对`Recommender System with TF2.0`中`master`分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。实现的推荐算法按照以下两个阶段进行分类：
+RecLearn（Recommender Learning）对`Recommender System with TF2.0`中[master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master)分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。实现的推荐算法按照工业界的两个应用阶段进行分类：
 
 - matching recommendation stage
 - ranking  recommendeation stage
@@ -22,13 +22,17 @@ RecLearn对`Recommender System with TF2.0`中`master`分支的内容进行了归
 
 ## 安装
 
-RecLearn上传在pypi上，可以使用`pip`进行安装：
+RecLearn已经上传在pypi上，可以使用`pip`进行安装：
 
 ```
-python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps reclearn
-
 pip install reclearn
 ```
+
+所依赖的环境：
+
+- python3.7+
+- Tensorflow2.6+
+- sklearn
 
 
 
