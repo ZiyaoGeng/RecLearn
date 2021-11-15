@@ -1,0 +1,6 @@
+*.DS_Store
+/example/data/*
+.idea/*
+/dist/*
+/reclearn.egg-info/*
+/build/*
