@@ -20,8 +20,6 @@ RecLearn (Recommender Learning)  which summarizes the contents of the [master](h
 - matching recommendation stage
 - ranking  recommendeation stage
 
-&nbsp;
-
 ## Installation
 
 RecLearn is on PyPI, so you can use `pip` to install it.
@@ -35,8 +33,6 @@ dependent environment：
 - python3.7+
 - Tensorflow2.6+
 - sklearn
-
-&nbsp;
 
 ## Quick Start
 
@@ -52,8 +48,6 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 
 **Finally, Compile, Fit and Predict**
 
-&nbsp;
-
 
 
 ## Model List
@@ -67,8 +61,6 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 |     Self-Attentive Sequential Recommendation｜**SASRec**     | ICDM, 2018  |     UCSD      |
 | Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding｜**Caser** | WSDM, 2018  |  Jiaxi Tang   |
 | Next Item Recommendation with Self-Attentive Metric Learning\|**AttRec** | AAAAI, 2019 |  Shuai Zhang  |
-
-&nbsp;
 
 ### 2. Ranking Stage
 
@@ -86,11 +78,10 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 | xDeepFM: Combining Explicit and Implicit Feature Interactions for Recommender Systems\|**xDeepFM** |  KDD, 2018   |        University of Science and Technology of China         |
 | Deep Interest Network for Click-Through Rate Prediction\|**DIN** |  KDD, 2018   |                        Alibaba Group                         |
 
-&nbsp;
-
 ## Discussion
 
 1. If you have any suggestions or questions about the project, you can leave a comment on `Issue` or email `zggzy1996@163.com`.
 2. wechat：
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="20%"/></div>
+
