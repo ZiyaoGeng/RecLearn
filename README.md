@@ -35,6 +35,8 @@
 
 ## 重要更新
 
+- 【2021.11.17】该项目建立了新的分支`reclearn`，主要是对master内容进行了整理，构建了一个用于推荐算法学习的包，可以通过`pip install reclearn`进行安装，具体可以查看[reclearn](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn)；
+
 - 【2021.05.19】Wide&Deep模型，之前Wide部分采用连续型数据，更改为采用稀疏离散型数据作为输入；
 - 【2021.05.18】更新内容较多，分为以下：
   - 创建`data_process`文件，将CTR模型中的`utils.py`移动到该文件夹下，并改名为`criteo.py`，以后所有模型训练时统一调用该文件夹下处理后的数据；
