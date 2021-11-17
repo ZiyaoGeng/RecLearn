@@ -16,14 +16,15 @@ from reclearn.layers.utils import index_mapping
 class DeepFM(Model):
 	def __init__(self, feature_columns, hidden_units=(200, 200, 200), activation='relu',
 				 dnn_dropout=0., fm_w_reg=0., embed_reg=0.):
-		"""
-		DeepFM
-		:param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-		:param hidden_units: A list. A list of MLP hidden units.
-		:param dnn_dropout: A scalar. Dropout of MLP.
-		:param activation: A string. Activation function of MLP.
-		:param fm_w_reg: A scalar. The regularization coefficient of w in fm.
-		:param embed_reg: A scalar. The regularization coefficient of embedding.
+		"""DeepFM
+		Args:
+			:param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+			:param hidden_units: A list. A list of MLP hidden units.
+			:param dnn_dropout: A scalar. Dropout of MLP.
+			:param activation: A string. Activation function of MLP.
+			:param fm_w_reg: A scalar. The regularization coefficient of w in fm.
+			:param embed_reg: A scalar. The regularization coefficient of embedding.
+		:return
 		"""
 		super(DeepFM, self).__init__()
 		self.feature_columns = feature_columns

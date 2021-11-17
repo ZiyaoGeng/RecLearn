@@ -15,12 +15,13 @@ from reclearn.layers import FFM_Layer
 
 class FFM(Model):
     def __init__(self, feature_columns, k=8, w_reg=0., v_reg=0.):
-        """
-        Field-aware Factorization Machines
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param k: A scalar. The latent vector.
-        :param w_reg: A scalar. The regularization coefficient of parameter w.
-		:param v_reg: A scalar. The regularization coefficient of parameter v.
+        """Field-aware Factorization Machines.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param k: A scalar. The latent vector.
+            :param w_reg: A scalar. The regularization coefficient of parameter w.
+            :param v_reg: A scalar. The regularization coefficient of parameter v.
+        :return:
         """
         super(FFM, self).__init__()
         self.feature_columns = feature_columns

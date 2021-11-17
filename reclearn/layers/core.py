@@ -13,10 +13,11 @@ from reclearn.layers.utils import scaled_dot_product_attention, split_heads, ind
 
 class Linear(Layer):
     def __init__(self, feature_length, w_reg=1e-6):
-        """
-        Linear Part
-        :param feature_length: A scalar. The length of features.
-        :param w_reg: A scalar. The regularization coefficient of parameter w.
+        """Linear Part.
+        Args:
+            :param feature_length: A scalar. The length of features.
+            :param w_reg: A scalar. The regularization coefficient of parameter w.
+        :return:
         """
         super(Linear, self).__init__()
         self.feature_length = feature_length
@@ -35,12 +36,13 @@ class Linear(Layer):
 
 class MLP(Layer):
     def __init__(self, hidden_units, activation='relu', dnn_dropout=0., is_batch_norm=False):
-        """
-        Multilayer Perceptron
-        :param hidden_units: A list. The list of hidden layer units's numbers.
-        :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
-        :param dnn_dropout: A scalar. The rate of dropout .
-        :param is_batch_norm: A boolean. Whether using batch normalization or not.
+        """Multilayer Perceptron.
+        Args:
+            :param hidden_units: A list. The list of hidden layer units's numbers.
+            :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
+            :param dnn_dropout: A scalar. The rate of dropout .
+            :param is_batch_norm: A boolean. Whether using batch normalization or not.
+        :return:
         """
         super(MLP, self).__init__()
         self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
@@ -60,10 +62,11 @@ class MLP(Layer):
 
 class MultiHeadAttention(Layer):
     def __init__(self, d_model, num_heads):
-        """
-        Multi Head Attention Mechanism
-        :param d_model: A scalar. The self-attention hidden size.
-        :param num_heads: A scalar. Number of heads. If num_heads == 1, the layer is a single self-attention layer.
+        """Multi Head Attention Mechanism.
+        Args:
+            :param d_model: A scalar. The self-attention hidden size.
+            :param num_heads: A scalar. Number of heads. If num_heads == 1, the layer is a single self-attention layer.
+        :return:
         """
         super(MultiHeadAttention, self).__init__()
         self.d_model = d_model
@@ -93,10 +96,11 @@ class MultiHeadAttention(Layer):
 
 class FFN(Layer):
     def __init__(self, hidden_unit, d_model):
-        """
-        Feed Forward Network
-        :param hidden_unit: A scalar. W1
-        :param d_model: A scalar. W2
+        """Feed Forward Network.
+        Args:
+            :param hidden_unit: A scalar.
+            :param d_model: A scalar.
+        :return:
         """
         super(FFN, self).__init__()
         self.conv1 = Conv1D(filters=hidden_unit, kernel_size=1, activation='relu', use_bias=True)
@@ -110,13 +114,14 @@ class FFN(Layer):
 
 class TransformerEncoder(Layer):
     def __init__(self, d_model, num_heads=1, ffn_hidden_unit=128, dropout=0., layer_norm_eps=1e-6):
-        """
-        Encoder Layer
-        :param d_model: A scalar. The self-attention hidden size.
-        :param num_heads: A scalar. Number of heads.
-        :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
-        :param dropout: A scalar. Number of dropout.
-        :param layer_norm_eps: A scalar. Small float added to variance to avoid dividing by zero.
+        """Encoder Layer.
+        Args:
+            :param d_model: A scalar. The self-attention hidden size.
+            :param num_heads: A scalar. Number of heads.
+            :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
+            :param dropout: A scalar. Number of dropout.
+            :param layer_norm_eps: A scalar. Small float added to variance to avoid dividing by zero.
+        :return:
         """
         super(TransformerEncoder, self).__init__()
         self.mha = MultiHeadAttention(d_model, num_heads)
@@ -145,6 +150,9 @@ class TransformerEncoder(Layer):
 
 class SelfAttention(Layer):
     def __init__(self):
+        """Self Attention.
+        :return:
+        """
         super(SelfAttention, self).__init__()
 
     def build(self, input_shape):
@@ -194,12 +202,13 @@ class SelfAttention(Layer):
 
 class FM_Layer(Layer):
     def __init__(self, feature_columns, k, w_reg=0., v_reg=0.):
-        """
-        Factorization Machines
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param k: A scalar. The latent vector.
-        :param w_reg: A scalar. The regularization coefficient of parameter w.
-		:param v_reg: A scalar. The regularization coefficient of parameter v.
+        """Factorization Machines.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param k: A scalar. The latent vector.
+            :param w_reg: A scalar. The regularization coefficient of parameter w.
+            :param v_reg: A scalar. The regularization coefficient of parameter v.
+        :return:
         """
         super(FM_Layer, self).__init__()
         self.feature_columns = feature_columns
@@ -244,11 +253,13 @@ class FM_Layer(Layer):
 
 class FFM_Layer(Layer):
     def __init__(self, feature_columns, k, w_reg=0., v_reg=0.):
-        """
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param k: A scalar. The latent vector.
-        :param w_reg: A scalar. The regularization coefficient of parameter w.
-		:param v_reg: A scalar. The regularization coefficient of parameter v.
+        """Field Factorization Machines Layer.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param k: A scalar. The latent vector.
+            :param w_reg: A scalar. The regularization coefficient of parameter w.
+            :param v_reg: A scalar. The regularization coefficient of parameter v.
+        :return:
         """
         super(FFM_Layer, self).__init__()
         self.feature_columns = feature_columns
@@ -292,10 +303,11 @@ class FFM_Layer(Layer):
 
 class Residual_Units(Layer):
     def __init__(self, hidden_unit, dim_stack):
-        """
-        Residual Units
-        :param hidden_unit: A list. Neural network hidden units.
-        :param dim_stack: A scalar. The dimension of inputs unit.
+        """Residual Units.
+        Args:
+            :param hidden_unit: A list. Neural network hidden units.
+            :param dim_stack: A scalar. The dimension of inputs unit.
+        :return:
         """
         super(Residual_Units, self).__init__()
         self.layer1 = Dense(units=hidden_unit, activation='relu')
@@ -312,10 +324,12 @@ class Residual_Units(Layer):
 
 class CrossNetwork(Layer):
     def __init__(self, layer_num, reg_w=0., reg_b=0.):
-        """CrossNetwork
-        :param layer_num: A scalar. The depth of cross network.
-        :param reg_w: A scalar. The regularization coefficient of w.
-        :param reg_b: A scalar. The regularization coefficient of b.
+        """CrossNetwork.
+        Args:
+            :param layer_num: A scalar. The depth of cross network.
+            :param reg_w: A scalar. The regularization coefficient of w.
+            :param reg_b: A scalar. The regularization coefficient of b.
+        :return:
         """
         super(CrossNetwork, self).__init__()
         self.layer_num = layer_num
@@ -352,15 +366,13 @@ class CrossNetwork(Layer):
 
 
 class New_FM(Layer):
-    """
-    Wide part
-    """
     def __init__(self, feature_length, w_reg=1e-6):
-        """
-        Factorization Machine
-        In DeepFM, only the first order feature and second order feature intersect are included.
-        :param feature_length: A scalar. The length of features.
-        :param w_reg: A scalar. The regularization coefficient of parameter w.
+        """New Factorization Machine for DeepFm.
+        Note. In DeepFM, only the first order feature and second order feature intersect are included.
+        Args:
+            :param feature_length: A scalar. The length of features.
+            :param w_reg: A scalar. The regularization coefficient of parameter w.
+        :return:
         """
         super(New_FM, self).__init__()
         self.feature_length = feature_length
@@ -392,8 +404,10 @@ class New_FM(Layer):
 class CIN(Layer):
     def __init__(self, cin_size, l2_reg=0.):
         """CIN
-        :param cin_size: A list. [H_1, H_2 ,..., H_k], a list of the number of layers
-        :param l2_reg: A scalar. L2 regularization.
+        Args:
+            :param cin_size: A list. [H_1, H_2 ,..., H_k], a list of the number of layers
+            :param l2_reg: A scalar. L2 regularization.
+        :return:
         """
         super(CIN, self).__init__()
         self.cin_size = cin_size

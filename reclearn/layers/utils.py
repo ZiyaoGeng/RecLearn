@@ -2,12 +2,12 @@ import tensorflow as tf
 
 
 def scaled_dot_product_attention(q, k, v, mask):
-    """
-    Attention Mechanism
-    :param q: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
-    :param k: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
-    :param v: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
-    :param mask: A 3d/4d tensor with shape of (None, ..., seq_len, 1)
+    """Attention Mechanism Function.
+    Args:
+        :param q: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
+        :param k: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
+        :param v: A 3d/4d tensor with shape of (None, ..., seq_len, dim)
+        :param mask: A 3d/4d tensor with shape of (None, ..., seq_len, 1)
     :return:
     """
     mat_qk = tf.matmul(q, k, transpose_b=True)  # (None, seq_len, seq_len)
@@ -27,12 +27,24 @@ def scaled_dot_product_attention(q, k, v, mask):
 def split_heads(x, seq_len, num_heads, depth):
     """Split the last dimension into (num_heads, depth).
         Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
+    Args:
+        :param x: A Tensor with shape of [batch_size, seq_len, num_heads * depth]
+        :param seq_len: A scalar(int).
+        :param num_heads: A scalar(int).
+        :param depth: A scalar(int).
+    :return: A tensor with shape of [batch_size, num_heads, seq_len, depth]
     """
     x = tf.reshape(x, (-1, seq_len, num_heads, depth))
     return tf.transpose(x, perm=[0, 2, 1, 3])
 
 
 def index_mapping(inputs_dict, map_dict):
+    """Feature index mapping
+    Args:
+        :param inputs_dict: A dict such as {'I1': [], 'I2': [], ...}
+        :param map_dict: A dict such as {'I1': 0, 'I2': 100, ...}
+    :return: new inputs tensor.
+    """
     outputs_dict = {}
     for key, value in inputs_dict.items():
         if map_dict.get(key) is None:

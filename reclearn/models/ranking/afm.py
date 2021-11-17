@@ -13,14 +13,15 @@ from tensorflow.keras.layers import Embedding, Dropout, Dense, Dropout, Input
 
 class AFM(Model):
     def __init__(self, feature_columns, mode, att_dim=8, activation='relu', dnn_dropout=0., embed_reg=0.):
-        """
-        Attentional Factorization Machines
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param mode: A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
-        :param att_dim: A scalar. attention vector dimension.
-        :param activation: A string. Activation function of attention.
-        :param dnn_dropout: A scalar. Dropout of MLP.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
+        """Attentional Factorization Machines.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param mode: A string. 'max'(MAX Pooling) or 'avg'(Average Pooling) or 'att'(Attention)
+            :param att_dim: A scalar. attention vector dimension.
+            :param activation: A string. Activation function of attention.
+            :param dnn_dropout: A scalar. Dropout of MLP.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+        :return:
         """
         super(AFM, self).__init__()
         self.feature_columns = feature_columns

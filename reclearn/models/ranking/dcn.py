@@ -16,15 +16,16 @@ from reclearn.layers import CrossNetwork, MLP
 class DCN(Model):
     def __init__(self, feature_columns, hidden_units, activation='relu',
                  dnn_dropout=0., embed_reg=0., cross_w_reg=0., cross_b_reg=0.):
-        """
-        Deep&Cross Network
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. Neural network hidden units.
-        :param activation: A string. Activation function of MLP.
-        :param dnn_dropout: A scalar. Dropout of MLP.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
-        :param cross_w_reg: A scalar. The regularization coefficient of cross network.
-        :param cross_b_reg: A scalar. The regularization coefficient of cross network.
+        """Deep&Cross Network.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. Neural network hidden units.
+            :param activation: A string. Activation function of MLP.
+            :param dnn_dropout: A scalar. Dropout of MLP.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+            :param cross_w_reg: A scalar. The regularization coefficient of cross network.
+            :param cross_b_reg: A scalar. The regularization coefficient of cross network.
+        :return:
         """
         super(DCN, self).__init__()
         self.feature_columns = feature_columns

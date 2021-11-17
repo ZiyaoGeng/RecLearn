@@ -17,14 +17,15 @@ from reclearn.layers.utils import index_mapping
 class WideDeep(Model):
     def __init__(self, feature_columns, hidden_units, activation='relu',
                  dnn_dropout=0., embed_reg=0., w_reg=0.):
-        """
-        Wide&Deep
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. Neural network hidden units.
-        :param activation: A string. Activation function of MLP.
-        :param dnn_dropout: A scalar. Dropout of MLP.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
-        :param w_reg: A scalar. The regularization coefficient of Linear.
+        """Wide&Deep.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. Neural network hidden units.
+            :param activation: A string. Activation function of MLP.
+            :param dnn_dropout: A scalar. Dropout of MLP.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+            :param w_reg: A scalar. The regularization coefficient of Linear.
+        :return
         """
         super(WideDeep, self).__init__()
         self.feature_columns = feature_columns

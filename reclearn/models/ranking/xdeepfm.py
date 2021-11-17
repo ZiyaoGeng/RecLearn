@@ -17,16 +17,17 @@ from reclearn.layers.utils import index_mapping
 class xDeepFM(Model):
     def __init__(self, feature_columns, hidden_units, cin_size, activation='relu', dnn_dropout=0,
                  embed_reg=0., cin_reg=0., w_reg=0.):
-        """
-        xDeepFM
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. Neural network hidden units.
-        :param cin_size: A list. a list of the number of CIN layers.
-        :param activation: A string. activation function of MLP.
-        :param dnn_dropout: A scalar. dropout of MLP.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
-        :param cin_reg: A scalar. The regularization coefficient of CIN.
-        :param w_reg: A scalar. The regularization coefficient of Linear.
+        """xDeepFM.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. Neural network hidden units.
+            :param cin_size: A list. a list of the number of CIN layers.
+            :param activation: A string. activation function of MLP.
+            :param dnn_dropout: A scalar. dropout of MLP.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+            :param cin_reg: A scalar. The regularization coefficient of CIN.
+            :param w_reg: A scalar. The regularization coefficient of Linear.
+        :return:
         """
         super(xDeepFM, self).__init__()
         self.feature_columns = feature_columns

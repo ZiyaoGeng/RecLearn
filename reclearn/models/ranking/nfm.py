@@ -14,14 +14,15 @@ from reclearn.layers import MLP
 
 class NFM(Model):
     def __init__(self, feature_columns, hidden_units, dnn_dropout=0., activation='relu', bn_use=True, embed_reg=0.):
-        """
-        Neural Factorization Machines
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. Neural network hidden units.
-        :param activation: A string. Activation function of dnn.
-        :param dnn_dropout: A scalar. Dropout of dnn.
-        :param bn_use: A Boolean. Use BatchNormalization or not.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
+        """Neural Factorization Machines.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. Neural network hidden units.
+            :param activation: A string. Activation function of dnn.
+            :param dnn_dropout: A scalar. Dropout of dnn.
+            :param bn_use: A Boolean. Use BatchNormalization or not.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+        :return:
         """
         super(NFM, self).__init__()
         self.feature_columns = feature_columns

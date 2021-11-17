@@ -16,17 +16,18 @@ from reclearn.layers import MLP
 class PNN(Model):
     def __init__(self, feature_columns, hidden_units, mode='in', dnn_dropout=0.,
                  activation='relu', embed_reg=0., w_z_reg=0., w_p_reg=0., l_b_reg=0.):
-        """
-        Product-based Neural Networks
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. Neural network hidden units.
-        :param mode: A string. 'in' IPNN or 'out' OPNN.
-        :param activation: A string. Activation function of MLP.
-        :param dnn_dropout: A scalar. Dropout of MLP.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
-        :param w_z_reg: A scalar. The regularization coefficient of w_z_ in product layer.
-        :param w_p_reg: A scalar. The regularization coefficient of w_p in product layer.
-        :param l_b_reg: A scalar. The regularization coefficient of l_b in product layer.
+        """Product-based Neural Networks.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. Neural network hidden units.
+            :param mode: A string. 'in' IPNN or 'out' OPNN.
+            :param activation: A string. Activation function of MLP.
+            :param dnn_dropout: A scalar. Dropout of MLP.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+            :param w_z_reg: A scalar. The regularization coefficient of w_z_ in product layer.
+            :param w_p_reg: A scalar. The regularization coefficient of w_p in product layer.
+            :param l_b_reg: A scalar. The regularization coefficient of l_b in product layer.
+        :return:
         """
         super(PNN, self).__init__()
         # inner product or outer product

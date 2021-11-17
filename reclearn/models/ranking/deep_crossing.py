@@ -14,12 +14,13 @@ from reclearn.layers import Residual_Units
 
 class Deep_Crossing(Model):
     def __init__(self, feature_columns, hidden_units, dnn_dropout=0., embed_reg=0.):
-        """
-        Deep&Crossing
-        :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
-        :param hidden_units: A list. A list of MLP hidden units.
-        :param dnn_dropout: A scalar. Dropout of resnet.
-        :param embed_reg: A scalar. The regularization coefficient of embedding.
+        """Deep&Crossing.
+        Args:
+            :param feature_columns: A list. [{'feat_name':, 'feat_num':, 'embed_dim':}, ...]
+            :param hidden_units: A list. A list of MLP hidden units.
+            :param dnn_dropout: A scalar. Dropout of resnet.
+            :param embed_reg: A scalar. The regularization coefficient of embedding.
+        :return:
         """
         super(Deep_Crossing, self).__init__()
         self.feature_columns = feature_columns

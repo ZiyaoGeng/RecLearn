@@ -17,23 +17,23 @@ from tqdm import tqdm
 from sklearn.preprocessing import KBinsDiscretizer, LabelEncoder
 from sklearn.model_selection import train_test_split
 
-from reclearn.data.utils import my_KBinsDiscretizer, splitByLineCount, mkSubFile
+from reclearn.data.utils import recKBinsDiscretizer, splitByLineCount, mkSubFile
 from reclearn.data.feature_column import sparseFeature
 
 NAMES = ['label', 'I1', 'I2', 'I3', 'I4', 'I5', 'I6', 'I7', 'I8', 'I9', 'I10', 'I11',
-             'I12', 'I13', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
-             'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22',
-             'C23', 'C24', 'C25', 'C26']
+         'I12', 'I13', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11',
+         'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22',
+         'C23', 'C24', 'C25', 'C26']
 
 
 def get_split_file_path(parent_path=None, dataset_path=None, sample_num=5000000):
-    """
-    get the list of split file path.
-    Either parent_path or dataset_path must be valid.
+    """Get the list of split file path.
+    Note: Either parent_path or dataset_path must be valid.
     If exists dataset_path + "/split", parent_path = dataset_path + "/split".
-    :param parent_path: A string. split file's parent path.
-    :param dataset_path: A string.
-    :param sample_num: A int. The sample number of every split file.
+    Args:
+        :param parent_path: A string. split file's parent path.
+        :param dataset_path: A string.
+        :param sample_num: A int. The sample number of every split file.
     :return: A list. [file1_path, file2_path, ...]
     """
     sub_dir_name = 'split'
@@ -51,12 +51,14 @@ def get_split_file_path(parent_path=None, dataset_path=None, sample_num=5000000)
 
 
 def get_fea_map(fea_map_path=None, split_file_list=None):
-    """
-    get feature map
-    Either parent_path or dataset_path must be valid.
+    """Get feature map.
+    Note: Either parent_path or dataset_path must be valid.
     If exists dir(split_file_list[0]) + "/fea_map.pkl", fea_map_path is valid.
-    :param fea_map_path: A string.
-    :param split_file_list: A list. [file1_path, file2_path, ...]
+    If fea_map_path is None and you want to build the feature map,
+    the default file path is the parent directory of split file + "fea_map.pkl".
+    Args:
+        :param fea_map_path: A string.
+        :param split_file_list: A list. [file1_path, file2_path, ...]
     :return: A dict. {'C1':{}, 'C2':{}, ...}
     """
     if fea_map_path is None and split_file_list is None:
@@ -99,14 +101,17 @@ def get_fea_map(fea_map_path=None, split_file_list=None):
 
 
 def create_criteo_dataset(file, fea_map, embed_dim=8):
-    """
-    load one split file data.
-    :param file: A string. dataset's path
-    :param fea_map: A dict.  {'C1':{}, 'C2':{}, ...}
-    :param embed_dim: the embedding dimension of sparse features
-    :return: feature columns, data
+    """Load one split file data.
+    Note: fea_map dict must be available.
+    Args:
+        :param file: A string. dataset's path.
+        :param fea_map: A dict.  {'C1':{}, 'C2':{}, ...}.
+        :param embed_dim: the embedding dimension of sparse features.
+    :return: feature columns such as [sparseFeature1, sparseFeature2, ...], and
+             data such as ({'C1': [...], 'C2': [...]]}, [1, 0, 1, ...]).
     """
     data_df = pd.read_csv(file, sep='\t', header=None, names=NAMES)
+    # test
     # data_df = pd.read_csv(file, sep='\t', iterator=True, header=None,
     #                       names=NAMES)
     # data_df = data_df.get_chunk(10000)
@@ -121,7 +126,7 @@ def create_criteo_dataset(file, fea_map, embed_dim=8):
     for col in sparse_features:
         data_df[col] = data_df[col].map(lambda x: fea_map[col][x])
     # Bin continuous data into intervals.
-    data_df[dense_features] = my_KBinsDiscretizer(data_df[dense_features], 1000, fea_map)
+    data_df[dense_features] = recKBinsDiscretizer(data_df[dense_features], 1000, fea_map)
 
     feature_columns = [sparseFeature(feat, len(fea_map[feat]) + 1, embed_dim=embed_dim)
                         for feat in features]
@@ -133,14 +138,17 @@ def create_criteo_dataset(file, fea_map, embed_dim=8):
 
 
 def create_small_criteo_dataset(file, embed_dim=8, read_part=True, sample_num=100000, test_size=0.2):
-    """
-    load small criteo data without splitting "train.txt".
-    :param file: A string. dataset's path.
-    :param embed_dim: A scalar. the embedding dimension of sparse features
-    :param read_part: A boolean. whether to read part of it
-    :param sample_num: A scalar. the number of instances if read_part is True
-    :param test_size: A scalar(float). ratio of test dataset
-    :return: feature columns, train, test
+    """Load small criteo data(sample num) without splitting "train.txt".
+    Note: If you want to load all data in the memory, please set "read_part" to False.
+    Args:
+        :param file: A string. dataset's path.
+        :param embed_dim: A scalar. the embedding dimension of sparse features.
+        :param read_part: A boolean. whether to read part of it.
+        :param sample_num: A scalar. the number of instances if read_part is True.
+        :param test_size: A scalar(float). ratio of test dataset.
+    :return: feature columns such as [sparseFeature1, sparseFeature2, ...],
+             train, such as  ({'C1': [...], 'C2': [...]]}, [1, 0, 1, ...])
+             and test ({'C1': [...], 'C2': [...]]}, [1, 0, 1, ...]).
     """
     if read_part:
         data_df = pd.read_csv(file, sep='\t', iterator=True, header=None,
