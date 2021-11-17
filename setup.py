@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
   name="reclearn",
-  version="1.0.0",
+  version="1.0.1",
   author="Ziyao Geng",
   author_email="zggzy1996@163.com",
   description="A simple package about learning recommendation",
