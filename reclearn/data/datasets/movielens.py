@@ -8,7 +8,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-MAX_ITEM_NUM = 3707
+MAX_ITEM_NUM = 3953
 MAX_USER_NUM = 6041
 
 
@@ -33,20 +33,21 @@ def _extract_movielens(zip_path, clean_zip_file=False):
     return dst_path
 
 
-def load_zip_movielens(zip_path, clean_zip_file=False):
-    dst_path = _extract_movielens(zip_path, clean_zip_file)
-    ratings_path = os.path.join(dst_path, "ratings.dat")
+# general recommendation
+def split_movielens(file_path):
+    dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "ml_train.txt")
     val_path = os.path.join(dst_path, "ml_val.txt")
     test_path = os.path.join(dst_path, "ml_test.txt")
+    meta_path = os.path.join(dst_path, "ml_meta.txt")
     users, items = set(), set()
     history = {}
-    with open(ratings_path, 'r') as f:
+    with open(file_path, 'r') as f:
         lines = f.readlines()
         for line in lines:
             user, item, score, timestamp = line.strip().split("::")
-            users.add(user)
-            items.add(item)
+            users.add(int(user))
+            items.add(int(item))
             history.setdefault(int(user), [])
             history[int(user)].append([item, timestamp])
     random.shuffle(list(users))
@@ -61,7 +62,9 @@ def load_zip_movielens(zip_path, clean_zip_file=False):
                     f2.write(str(user) + '\t' + value[0] + '\n')
                 else:
                     f1.write(str(user) + '\t' + value[0] + '\n')
-    return train_path, val_path, test_path
+    with open(meta_path, 'w') as f:
+        f.write(str(max(users)) + '\t' + str(max(items)))
+    return train_path, val_path, test_path, meta_path
 
 
 def load_seq_movielens(file_path):
@@ -113,12 +116,12 @@ def generate_movielens(file_path, neg_num):
             yield int(user), int(pos_item), neg_item
 
 
-def load_ml(file_path, neg_num):
+def load_ml(file_path, neg_num, max_item_num):
     data = np.array(pd.read_csv(file_path, delimiter='\t'))
     np.random.shuffle(data)
     neg_items = []
     for i in range(len(data)):
-        neg_item = [random.randint(1, MAX_ITEM_NUM) for _ in range(neg_num)]
+        neg_item = [random.randint(1, max_item_num) for _ in range(neg_num)]
         neg_items.append(neg_item)
     return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}
 
@@ -262,3 +265,69 @@ def create_ml_1m_dataset(file, trans_score=1, seq_len=40, test_neg_num=100):
              'neg_item': np.array(test_data['neg_id'])}
     print('============Data Preprocess End=============')
     return user_num, item_num, train, val, test
+
+
+def create_test_ml_1m_dataset(file, trans_score=2, test_neg_num=100):
+    """
+    :param file: A string. dataset path.
+    :param trans_score: A scalar. Greater than it is 1, and less than it is 0.
+    :param embed_dim: A scalar. latent factor.
+    :param test_neg_num: A scalar. The number of test negative samples
+    :return: user_num, item_num, train_df, test_df
+    """
+    print('==========Data Preprocess Start=============')
+    data_df = pd.read_csv(file, sep="::", engine='python',
+                          names=['user_id', 'item_id', 'label', 'Timestamp'])
+    # filtering
+    # data_df['item_count'] = data_df.groupby('item_id')['item_id'].transform('count')
+    # data_df = data_df[data_df.item_count >= 5]
+    # trans score
+    # data_df = data_df[data_df.label >= trans_score]
+    # sort
+    data_df = data_df.sort_values(by=['user_id', 'Timestamp'])
+    # split dataset and negative sampling
+    print('============Negative Sampling===============')
+    train_data, val_data, test_data = defaultdict(list), defaultdict(list), defaultdict(list)
+    item_id_max = data_df['item_id'].max()
+    for user_id, df in tqdm(data_df[['user_id', 'item_id']].groupby('user_id')):
+        pos_list = df['item_id'].tolist()
+        def gen_neg():
+            # neg = pos_list[0]
+            # while neg in set(pos_list):
+            neg = random.randint(1, item_id_max)
+            return neg
+
+        neg_list = [gen_neg() for i in range(len(pos_list) + test_neg_num - 1)]
+        for i in range(1, len(pos_list)):
+            if i == len(pos_list) - 1:
+                test_data['user_id'].append(user_id)
+                test_data['pos_id'].append(pos_list[i])
+                test_data['neg_id'].append(neg_list[i:])
+            elif i == len(pos_list) - 2:
+                val_data['user_id'].append(user_id)
+                val_data['pos_id'].append(pos_list[i])
+                val_data['neg_id'].append(neg_list[i])
+            else:
+                train_data['user_id'].append(user_id)
+                train_data['pos_id'].append(pos_list[i])
+                train_data['neg_id'].append(neg_list[i])
+    # shuffle
+    random.shuffle(train_data)
+    random.shuffle(val_data)
+    train = {'user': np.array(train_data['user_id']),
+             'pos_item': np.array(train_data['pos_id']),
+             'neg_item': np.array(train_data['neg_id']).reshape((-1, 1))}
+    val = {'user': np.array(val_data['user_id']),
+           'pos_item': np.array(val_data['pos_id']),
+           'neg_item': np.array(val_data['neg_id']).reshape((-1, 1))}
+    test = {'user': np.array(test_data['user_id']),
+            'pos_item': np.array(test_data['pos_id']),
+            'neg_item': np.array(test_data['neg_id'])}
+    # train = [np.array(train_data['user_id']), np.array(train_data['pos_id']),
+    #          np.array(train_data['neg_id']).reshape((-1, 1))]
+    # val = [np.array(val_data['user_id']), np.array(val_data['pos_id']),
+    #        np.array(val_data['neg_id']).reshape((-1, 1))]
+    # test = [np.array(test_data['user_id']), np.array(test_data['pos_id']),
+    #         np.array(test_data['neg_id'])]
+    print('============Data Preprocess End=============')
+    return train, val, test

@@ -28,7 +28,7 @@ def mrr(rank):
     mrr = 0.0
     for r in rank:
         mrr += 1 / (r + 1)
-    return mrr
+    return mrr / len(rank)
 
 
 def ndcg(rank, k):

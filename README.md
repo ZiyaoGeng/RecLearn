@@ -17,8 +17,8 @@
 
 RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. The implemented recommendation algorithms are classified according to two application stages in the industry:
 
-- matching recommendation stage
-- ranking  recommendeation stage
+- matching recommendation stage (Top-k Recmmendation)
+- ranking  recommendeation stage (CTR predict model)
 
 ## Installation
 

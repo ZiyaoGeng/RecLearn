@@ -1,6 +1,6 @@
 """
 Created on Dec 20, 2020
-Updated on Nov 07, 2021
+Updated on Nov 19, 2021
 Reference: "Neural Collaborative Filtering", WWW, 2017
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -10,49 +10,51 @@ from tensorflow.keras.layers import Embedding, Dense, Input
 from tensorflow.keras.regularizers import l2
 
 from reclearn.layers import MLP
-from reclearn.models.losses import bpr_loss, hinge_loss
+from reclearn.models.losses import get_loss
 
 
 class NCF(Model):
-    def __init__(self, fea_cols, hidden_units=None, activation='relu', dnn_dropout=0.,
-                 is_batch_norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=1e-6, seed=None):
-        """
-        NCF model
-        :param fea_cols: A dict containing {'user_num':, 'item_num:, ...}
-        :param hidden_units: A list. The list of hidden layer units's numbers, such as [64, 32, 16, 8].
-        :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
-        :param dnn_dropout: A scalar. The rate of dropout .
-        :param is_batch_norm: A boolean. Whether using batch normalization or not.
-        :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-        :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param seed: A int scalar.
+    def __init__(self, feature_columns, hidden_units=None, activation='relu', dnn_dropout=0.,
+                 is_batch_norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
+        """Neural Collaborative Filtering
+        Args:
+            :param feature_columns:  A dict containing
+                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param hidden_units: A list. The list of hidden layer units's numbers, such as [64, 32, 16, 8].
+            :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
+            :param dnn_dropout: A scalar. The rate of dropout .
+            :param is_batch_norm: A boolean. Whether using batch normalization or not.
+            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
+            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A scalar. The regularizer of embedding.
+            :param seed: A int scalar.
+        :return:
         """
         super(NCF, self).__init__()
         if hidden_units is None:
             hidden_units = [64, 32, 16, 8]
         # MF user embedding
-        self.mf_user_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.mf_user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
                                            input_length=1,
-                                           output_dim=fea_cols['embed_dim'],
+                                           output_dim=feature_columns['user']['embed_dim'],
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MF item embedding
-        self.mf_item_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.mf_item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                            input_length=1,
-                                           output_dim=fea_cols['embed_dim'],
+                                           output_dim=feature_columns['item']['embed_dim'],
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MLP user embedding
-        self.mlp_user_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.mlp_user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
                                             input_length=1,
-                                            output_dim=fea_cols['embed_dim'],
+                                            output_dim=feature_columns['user']['embed_dim'],
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # MLP item embedding
-        self.mlp_item_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.mlp_item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                             input_length=1,
-                                            output_dim=fea_cols['embed_dim'],
+                                            output_dim=feature_columns['item']['embed_dim'],
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # dnn
@@ -86,14 +88,10 @@ class NCF(Model):
         pos_vector = tf.concat([mf_pos_vector, mlp_pos_vector], axis=-1)  # (None, embed_dim+dim)
         neg_vector = tf.concat([mf_neg_vector, mlp_neg_vector], axis=-1)  # (None, neg_num, embed_dim+dim)
         # result
-        pos_scores = tf.tile(self.dense(pos_vector), [1, neg_vector.shape[1]])  # (None, neg_num)
+        pos_scores = self.dense(pos_vector)  # (None, 1)
         neg_scores = tf.squeeze(self.dense(neg_vector), axis=-1)  # (None, neg_num)
         # loss
-        if self.loss_name == 'bpr_loss':
-            losses = bpr_loss(pos_scores, neg_scores)
-        else:
-            losses = hinge_loss(pos_scores, neg_scores, gamma)
-        self.add_loss(losses)
+        self.add_loss(get_loss(pos_scores, neg_scores, self.loss_name, self.gamma))
         logits = tf.concat([pos_scores, neg_scores], axis=-1)
         return logits
 

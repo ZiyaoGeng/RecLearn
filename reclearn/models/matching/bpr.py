@@ -1,6 +1,6 @@
 """
 Created on Nov 13, 2020
-Updated on Nov 06, 2021
+Updated on Nov 19, 2021
 Reference: "BPR: Bayesian Personalized Ranking from Implicit Feedback", UAI, 2009
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -13,24 +13,26 @@ from reclearn.models.losses import bpr_loss
 
 
 class BPR(Model):
-    def __init__(self, fea_cols, embed_reg=1e-6, seed=None):
-        """
-        BPR
-        :param fea_cols:  A dict containing {'user_num':, 'item_num:, ...}
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param seed: A int scalar.
+    def __init__(self, feature_columns, embed_reg=0., seed=None):
+        """BPR
+        Args:
+            :param feature_columns:  A dict containing
+            {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param embed_reg: A scalar. The regularizer of embedding.
+            :param seed: A int scalar.
+        :return:
         """
         super(BPR, self).__init__()
         # user embedding
-        self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['user']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
-        self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['item']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # seed
@@ -44,7 +46,6 @@ class BPR(Model):
         neg_embed = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # calculate positive item scores and negative item scores
         pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=-1, keepdims=True)  # (None, 1)
-        pos_scores = tf.tile(pos_scores, multiples=[1, neg_embed.shape[1]])  # (None, neg_num)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_embed, axis=1), neg_embed), axis=-1)  # (None, neg_num)
         # add loss
         self.add_loss(bpr_loss(pos_scores, neg_scores))
