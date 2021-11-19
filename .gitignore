@@ -4,3 +4,4 @@
 /dist/*
 /reclearn.egg-info/*
 /build/*
+*/__pycache__/*
