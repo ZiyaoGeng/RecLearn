@@ -19,15 +19,17 @@ def hr(rank, k):
     return res / len(rank)
 
 
-def mrr(rank):
+def mrr(rank, k):
     """Mean Reciprocal Rank.
     Args:
         :param rank: A list.
+        :param k: A scalar(int).
     :return: mrr.
     """
     mrr = 0.0
     for r in rank:
-        mrr += 1 / (r + 1)
+        if r < k:
+            mrr += 1 / (r + 1)
     return mrr / len(rank)
 
 

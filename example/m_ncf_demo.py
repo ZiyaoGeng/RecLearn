@@ -25,7 +25,7 @@ batch_size = 512
 model_params = {
         'hidden_units': [256, 128, 64],
         'activation': 'relu',
-        'dnn_dropout': 0.3,
+        'dnn_dropout': 0.5,
         'is_batch_norm': False,
         'loss_name': 'binary_entropy_loss',
         'gamma': 0.3
@@ -62,7 +62,7 @@ def main():
             batch_size=batch_size
         )
         if epoch % 2 == 0:
-            eval_dict = eval_pos_neg(model, test_data, batch_size, ['hr', 'mrr', 'ndcg'], k)
+            eval_dict = eval_pos_neg(model, test_data, ['hr', 'mrr', 'ndcg'], k, batch_size)
             t2 = time()
             print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, MRR = %.4f, NDCG = %.4f, '
                   % (epoch, t2 - t1, time() - t2, eval_dict['hr'], eval_dict['mrr'], eval_dict['ndcg']))
