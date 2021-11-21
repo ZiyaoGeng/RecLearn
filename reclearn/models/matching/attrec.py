@@ -1,6 +1,6 @@
 """
 Created on Nov 10, 2020
-Updated on Nov 11, 2021
+Updated on Nov 20, 2021
 Reference: "Next Item Recommendation with Self-Attentive Metric Learning", AAAI, 2019
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -15,35 +15,36 @@ from reclearn.models.losses import get_loss
 
 
 class AttRec(Model):
-    def __init__(self, fea_cols, mode='inner', loss_name="bpr_loss", gamma=0.5, w=0.5, embed_reg=1e-8, seed=None):
-        """
-        AttRec
-        :param fea_col: A dict contains 'item_num', 'seq_len' and 'embed_dim'.
-        :param gamma: A scalar. if mode == 'dist', gamma is the margin.
-        :param mode: A string. inner or dist.
-        :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-        :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-        :param w: A scalar. The weight of short interest.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param seed: A int scalar.
+    def __init__(self, feature_columns, seq_len=40, mode='inner', w=0.5, loss_name="bpr_loss", gamma=0.5, embed_reg=0., seed=None):
+        """AttRec
+        Args:
+            :param feature_columns:  A dict containing
+                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param seq_len: A scalar. The length of the input sequence.
+            :param mode: A string. inner or dist.
+            :param w: A scalar. The weight of short interest.
+            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
+            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A scalar. The regularizer of embedding.
+            :param seed: A int scalar.
         """
         super(AttRec, self).__init__()
         # user embedding
-        self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['user']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
-        self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['item']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item2 embedding, not share embedding
-        self.item2_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.item2_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['item']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # self-attention
@@ -56,17 +57,18 @@ class AttRec(Model):
         self.loss_name = loss_name
         self.gamma = gamma
         # seq_len
-        self.seq_len = fea_cols['seq_len']
+        self.seq_len = seq_len
         # seed
         tf.random.set_seed(seed)
 
     def call(self, inputs):
-        # mask
-        mask = tf.expand_dims(tf.cast(tf.not_equal(inputs['click_seq'], 0), dtype=tf.float32), axis=-1)  # (None, seq_len, 1)
         # user info
         user_embed = self.user_embedding(inputs['user'])  # (None, embed_dim)
+        # mask
+        mask = tf.expand_dims(tf.cast(tf.not_equal(inputs['click_seq'], 0), dtype=tf.float32), axis=-1)  # (None, seq_len, 1)
         # seq info
         seq_embed = self.item_embedding(inputs['click_seq'])  # (None, seq_len, embed_dim)
+        seq_embed *= mask
         # short-term interest
         short_interest = self.self_attention([seq_embed, seq_embed, seq_embed, mask])  # (None, dim)
         # item

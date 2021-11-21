@@ -13,41 +13,45 @@ from reclearn.models.losses import get_loss
 
 
 class Caser(Model):
-    def __init__(self, fea_cols, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
-        """
-        AttRec
-        :param fea_col: A dict contains 'user_num', 'item_num', 'seq_len' and 'embed_dim'.
-        :param hor_n: A scalar. The number of horizontal filters.
-        :param hor_h: A scalar. Height of horizontal filters.
-        :param ver_n: A scalar. The number of vertical filters.
-        :param activation: A string. 'relu', 'sigmoid' or 'tanh'.
-        :param dnn_dropout: A scalar. The number of dropout.
-        :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-        :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param seed: A int scalar.
+    def __init__(self, feature_columns, seq_len=40, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5,
+                 loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
+        """Caser
+        Args:
+            :param feature_columns:  A dict containing
+                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param seq_len: A scalar. The length of the input sequence.
+            :param hor_n: A scalar. The number of horizontal filters.
+            :param hor_h: A scalar. Height of horizontal filters.
+            :param ver_n: A scalar. The number of vertical filters.
+            :param activation: A string. 'relu', 'sigmoid' or 'tanh'.
+            :param dnn_dropout: A scalar. The number of dropout.
+            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
+            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A scalar. The regularizer of embedding.
+            :param seed: A int scalar.
+        :return:
         """
         super(Caser, self).__init__()
         # user embedding
-        self.user_embedding = Embedding(input_dim=fea_cols['user_num'],
+        self.user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'] // 2,
+                                        output_dim=feature_columns['user']['embed_dim'] // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
-        self.item_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'] // 2,
+                                        output_dim=feature_columns['item']['embed_dim'] // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item2 embedding
-        self.item2_embedding = Embedding(input_dim=fea_cols['item_num'],
+        self.item2_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
                                         input_length=1,
-                                        output_dim=fea_cols['embed_dim'],
+                                        output_dim=feature_columns['item']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # seq_len
-        self.seq_len = fea_cols['seq_len']
+        self.seq_len = seq_len
         # horizontal filters
         self.hor_n = hor_n
         self.hor_h = hor_h if hor_h <= self.seq_len else self.seq_len
@@ -61,7 +65,7 @@ class Caser(Model):
         # max_pooling
         self.pooling = GlobalMaxPooling1D()
         # dense
-        self.dense = Dense(fea_cols['embed_dim'] // 2, activation=activation)
+        self.dense = Dense(feature_columns['item']['embed_dim'] // 2, activation=activation)
         self.dropout = Dropout(dnn_dropout)
         # loss name
         self.loss_name = loss_name
@@ -94,7 +98,6 @@ class Caser(Model):
         neg_info = self.item2_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # scores
         pos_scores = tf.reduce_sum(tf.multiply(user_info, pos_info), axis=-1, keepdims=True)  # (None, 1)
-        pos_scores = tf.tile(pos_scores, [1, neg_info.shape[1]])  # (None, neg_num)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_info, axis=1), neg_info), axis=-1)  # (None, neg_num)
         # loss
         self.add_loss(get_loss(pos_scores, neg_scores, self.loss_name, self.gamma))

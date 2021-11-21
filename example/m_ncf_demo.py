@@ -1,6 +1,6 @@
 """
 Created on Nov 19, 2021
-train BPR demo
+train NCF demo
 @author: Ziyao Geng(zggzy1996@163.com)
 """
 import os
@@ -23,12 +23,12 @@ epochs = 20
 batch_size = 512
 
 model_params = {
-        'hidden_units': [256, 128, 64],
-        'activation': 'relu',
-        'dnn_dropout': 0.5,
-        'is_batch_norm': False,
-        'loss_name': 'binary_entropy_loss',
-        'gamma': 0.3
+    'hidden_units': [256, 128, 64],
+    'activation': 'relu',
+    'dnn_dropout': 0.5,
+    'is_batch_norm': False,
+    'loss_name': 'binary_entropy_loss',
+    'gamma': 0.3
 }
 
 k = 10

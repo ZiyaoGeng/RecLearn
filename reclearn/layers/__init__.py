@@ -12,3 +12,5 @@ from reclearn.layers.core import Residual_Units
 from reclearn.layers.core import CrossNetwork
 from reclearn.layers.core import New_FM
 from reclearn.layers.core import CIN
+from reclearn.layers.core import LBA
+from reclearn.layers.core import Item_similarity_gating

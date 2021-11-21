@@ -14,6 +14,11 @@ MAX_USER_NUM = 6041
 
 # general recommendation
 def split_movielens(file_path):
+    """split movielens for general recommendation
+        Args:
+            :param file_path: A string. The file path of 'ratings.dat'.
+        :return: train_path, val_path, test_path, meta_path
+        """
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "ml_train.txt")
     val_path = os.path.join(dst_path, "ml_val.txt")
@@ -48,6 +53,11 @@ def split_movielens(file_path):
 
 # sequence recommendation
 def split_seq_movielens(file_path):
+    """split movielens for sequence recommendation
+    Args:
+        :param file_path: A string. The file path of 'ratings.dat'.
+    :return: train_path, val_path, test_path, meta_path
+    """
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "ml_seq_train.txt")
     val_path = os.path.join(dst_path, "ml_seq_val.txt")
@@ -79,6 +89,13 @@ def split_seq_movielens(file_path):
 
 
 def load_ml(file_path, neg_num, max_item_num):
+    """load movielens dataset.
+    Args:
+        :param file_path: A string. The file path.
+        :param neg_num: A scalar(int). The negative num of one sample.
+        :param max_item_num: A scalar(int). The max index of item.
+    :return: A dict. data.
+    """
     data = np.array(pd.read_csv(file_path, delimiter='\t'))
     np.random.shuffle(data)
     neg_items = []
@@ -88,11 +105,79 @@ def load_ml(file_path, neg_num, max_item_num):
     return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}
 
 
+def load_seq_ml(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
+    """load sequence movielens dataset.
+    Args:
+        :param file_path: A string. The file path.
+        :param mode: A string. "train", "val" or "test".
+        :param seq_len: A scalar(int). The length of sequence.
+        :param neg_num: A scalar(int). The negative num of one sample.
+        :param max_item_num: A scalar(int). The max index of item.
+        :param contain_user: A boolean. Whether including user'id input or not.
+        :param contain_time: A boolean. Whether including time sequence input or not.
+    :return: A dict. data.
+    """
+    users, click_seqs, time_seqs, pos_items, neg_items = [], [], [], [], []
+    with open(file_path) as f:
+        lines = f.readlines()
+        for line in tqdm(lines):
+            if mode == "train":
+                user, click_seq, time_seq = line.split('\t')
+                click_seq = click_seq.split(' ')
+                click_seq = [int(x) for x in click_seq]
+                time_seq = time_seq.split(' ')
+                time_seq = [int(x) for x in time_seq]
+                for i in range(len(click_seq)-1):
+                    if i + 1 >= seq_len:
+                        tmp = click_seq[i+1-seq_len:i+1]
+                        tmp2 = time_seq[i + 1 - seq_len:i + 1]
+                    else:
+                        tmp = [0] * (seq_len-i-1) + click_seq[:i+1]
+                        tmp2 = [0] * (seq_len - i - 1) + time_seq[:i + 1]
+                    # gen_neg = _gen_negative_samples(neg_num, click_seq, max_item_num)
+                    # neg_item = [neg_item for neg_item in gen_neg]
+                    neg_item = [random.randint(1, max_item_num) for _ in range(neg_num)]
+                    users.append(int(user))
+                    click_seqs.append(tmp)
+                    time_seqs.append(tmp2)
+                    pos_items.append(click_seq[i + 1])
+                    neg_items.append(neg_item)
+            else:  # "val", "test"
+                user, click_seq, time_seq, pos_item = line.split('\t')
+                click_seq = click_seq.split(' ')
+                click_seq = [int(x) for x in click_seq]
+                time_seq = time_seq.split(' ')
+                time_seq = [int(x) for x in time_seq]
+                if len(click_seq) >= seq_len:
+                    tmp = click_seq[len(click_seq) - seq_len:]
+                    tmp2 = time_seq[len(time_seq) - seq_len:]
+                else:
+                    tmp = [0] * (seq_len - len(click_seq)) + click_seq[:]
+                    tmp2 = [0] * (seq_len - len(time_seq)) + time_seq[:]
+                # gen_neg = _gen_negative_samples(neg_num, click_seq, max_item_num)
+                # neg_item = [neg_item for neg_item in gen_neg]
+                neg_item = [random.randint(1, max_item_num) for _ in range(neg_num)]
+                users.append(int(user))
+                click_seqs.append(tmp)
+                time_seqs.append(tmp2)
+                pos_items.append(int(pos_item))
+                neg_items.append(neg_item)
+    data = list(zip(users, click_seqs, time_seqs, pos_items, neg_items))
+    random.shuffle(data)
+    users, click_seqs, time_seqs, pos_items, neg_items = zip(*data)
+    data = {'click_seq': np.array(click_seqs), 'pos_item': np.array(pos_items), 'neg_item': np.array(neg_items)}
+    if contain_user:
+        data['user'] = np.array(users)
+    if contain_time:
+        data['time_seq'] = np.array(click_seqs)
+    return data
+
+
 def _gen_negative_samples(neg_num, item_list, max_num):
     for i in range(neg_num):
-        neg = item_list[0]
-        while neg in set(item_list):
-            neg = random.randint(1, max_num)
+        # neg = item_list[0]
+        # while neg in set(item_list):
+        neg = random.randint(1, max_num)
         yield neg
 
 
@@ -102,50 +187,6 @@ def generate_movielens(file_path, neg_num):
             user, pos_item = line.split('\t')
             neg_item = [random.randint(1, MAX_ITEM_NUM) for _ in range(neg_num)]
             yield int(user), int(pos_item), neg_item
-
-
-def load_seq_ml(file_path, mode, neg_num, seq_len, contain_user=False):
-    users, click_seqs, pos_items, neg_items = [], [], [], []
-    with open(file_path) as f:
-        lines = f.readlines()
-        for line in tqdm(lines):
-            if mode == "train":
-                user, click_seq = line.split('\t')
-                click_seq = click_seq.split(' ')
-                click_seq = [int(x) for x in click_seq]
-                for i in range(len(click_seq)-1):
-                    if i + 1 >= seq_len:
-                        tmp = click_seq[i+1-seq_len:i+1]
-                    else:
-                        tmp = [0] * (seq_len-i-1) + click_seq[:i+1]
-
-                    gen_neg = _gen_negative_samples(neg_num, click_seq, MAX_ITEM_NUM)
-                    neg_item = [neg_item for neg_item in gen_neg]
-                    users.append(int(user))
-                    click_seqs.append(tmp)
-                    pos_items.append(click_seq[i + 1])
-                    neg_items.append(neg_item)
-            else:
-                user, click_seq, pos_item = line.split('\t')
-                click_seq = click_seq.split(' ')
-                click_seq = [int(x) for x in click_seq]
-                if len(click_seq) >= seq_len:
-                    tmp = click_seq[len(click_seq) - seq_len:]
-                else:
-                    tmp = [0] * (seq_len - len(click_seq)) + click_seq[:]
-                users.append(int(user))
-                gen_neg = _gen_negative_samples(neg_num, click_seq, MAX_ITEM_NUM)
-                neg_item = [neg_item for neg_item in gen_neg]
-                click_seqs.append(tmp)
-                pos_items.append(int(pos_item))
-                neg_items.append(neg_item)
-    data = list(zip(users, click_seqs, pos_items, neg_items))
-    random.shuffle(data)
-    users, click_seqs, pos_items, neg_items = zip(*data)
-    if contain_user:
-        return {'user': np.array(users), 'click_seq': np.array(click_seqs), 'pos_item': np.array(pos_items), 'neg_item': np.array(neg_items)}
-    else:
-        return {'click_seq': np.array(click_seqs), 'pos_item': np.array(pos_items), 'neg_item': np.array(neg_items)}
 
 
 def generate_ml(file_path, neg_num):

@@ -42,11 +42,11 @@ class BPR(Model):
         # user info
         user_embed = self.user_embedding(inputs['user'])  # (None, embed_dim)
         # item info
-        pos_embed = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
-        neg_embed = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
+        pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
+        neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # calculate positive item scores and negative item scores
-        pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_embed), axis=-1, keepdims=True)  # (None, 1)
-        neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_embed, axis=1), neg_embed), axis=-1)  # (None, neg_num)
+        pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_info), axis=-1, keepdims=True)  # (None, 1)
+        neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_embed, axis=1), neg_info), axis=-1)  # (None, neg_num)
         # add loss
         self.add_loss(bpr_loss(pos_scores, neg_scores))
         logits = tf.concat([pos_scores, neg_scores], axis=-1)

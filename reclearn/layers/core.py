@@ -447,3 +447,73 @@ class CIN(Layer):
         result = tf.concat(final_results, axis=1)  # (None, H_1 + ... + H_K, dim)
         result = tf.reduce_sum(result,  axis=-1)  # (None, dim)
         return result
+
+
+class LBA(Layer):
+    def __init__(self, dnn_dropout=0.):
+        """location-based attention layer. FISSA
+        Args:
+            dnn_dropout: A scalar.
+        :return:
+        """
+        super(LBA, self).__init__()
+        self.dropout = Dropout(dnn_dropout)
+
+    def build(self, input_shape):
+        self.dim = input_shape[0][-1]
+        self.W = self.add_weight(
+            shape=[self.dim, self.dim],
+            name='att_weights',
+            initializer='random_normal')
+        self.W_2 = self.add_weight(
+            shape=[self.dim, self.dim],
+            name='att_weights2',
+            initializer='random_normal')
+        self.q = self.add_weight(
+            shape=[1, self.dim],
+            name='query weight',
+            initializer='random_normal')
+
+    def call(self, inputs):
+        k, v, mask = inputs  # (None, seq_len, dim), (None, seq_len, dim), (None, seq_len, 1)
+        k = tf.matmul(k, self.W)  # (None, seq_len, dim)
+        mat_qk = tf.matmul(k, self.q, transpose_b=True)  # (None, seq_len, 1)
+        dk = tf.cast(self.dim, dtype=tf.float32)
+        # Scaled
+        scaled_att_logits = mat_qk / tf.sqrt(dk)
+        # Mask
+        paddings = tf.ones_like(scaled_att_logits) * (-2 ** 32 + 1)
+        outputs = tf.where(tf.equal(mask, 0), paddings, scaled_att_logits)  # (None, seq_len, 1)
+        # softmax
+        outputs = tf.nn.softmax(logits=tf.transpose(outputs, [0, 2, 1]), axis=-1)  # (None, 1, seq_len)
+        # output
+        outputs = tf.squeeze(tf.matmul(tf.matmul(outputs, v), self.W_2), axis=1)  # (None, dim)
+        outputs = self.dropout(outputs)
+        return outputs
+
+
+class Item_similarity_gating(Layer):
+    def __init__(self, dnn_dropout=0.):
+        """Item_similarity_gating, FISSA
+        Args:
+            dnn_dropout: A scalar.
+        :return:
+        """
+        self.dropout = Dropout(dnn_dropout)
+        super(Item_similarity_gating, self).__init__()
+
+    def build(self, input_shape):
+        self.dim = input_shape[0][-1]
+        self.W = self.add_weight(
+            shape=[3 * self.dim, 1],
+            name='att_weights',
+            initializer='random_normal')
+
+    def call(self, inputs):
+        item_embed, global_info, candidate_embed = inputs
+        inputs = tf.concat([item_embed, global_info, candidate_embed], -1)
+        inputs = self.dropout(inputs)
+
+        logits = tf.matmul(inputs, self.W)  # (None, neg_num + 1, 1)
+        weights = tf.nn.sigmoid(logits)
+        return weights
