@@ -27,7 +27,7 @@ def main():
     with open(meta_path) as f:
         max_user_num, max_item_num = [int(x) for x in f.readline().strip('\n').split('\t')]
     # TODO: 2. Load Data
-    test_data = ml.load_ml(test_path, 100, max_item_num)
+    test_data = ml.load_data(test_path, 100, max_item_num)
     # TODO: 3. Build Model
     model = PopRec(train_path=train_path, delimiter='\t')
     # TODO: 3. Update Model.

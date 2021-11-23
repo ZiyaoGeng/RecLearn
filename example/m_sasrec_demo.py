@@ -40,7 +40,7 @@ k = 10
 def main():
     file_path = 'data/ml-1m/ratings.dat'
     # TODO: 1. Split Data
-    train_path, val_path, test_path, meta_path = ml.split_seq_movielens(file_path=file_path)
+    train_path, val_path, test_path, meta_path = ml.split_seq_data(file_path=file_path)
     with open(meta_path) as f:
         _, max_item_num = [int(x) for x in f.readline().strip('\n').split('\t')]
     # TODO: 2. Build Feature Columns
@@ -48,9 +48,9 @@ def main():
         'item': sparseFeature('item', max_item_num + 1, embed_dim)
     }
     # TODO: 3. Load Data
-    train_data = ml.load_seq_ml(train_path, "train", seq_len, neg_num, max_item_num, contain_user=True)
-    val_data = ml.load_seq_ml(val_path, "val", seq_len, neg_num, max_item_num, contain_user=True)
-    test_data = ml.load_seq_ml(test_path, "test", seq_len, 100, max_item_num, contain_user=True)
+    train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num, contain_user=True)
+    val_data = ml.load_seq_data(val_path, "val", seq_len, neg_num, max_item_num, contain_user=True)
+    test_data = ml.load_seq_data(test_path, "test", seq_len, 100, max_item_num, contain_user=True)
     # TODO: 4. Build Model
     model = SASRec(fea_cols, **model_params)
     model.compile(optimizer=Adam(learning_rate=learning_rate))

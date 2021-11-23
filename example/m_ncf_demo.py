@@ -37,7 +37,7 @@ k = 10
 def main():
     file_path = 'data/ml-1m/ratings.dat'
     # TODO: 1. Split Data
-    train_path, val_path, test_path, meta_path = ml.split_movielens(file_path=file_path)
+    train_path, val_path, test_path, meta_path = ml.split_data(file_path=file_path)
     with open(meta_path) as f:
         max_user_num, max_item_num = [int(x) for x in f.readline().strip('\n').split('\t')]
     # TODO: 2. Build Feature Columns
@@ -46,9 +46,9 @@ def main():
         'item': sparseFeature('item', max_item_num + 1, embed_dim)
     }
     # TODO: 3. Load Data
-    train_data = ml.load_ml(train_path, neg_num, max_item_num)
-    val_data = ml.load_ml(val_path, neg_num, max_item_num)
-    test_data = ml.load_ml(test_path, 100, max_item_num)
+    train_data = ml.load_data(train_path, neg_num, max_item_num)
+    val_data = ml.load_data(val_path, neg_num, max_item_num)
+    test_data = ml.load_data(test_path, 100, max_item_num)
     # TODO: 4. Build Model
     model = NCF(fea_cols, **model_params)
     model.compile(optimizer=Adam(learning_rate=learning_rate))
