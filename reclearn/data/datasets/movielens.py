@@ -17,7 +17,7 @@ def split_data(file_path):
         Args:
             :param file_path: A string. The file path of 'ratings.dat'.
         :return: train_path, val_path, test_path, meta_path
-        """
+    """
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "ml_train.txt")
     val_path = os.path.join(dst_path, "ml_val.txt")

@@ -22,6 +22,11 @@ from tqdm import tqdm
 
 # general recommendation
 def split_data(file_path):
+    """split amazon beauty for general recommendation
+        Args:
+            :param file_path: A string. The file path of 'ratings.dat'.
+        :return: train_path, val_path, test_path, meta_path
+    """
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "beauty_train.txt")
     val_path = os.path.join(dst_path, "beauty_val.txt")
@@ -61,6 +66,11 @@ def split_data(file_path):
 
 # sequence recommendation
 def split_seq_data(file_path):
+    """split amazon beauty for sequence recommendation
+        Args:
+            :param file_path: A string. The file path of 'ratings_Beauty.dat'.
+        :return: train_path, val_path, test_path, meta_path
+    """
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "beauty_seq_train.txt")
     val_path = os.path.join(dst_path, "beauty_seq_val.txt")
@@ -79,7 +89,6 @@ def split_seq_data(file_path):
                 item_idx += 1
             history.setdefault(user, [])
             history[user].append([items[item], timestamp])
-        random.shuffle(list(users))
     with open(train_path, 'w') as f1, open(val_path, 'w') as f2, open(test_path, 'w') as f3:
         for user in users:
             hist_u = history[user]
@@ -114,7 +123,18 @@ def load_data(file_path, neg_num, max_item_num):
     return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}
 
 
-def load_seq_data(file_path, mode, neg_num, seq_len, max_item_num, contain_user=False, contain_time=False):
+def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
+    """load sequence be dataset.
+        Args:
+            :param file_path: A string. The file path.
+            :param mode: A string. "train", "val" or "test".
+            :param seq_len: A scalar(int). The length of sequence.
+            :param neg_num: A scalar(int). The negative num of one sample.
+            :param max_item_num: A scalar(int). The max index of item.
+            :param contain_user: A boolean. Whether including user'id input or not.
+            :param contain_time: A boolean. Whether including time sequence input or not.
+        :return: A dict. data.
+    """
     users, click_seqs, time_seqs, pos_items, neg_items = [], [], [], [], []
     with open(file_path) as f:
         lines = f.readlines()
@@ -127,10 +147,10 @@ def load_seq_data(file_path, mode, neg_num, seq_len, max_item_num, contain_user=
                 time_seq = [int(x) for x in time_seq]
                 for i in range(len(click_seq)-1):
                     if i + 1 >= seq_len:
-                        tmp = click_seq[i+1-seq_len:i+1]
+                        tmp = click_seq[i + 1 - seq_len:i + 1]
                         tmp2 = time_seq[i + 1 - seq_len:i + 1]
                     else:
-                        tmp = [0] * (seq_len-i-1) + click_seq[:i+1]
+                        tmp = [0] * (seq_len-i-1) + click_seq[:i + 1]
                         tmp2 = [0] * (seq_len - i - 1) + time_seq[:i + 1]
 
                     # gen_neg = _gen_negative_samples(neg_num, click_seq, max_item_num)
