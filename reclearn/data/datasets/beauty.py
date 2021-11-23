@@ -14,7 +14,6 @@ from collections import defaultdict
 import os
 import random
 import time
-import logging
 import pandas as pd
 import numpy as np
 
@@ -22,7 +21,7 @@ from tqdm import tqdm
 
 
 # general recommendation
-def split_beauty(file_path):
+def split_data(file_path):
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "beauty_train.txt")
     val_path = os.path.join(dst_path, "beauty_val.txt")
@@ -57,14 +56,11 @@ def split_beauty(file_path):
             user_idx += 1
     with open(meta_path, 'w') as f:
         f.write(str(user_idx - 1) + '\t' + str(item_idx - 1))
-    logging.info("train_path: %s, val_path: %s, test_path: %s, meta_path: %s"
-                 % (train_path, val_path, test_path, meta_path))
-    logger.info("Complete split the movielens.")
     return train_path, val_path, test_path, meta_path
 
 
 # sequence recommendation
-def split_seq_beauty(file_path):
+def split_seq_data(file_path):
     dst_path = os.path.dirname(file_path)
     train_path = os.path.join(dst_path, "beauty_seq_train.txt")
     val_path = os.path.join(dst_path, "beauty_seq_val.txt")
@@ -98,13 +94,27 @@ def split_seq_beauty(file_path):
             user_idx += 1
     with open(meta_path, 'w') as f:
         f.write(str(user_idx - 1) + '\t' + str(item_idx - 1))
-    logging.info("train_path: %s, val_path: %s, test_path: %s, meta_path: %s"
-                 % (train_path, val_path, test_path, meta_path))
-    logger.info("Complete split seq movielens.")
     return train_path, val_path, test_path, meta_path
 
 
-def load_seq_beauty(file_path, mode, neg_num, seq_len, max_item_num, contain_user=False, contain_time=False):
+def load_data(file_path, neg_num, max_item_num):
+    """load amazon beauty dataset.
+    Args:
+        :param file_path: A string. The file path.
+        :param neg_num: A scalar(int). The negative num of one sample.
+        :param max_item_num: A scalar(int). The max index of item.
+    :return: A dict. data.
+    """
+    data = np.array(pd.read_csv(file_path, delimiter='\t'))
+    np.random.shuffle(data)
+    neg_items = []
+    for i in range(len(data)):
+        neg_item = [random.randint(1, max_item_num) for _ in range(neg_num)]
+        neg_items.append(neg_item)
+    return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}
+
+
+def load_seq_data(file_path, mode, neg_num, seq_len, max_item_num, contain_user=False, contain_time=False):
     users, click_seqs, time_seqs, pos_items, neg_items = [], [], [], [], []
     with open(file_path) as f:
         lines = f.readlines()

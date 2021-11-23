@@ -12,7 +12,7 @@ MAX_USER_NUM = 6041
 
 
 # general recommendation
-def split_movielens(file_path):
+def split_data(file_path):
     """split movielens for general recommendation
         Args:
             :param file_path: A string. The file path of 'ratings.dat'.
@@ -51,7 +51,7 @@ def split_movielens(file_path):
 
 
 # sequence recommendation
-def split_seq_movielens(file_path):
+def split_seq_data(file_path):
     """split movielens for sequence recommendation
     Args:
         :param file_path: A string. The file path of 'ratings.dat'.
@@ -87,7 +87,7 @@ def split_seq_movielens(file_path):
     return train_path, val_path, test_path, meta_path
 
 
-def load_ml(file_path, neg_num, max_item_num):
+def load_data(file_path, neg_num, max_item_num):
     """load movielens dataset.
     Args:
         :param file_path: A string. The file path.
@@ -104,7 +104,7 @@ def load_ml(file_path, neg_num, max_item_num):
     return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}
 
 
-def load_seq_ml(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
+def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
     """load sequence movielens dataset.
     Args:
         :param file_path: A string. The file path.
@@ -180,14 +180,16 @@ def _gen_negative_samples(neg_num, item_list, max_num):
         yield neg
 
 
+"""
 def generate_movielens(file_path, neg_num):
     with open(file_path, 'r') as f:
         for line in f:
             user, pos_item = line.split('\t')
             neg_item = [random.randint(1, MAX_ITEM_NUM) for _ in range(neg_num)]
             yield int(user), int(pos_item), neg_item
+"""
 
-
+"""
 def generate_ml(file_path, neg_num):
     return tf.data.Dataset.from_generator(
         generator=generate_movielens,
@@ -198,9 +200,10 @@ def generate_ml(file_path, neg_num):
             tf.TensorSpec(shape=(neg_num,), dtype=tf.int32),
         )
     )
+"""
 
 
-def generate_seq_movielens(file_path, seq_len, neg_num):
+def generate_seq_data(file_path, seq_len, neg_num):
     with open(file_path, 'r') as f:
         user, hist = f.readline().split('\t')
         hist = hist.split(',')
