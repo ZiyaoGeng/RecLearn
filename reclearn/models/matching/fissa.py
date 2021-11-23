@@ -95,6 +95,10 @@ class FISSA(Model):
 
         user_info = tf.multiply(local_info, weights) + \
                     tf.multiply(tf.expand_dims(global_info, axis=1), tf.ones_like(weights) - weights)  # (None, 1 + neg_num, embed_dim)
+        # norm
+        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+        user_info = tf.math.l2_normalize(user_info, axis=-1)
 
         pos_scores = tf.reduce_sum(tf.multiply(tf.slice(user_info, [0, 0, 0], [-1, 1, -1]), tf.expand_dims(pos_info, axis=1)), axis=-1)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.slice(user_info, [0, 1, 0], [-1, neg_info.shape[1], -1]), neg_info), axis=-1)  # (None, neg_num)

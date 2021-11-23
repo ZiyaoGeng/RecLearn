@@ -1,6 +1,6 @@
 """
 Created on Nov 23, 2021
-Amazon Beauty Dataset.
+Amazon Games Dataset.
 @author: Ziyao Geng(zggzy1996@163.com)
 """
 import os
@@ -10,22 +10,21 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from collections import defaultdict
-
 from tqdm import tqdm
 
 
 # general recommendation
 def split_data(file_path):
-    """split amazon beauty for general recommendation
-    Args:
-        :param file_path: A string. The file path of 'ratings.dat'.
-    :return: train_path, val_path, test_path, meta_path
+    """split amazon games for general recommendation
+        Args:
+            :param file_path: A string. The file path of 'ratings.dat'.
+        :return: train_path, val_path, test_path, meta_path
     """
     dst_path = os.path.dirname(file_path)
-    train_path = os.path.join(dst_path, "beauty_train.txt")
-    val_path = os.path.join(dst_path, "beauty_val.txt")
-    test_path = os.path.join(dst_path, "beauty_test.txt")
-    meta_path = os.path.join(dst_path, "beauty_meta.txt")
+    train_path = os.path.join(dst_path, "games_train.txt")
+    val_path = os.path.join(dst_path, "games_val.txt")
+    test_path = os.path.join(dst_path, "games_test.txt")
+    meta_path = os.path.join(dst_path, "games_meta.txt")
     users, items = set(), dict()
     user_idx, item_idx = 1, 1
     history = {}
@@ -60,16 +59,16 @@ def split_data(file_path):
 
 # sequence recommendation
 def split_seq_data(file_path):
-    """split amazon beauty for sequence recommendation
+    """split amazon games for sequence recommendation
     Args:
         :param file_path: A string. The file path of 'ratings_Beauty.dat'.
     :return: train_path, val_path, test_path, meta_path
     """
     dst_path = os.path.dirname(file_path)
-    train_path = os.path.join(dst_path, "beauty_seq_train.txt")
-    val_path = os.path.join(dst_path, "beauty_seq_val.txt")
-    test_path = os.path.join(dst_path, "beauty_seq_test.txt")
-    meta_path = os.path.join(dst_path, "beauty_seq_meta.txt")
+    train_path = os.path.join(dst_path, "games_seq_train.txt")
+    val_path = os.path.join(dst_path, "games_seq_val.txt")
+    test_path = os.path.join(dst_path, "games_seq_test.txt")
+    meta_path = os.path.join(dst_path, "games_seq_meta.txt")
     users, items = set(), dict()
     user_idx, item_idx = 1, 1
     history = {}
@@ -119,15 +118,15 @@ def load_data(file_path, neg_num, max_item_num):
 
 def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
     """load sequence be dataset.
-    Args:
-        :param file_path: A string. The file path.
-        :param mode: A string. "train", "val" or "test".
-        :param seq_len: A scalar(int). The length of sequence.
-        :param neg_num: A scalar(int). The negative num of one sample.
-        :param max_item_num: A scalar(int). The max index of item.
-        :param contain_user: A boolean. Whether including user'id input or not.
-        :param contain_time: A boolean. Whether including time sequence input or not.
-    :return: A dict. data.
+        Args:
+            :param file_path: A string. The file path.
+            :param mode: A string. "train", "val" or "test".
+            :param seq_len: A scalar(int). The length of sequence.
+            :param neg_num: A scalar(int). The negative num of one sample.
+            :param max_item_num: A scalar(int). The max index of item.
+            :param contain_user: A boolean. Whether including user'id input or not.
+            :param contain_time: A boolean. Whether including time sequence input or not.
+        :return: A dict. data.
     """
     users, click_seqs, time_seqs, pos_items, neg_items = [], [], [], [], []
     with open(file_path) as f:

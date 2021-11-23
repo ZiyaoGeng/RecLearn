@@ -96,6 +96,10 @@ class Caser(Model):
         pos_info = self.item2_embedding(inputs['pos_item'])  # (None, embed_dim)
         # neg info
         neg_info = self.item2_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
+        # norm
+        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+        user_info = tf.math.l2_normalize(user_info, axis=-1)
         # scores
         pos_scores = tf.reduce_sum(tf.multiply(user_info, pos_info), axis=-1, keepdims=True)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_info, axis=1), neg_info), axis=-1)  # (None, neg_num)

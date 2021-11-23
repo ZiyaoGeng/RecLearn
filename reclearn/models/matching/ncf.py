@@ -87,6 +87,9 @@ class NCF(Model):
         # concat
         pos_vector = tf.concat([mf_pos_vector, mlp_pos_vector], axis=-1)  # (None, embed_dim+dim)
         neg_vector = tf.concat([mf_neg_vector, mlp_neg_vector], axis=-1)  # (None, neg_num, embed_dim+dim)
+        # norm
+        pos_vector = tf.math.l2_normalize(pos_vector, axis=-1)
+        neg_vector = tf.math.l2_normalize(neg_vector, axis=-1)
         # result
         pos_scores = self.dense(pos_vector)  # (None, 1)
         neg_scores = tf.squeeze(self.dense(neg_vector), axis=-1)  # (None, neg_num)

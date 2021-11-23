@@ -48,9 +48,9 @@ def main():
         'item': sparseFeature('item', max_item_num + 1, embed_dim)
     }
     # TODO: 3. Load Data
-    train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num, contain_user=True)
-    val_data = ml.load_seq_data(val_path, "val", seq_len, neg_num, max_item_num, contain_user=True)
-    test_data = ml.load_seq_data(test_path, "test", seq_len, 100, max_item_num, contain_user=True)
+    train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num)
+    val_data = ml.load_seq_data(val_path, "val", seq_len, neg_num, max_item_num)
+    test_data = ml.load_seq_data(test_path, "test", seq_len, 100, max_item_num)
     # TODO: 4. Build Model
     model = FISSA(fea_cols, **model_params)
     model.compile(optimizer=Adam(learning_rate=learning_rate))

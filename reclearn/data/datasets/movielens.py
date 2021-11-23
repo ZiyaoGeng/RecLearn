@@ -27,7 +27,7 @@ def split_data(file_path):
     history = {}
     with open(file_path, 'r') as f:
         lines = f.readlines()
-        for line in lines:
+        for line in tqdm(lines):
             user, item, score, timestamp = line.strip().split("::")
             users.add(int(user))
             items.add(int(item))
@@ -98,7 +98,7 @@ def load_data(file_path, neg_num, max_item_num):
     data = np.array(pd.read_csv(file_path, delimiter='\t'))
     np.random.shuffle(data)
     neg_items = []
-    for i in range(len(data)):
+    for i in tqdm(range(len(data))):
         neg_item = [random.randint(1, max_item_num) for _ in range(neg_num)]
         neg_items.append(neg_item)
     return {'user': data[:, 0].astype(int), 'pos_item': data[:, 1].astype(int), 'neg_item': np.array(neg_items)}

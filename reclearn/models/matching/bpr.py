@@ -44,6 +44,10 @@ class BPR(Model):
         # item info
         pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
+        # norm
+        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+        user_embed = tf.math.l2_normalize(user_embed, axis=-1)
         # calculate positive item scores and negative item scores
         pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_info), axis=-1, keepdims=True)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_embed, axis=1), neg_info), axis=-1)  # (None, neg_num)

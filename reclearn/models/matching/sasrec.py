@@ -76,6 +76,10 @@ class SASRec(Model):
         # item info contain pos_info and neg_info.
         pos_info = self.item_embedding(inputs['pos_item'])  # (None, dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, dim)
+        # norm
+        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+        user_info = tf.math.l2_normalize(user_info, axis=-1)
         pos_scores = tf.reduce_sum(tf.multiply(user_info, tf.expand_dims(pos_info, axis=1)), axis=-1)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(user_info, neg_info), axis=-1)  # (None, neg_num)
         # loss
