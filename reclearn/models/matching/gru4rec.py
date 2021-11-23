@@ -13,7 +13,7 @@ from reclearn.models.losses import get_loss
 
 class GRU4Rec(Model):
     def __init__(self, feature_columns, seq_len=40, gru_layers=1, gru_unit=64, gru_activation='tanh',
-                 dnn_dropout=0., loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
+                 dnn_dropout=0., use_l2norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
         """GRU4Rec
         Args:
             :param feature_columns:  A dict containing
@@ -23,6 +23,7 @@ class GRU4Rec(Model):
             :param gru_unit: A scalar. The unit of GRU Layer.
             :param gru_activation: A string. The name of activation function. Default 'tanh'.
             :param dnn_dropout: A scalar. Number of dropout.
+            :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
             :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
             :param embed_reg: A scalar. The regularizer of embedding.
@@ -43,6 +44,8 @@ class GRU4Rec(Model):
             for i in range(gru_layers)
         ]
         self.dense = Dense(units=feature_columns['item']['embed_dim'])
+        # norm
+        self.use_l2norm = use_l2norm
         # loss name
         self.loss_name = loss_name
         self.gamma = gamma
@@ -67,9 +70,10 @@ class GRU4Rec(Model):
         pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm
-        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
-        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
-        seq_info = tf.math.l2_normalize(seq_info, axis=-1)
+        if self.use_l2norm:
+            pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+            neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+            seq_info = tf.math.l2_normalize(seq_info, axis=-1)
         # calculate positive item scores and negative item scores
         pos_scores = tf.reduce_sum(tf.multiply(seq_info, pos_info), axis=-1, keepdims=True)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(seq_info, axis=1), neg_info), axis=-1)  # (None, neg_num)

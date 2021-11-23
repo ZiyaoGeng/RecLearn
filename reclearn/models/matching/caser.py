@@ -14,7 +14,7 @@ from reclearn.models.losses import get_loss
 
 class Caser(Model):
     def __init__(self, feature_columns, seq_len=40, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5,
-                 loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
+                 use_l2norm=False, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
         """Caser
         Args:
             :param feature_columns:  A dict containing
@@ -25,6 +25,7 @@ class Caser(Model):
             :param ver_n: A scalar. The number of vertical filters.
             :param activation: A string. 'relu', 'sigmoid' or 'tanh'.
             :param dnn_dropout: A scalar. The number of dropout.
+            :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
             :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
             :param embed_reg: A scalar. The regularizer of embedding.
@@ -67,6 +68,8 @@ class Caser(Model):
         # dense
         self.dense = Dense(feature_columns['item']['embed_dim'] // 2, activation=activation)
         self.dropout = Dropout(dnn_dropout)
+        # norm
+        self.use_l2norm = use_l2norm
         # loss name
         self.loss_name = loss_name
         self.gamma = gamma
@@ -97,9 +100,10 @@ class Caser(Model):
         # neg info
         neg_info = self.item2_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm
-        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
-        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
-        user_info = tf.math.l2_normalize(user_info, axis=-1)
+        if self.use_l2norm:
+            pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+            neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+            user_info = tf.math.l2_normalize(user_info, axis=-1)
         # scores
         pos_scores = tf.reduce_sum(tf.multiply(user_info, pos_info), axis=-1, keepdims=True)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_info, axis=1), neg_info), axis=-1)  # (None, neg_num)

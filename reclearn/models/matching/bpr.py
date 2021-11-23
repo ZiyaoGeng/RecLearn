@@ -13,11 +13,12 @@ from reclearn.models.losses import bpr_loss
 
 
 class BPR(Model):
-    def __init__(self, feature_columns, embed_reg=0., seed=None):
+    def __init__(self, feature_columns, use_l2norm=False, embed_reg=0., seed=None):
         """BPR
         Args:
             :param feature_columns:  A dict containing
             {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param embed_reg: A scalar. The regularizer of embedding.
             :param seed: A int scalar.
         :return:
@@ -35,6 +36,8 @@ class BPR(Model):
                                         output_dim=feature_columns['item']['embed_dim'],
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
+        # norm
+        self.use_l2norm = use_l2norm
         # seed
         tf.random.set_seed(seed)
 
@@ -45,9 +48,10 @@ class BPR(Model):
         pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm
-        pos_info = tf.math.l2_normalize(pos_info, axis=-1)
-        neg_info = tf.math.l2_normalize(neg_info, axis=-1)
-        user_embed = tf.math.l2_normalize(user_embed, axis=-1)
+        if self.use_l2norm:
+            pos_info = tf.math.l2_normalize(pos_info, axis=-1)
+            neg_info = tf.math.l2_normalize(neg_info, axis=-1)
+            user_embed = tf.math.l2_normalize(user_embed, axis=-1)
         # calculate positive item scores and negative item scores
         pos_scores = tf.reduce_sum(tf.multiply(user_embed, pos_info), axis=-1, keepdims=True)  # (None, 1)
         neg_scores = tf.reduce_sum(tf.multiply(tf.expand_dims(user_embed, axis=1), neg_info), axis=-1)  # (None, neg_num)

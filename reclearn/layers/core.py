@@ -35,26 +35,26 @@ class Linear(Layer):
 
 
 class MLP(Layer):
-    def __init__(self, hidden_units, activation='relu', dnn_dropout=0., is_batch_norm=False):
+    def __init__(self, hidden_units, activation='relu', dnn_dropout=0., use_batch_norm=False):
         """Multilayer Perceptron.
         Args:
             :param hidden_units: A list. The list of hidden layer units's numbers.
             :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
             :param dnn_dropout: A scalar. The rate of dropout .
-            :param is_batch_norm: A boolean. Whether using batch normalization or not.
+            :param use_batch_norm: A boolean. Whether using batch normalization or not.
         :return:
         """
         super(MLP, self).__init__()
         self.dnn_network = [Dense(units=unit, activation=activation) for unit in hidden_units]
         self.dropout = Dropout(dnn_dropout)
-        self.is_batch_norm = is_batch_norm
+        self.use_batch_norm = use_batch_norm
         self.bt = BatchNormalization()
 
     def call(self, inputs):
         x = inputs
         for dnn in self.dnn_network:
             x = dnn(x)
-        if self.is_batch_norm:
+        if self.use_batch_norm:
             x = self.bt(x)
         x = self.dropout(x)
         return x

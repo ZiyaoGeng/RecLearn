@@ -15,7 +15,8 @@ from reclearn.models.losses import get_loss
 
 
 class AttRec(Model):
-    def __init__(self, feature_columns, seq_len=40, mode='inner', w=0.5, loss_name="bpr_loss", gamma=0.5, embed_reg=0., seed=None):
+    def __init__(self, feature_columns, seq_len=40, mode='inner', w=0.5, use_l2norm=False,
+                 loss_name="bpr_loss", gamma=0.5, embed_reg=0., seed=None):
         """AttRec
         Args:
             :param feature_columns:  A dict containing
@@ -23,6 +24,7 @@ class AttRec(Model):
             :param seq_len: A scalar. The length of the input sequence.
             :param mode: A string. inner or dist.
             :param w: A scalar. The weight of short interest.
+            :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
             :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
             :param embed_reg: A scalar. The regularizer of embedding.
@@ -53,6 +55,8 @@ class AttRec(Model):
         self.w = w
         # mode
         self.mode = mode
+        # norm
+        self.use_l2norm = use_l2norm
         # loss name
         self.loss_name = loss_name
         self.gamma = gamma
@@ -79,6 +83,12 @@ class AttRec(Model):
         neg_embed2 = self.item2_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # mode
         if self.mode == 'inner':
+            if self.use_l2norm:
+                user_embed = tf.math.l2_normalize(user_embed, axis=-1)
+                pos_embed = tf.math.l2_normalize(pos_embed, axis=-1)
+                neg_embed = tf.math.l2_normalize(neg_embed, axis=-1)
+                pos_embed2 = tf.math.l2_normalize(pos_embed2, axis=-1)
+                neg_embed2 = tf.math.l2_normalize(neg_embed2, axis=-1)
             # long-term interest, pos and neg
             pos_long_interest = tf.multiply(user_embed, pos_embed2)  # (None, embed_dim)
             neg_long_interest = tf.multiply(tf.expand_dims(user_embed, axis=1), neg_embed2)  # (None, neg_num, embed_dim)

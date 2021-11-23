@@ -10,7 +10,6 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from collections import defaultdict
-from tqdm import tqdm
 
 
 # general recommendation

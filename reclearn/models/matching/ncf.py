@@ -15,7 +15,7 @@ from reclearn.models.losses import get_loss
 
 class NCF(Model):
     def __init__(self, feature_columns, hidden_units=None, activation='relu', dnn_dropout=0.,
-                 is_batch_norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
+                 use_batch_norm=False, use_l2norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
         """Neural Collaborative Filtering
         Args:
             :param feature_columns:  A dict containing
@@ -23,7 +23,8 @@ class NCF(Model):
             :param hidden_units: A list. The list of hidden layer units's numbers, such as [64, 32, 16, 8].
             :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
             :param dnn_dropout: A scalar. The rate of dropout .
-            :param is_batch_norm: A boolean. Whether using batch normalization or not.
+            :param use_batch_norm: A boolean. Whether using batch normalization or not.
+            :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
             :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
             :param embed_reg: A scalar. The regularizer of embedding.
@@ -58,8 +59,10 @@ class NCF(Model):
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # dnn
-        self.mlp = MLP(hidden_units, activation=activation, dnn_dropout=dnn_dropout, is_batch_norm=is_batch_norm)
+        self.mlp = MLP(hidden_units, activation=activation, dnn_dropout=dnn_dropout, use_batch_norm=use_batch_norm)
         self.dense = Dense(1, activation=None)
+        # norm
+        self.use_l2norm = use_l2norm
         # loss name
         self.loss_name = loss_name
         self.gamma = gamma
@@ -88,8 +91,9 @@ class NCF(Model):
         pos_vector = tf.concat([mf_pos_vector, mlp_pos_vector], axis=-1)  # (None, embed_dim+dim)
         neg_vector = tf.concat([mf_neg_vector, mlp_neg_vector], axis=-1)  # (None, neg_num, embed_dim+dim)
         # norm
-        pos_vector = tf.math.l2_normalize(pos_vector, axis=-1)
-        neg_vector = tf.math.l2_normalize(neg_vector, axis=-1)
+        if self.use_l2norm:
+            pos_vector = tf.math.l2_normalize(pos_vector, axis=-1)
+            neg_vector = tf.math.l2_normalize(neg_vector, axis=-1)
         # result
         pos_scores = self.dense(pos_vector)  # (None, 1)
         neg_scores = tf.squeeze(self.dense(neg_vector), axis=-1)  # (None, neg_num)

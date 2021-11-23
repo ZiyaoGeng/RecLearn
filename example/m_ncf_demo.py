@@ -23,7 +23,7 @@ model_params = {
     'hidden_units': [256, 128, 64],
     'activation': 'relu',
     'dnn_dropout': 0.5,
-    'is_batch_norm': False,
+    'use_batch_norm': False,
     'loss_name': 'binary_entropy_loss',
     'gamma': 0.3
 }
