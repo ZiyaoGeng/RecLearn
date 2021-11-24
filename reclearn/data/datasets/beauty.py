@@ -118,7 +118,7 @@ def load_data(file_path, neg_num, max_item_num):
 
 
 def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
-    """load sequence be dataset.
+    """load amazon beauty sequence dataset.
     Args:
         :param file_path: A string. The file path.
         :param mode: A string. "train", "val" or "test".

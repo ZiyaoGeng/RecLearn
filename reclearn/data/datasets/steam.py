@@ -1,36 +1,36 @@
 """
-Created on Nov 23, 2021
-Amazon Games Dataset.
+Created on Nov 24, 2021
+STEAM Dataset.
+statistics of processed data:
+    user: 334732
+    item: 15474
+    interaction: 4216807
 @author: Ziyao Geng(zggzy1996@163.com)
 """
 import os
 import random
-import numpy as np
+import re
 import pandas as pd
-import tensorflow as tf
+import numpy as np
 from tqdm import tqdm
-from collections import defaultdict
 
 
 # general recommendation
 def split_data(file_path):
-    """split amazon games for general recommendation
-        Args:
-            :param file_path: A string. The file path of 'ratings.dat'.
-        :return: train_path, val_path, test_path, meta_path
-    """
     dst_path = os.path.dirname(file_path)
-    train_path = os.path.join(dst_path, "games_train.txt")
-    val_path = os.path.join(dst_path, "games_val.txt")
-    test_path = os.path.join(dst_path, "games_test.txt")
-    meta_path = os.path.join(dst_path, "games_meta.txt")
-    users, items = set(), dict()
-    user_idx, item_idx = 1, 1
-    history = {}
-    with open(file_path, 'r') as f:
+    train_path = os.path.join(dst_path, "steam_train.txt")
+    val_path = os.path.join(dst_path, "steam_val.txt")
+    test_path = os.path.join(dst_path, "steam_test.txt")
+    meta_path = os.path.join(dst_path, "steam_meta.txt")
+    with open(file_path, 'r', encoding='utf8') as f:
         lines = f.readlines()
+        users, items = set(), dict()
+        user_idx, item_idx = 1, 1
+        history = {}
         for line in tqdm(lines):
-            user, item, score, timestamp = line.strip().split(",")
+            user = re.findall(r'u\'username\': u(\"[^\"]+\"|\'[^\']+\')', line)[0]
+            item = re.findall(r'u\'product_id\': u\'([^\']+?)\'', line)[0]
+            timestamp = re.findall(r'u\'date\': u\'([^\']+?)\'', line)[0]
             users.add(user)
             if items.get(item) is None:
                 items[item] = str(item_idx)
@@ -40,7 +40,7 @@ def split_data(file_path):
     with open(train_path, 'w') as f1, open(val_path, 'w') as f2, open(test_path, 'w') as f3:
         for user in users:
             hist = history[user]
-            if len(hist) < 4:
+            if len(hist) < 5:
                 continue
             hist.sort(key=lambda x: x[1])
             for idx, value in enumerate(hist):
@@ -58,23 +58,25 @@ def split_data(file_path):
 
 # sequence recommendation
 def split_seq_data(file_path):
-    """split amazon games for sequence recommendation
+    """split STEAM for sequence recommendation
     Args:
         :param file_path: A string. The file path of 'ratings_Beauty.dat'.
     :return: train_path, val_path, test_path, meta_path
     """
     dst_path = os.path.dirname(file_path)
-    train_path = os.path.join(dst_path, "games_seq_train.txt")
-    val_path = os.path.join(dst_path, "games_seq_val.txt")
-    test_path = os.path.join(dst_path, "games_seq_test.txt")
-    meta_path = os.path.join(dst_path, "games_seq_meta.txt")
-    users, items = set(), dict()
-    user_idx, item_idx = 1, 1
-    history = {}
-    with open(file_path, 'r') as f:
+    train_path = os.path.join(dst_path, "steam_train.txt")
+    val_path = os.path.join(dst_path, "steam_val.txt")
+    test_path = os.path.join(dst_path, "steam_test.txt")
+    meta_path = os.path.join(dst_path, "steam_meta.txt")
+    with open(file_path, 'r', encoding='utf8') as f:
         lines = f.readlines()
+        users, items = set(), dict()
+        user_idx, item_idx = 1, 1
+        history = {}
         for line in tqdm(lines):
-            user, item, score, timestamp = line.strip().split(",")
+            user = re.findall(r'u\'username\': u(\"[^\"]+\"|\'[^\']+\')', line)[0]
+            item = re.findall(r'u\'product_id\': u\'([^\']+?)\'', line)[0]
+            timestamp = re.findall(r'u\'date\': u\'([^\']+?)\'', line)[0]
             users.add(user)
             if items.get(item) is None:
                 items[item] = str(item_idx)
@@ -83,8 +85,8 @@ def split_seq_data(file_path):
             history[user].append([items[item], timestamp])
     with open(train_path, 'w') as f1, open(val_path, 'w') as f2, open(test_path, 'w') as f3:
         for user in users:
-            hist_u = history[user]
-            if len(hist_u) < 4:
+            hist = history[user]
+            if len(hist) < 5:
                 continue
             hist_u.sort(key=lambda x: x[1])
             hist = [x[0] for x in hist_u]
@@ -99,7 +101,7 @@ def split_seq_data(file_path):
 
 
 def load_data(file_path, neg_num, max_item_num):
-    """load amazon beauty dataset.
+    """load steam dataset.
     Args:
         :param file_path: A string. The file path.
         :param neg_num: A scalar(int). The negative num of one sample.
@@ -116,7 +118,7 @@ def load_data(file_path, neg_num, max_item_num):
 
 
 def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=False, contain_time=False):
-    """load amazon games sequence dataset.
+    """load STEAM sequence dataset.
         Args:
             :param file_path: A string. The file path.
             :param mode: A string. "train", "val" or "test".
