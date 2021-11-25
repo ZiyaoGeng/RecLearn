@@ -87,7 +87,6 @@ class FISSA(Model):
 
         local_info = tf.slice(att_outputs, begin=[0, self.seq_len - 1, 0], size=[-1, 1, -1])  # (None, 1, embed_dim)
         global_info = self.lba([seq_embed, seq_embed, mask])  # (None, embed_dim)
-
         pos_info = self.item_embedding(inputs['pos_item'])  # (None, dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, dim)
 

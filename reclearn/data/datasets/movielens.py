@@ -1,5 +1,6 @@
 import os
 import random
+import time
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -125,7 +126,6 @@ def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=
                 click_seq = click_seq.split(' ')
                 click_seq = [int(x) for x in click_seq]
                 time_seq = time_seq.split(' ')
-                time_seq = [int(x) for x in time_seq]
                 for i in range(len(click_seq)-1):
                     if i + 1 >= seq_len:
                         tmp = click_seq[i+1-seq_len:i+1]
@@ -146,7 +146,6 @@ def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=
                 click_seq = click_seq.split(' ')
                 click_seq = [int(x) for x in click_seq]
                 time_seq = time_seq.split(' ')
-                time_seq = [int(x) for x in time_seq]
                 if len(click_seq) >= seq_len:
                     tmp = click_seq[len(click_seq) - seq_len:]
                     tmp2 = time_seq[len(time_seq) - seq_len:]
@@ -168,7 +167,7 @@ def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=
     if contain_user:
         data['user'] = np.array(users)
     if contain_time:
-        data['time_seq'] = np.array(click_seqs)
+        data['time_seq'] = np.array(time_seqs)
     return data
 
 

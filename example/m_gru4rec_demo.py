@@ -18,7 +18,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 # Hyper parameters
 neg_num = 4
 embed_dim = 64
-seq_len = 200
+seq_len = 50
 learning_rate = 0.001
 epochs = 20
 batch_size = 512
@@ -47,9 +47,9 @@ def main():
         'item': sparseFeature('item', max_item_num + 1, embed_dim)
     }
     # TODO: 3. Load Data
-    train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num)
-    val_data = ml.load_seq_data(val_path, "val", seq_len, neg_num, max_item_num)
-    test_data = ml.load_seq_data(test_path, "test", seq_len, 100, max_item_num)
+    train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num, contain_time=True)
+    val_data = ml.load_seq_data(val_path, "val", seq_len, neg_num, max_item_num, contain_time=True)
+    # test_data = ml.load_seq_data(test_path, "test", seq_len, 100, max_item_num)
     # TODO: 4. Build Model
     model = GRU4Rec(fea_cols, **model_params)
     model.compile(optimizer=Adam(learning_rate=learning_rate))

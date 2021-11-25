@@ -6,7 +6,7 @@
 
 <p align="left">
   <img src='https://img.shields.io/badge/python-3.7+-blue'>
-  <img src='https://img.shields.io/badge/Tensorflow-2.6+-blue'>
+  <img src='https://img.shields.io/badge/Tensorflow-2.7+-blue'>
   <img src='https://img.shields.io/badge/License-MIT-blue'>
   <img src='https://img.shields.io/badge/NumPy-1.17-brightgreen'>
   <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
@@ -31,7 +31,7 @@ pip install reclearn
 dependent environment：
 
 - python3.7+
-- Tensorflow2.6+
+- Tensorflow2.7+（**It is very important**)
 - sklearn
 
 ## Quick Start

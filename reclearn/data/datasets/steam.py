@@ -64,10 +64,10 @@ def split_seq_data(file_path):
     :return: train_path, val_path, test_path, meta_path
     """
     dst_path = os.path.dirname(file_path)
-    train_path = os.path.join(dst_path, "steam_train.txt")
-    val_path = os.path.join(dst_path, "steam_val.txt")
-    test_path = os.path.join(dst_path, "steam_test.txt")
-    meta_path = os.path.join(dst_path, "steam_meta.txt")
+    train_path = os.path.join(dst_path, "steam_seq_train.txt")
+    val_path = os.path.join(dst_path, "steam_seq_val.txt")
+    test_path = os.path.join(dst_path, "steam_seq_test.txt")
+    meta_path = os.path.join(dst_path, "steam_seq_meta.txt")
     with open(file_path, 'r', encoding='utf8') as f:
         lines = f.readlines()
         users, items = set(), dict()
@@ -85,8 +85,8 @@ def split_seq_data(file_path):
             history[user].append([items[item], timestamp])
     with open(train_path, 'w') as f1, open(val_path, 'w') as f2, open(test_path, 'w') as f3:
         for user in users:
-            hist = history[user]
-            if len(hist) < 5:
+            hist_u = history[user]
+            if len(hist_u) < 5:
                 continue
             hist_u.sort(key=lambda x: x[1])
             hist = [x[0] for x in hist_u]
@@ -138,7 +138,7 @@ def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=
                 click_seq = click_seq.split(' ')
                 click_seq = [int(x) for x in click_seq]
                 time_seq = time_seq.split(' ')
-                time_seq = [int(x) for x in time_seq]
+                time_seq = [x for x in time_seq]
                 for i in range(len(click_seq)-1):
                     if i + 1 >= seq_len:
                         tmp = click_seq[i + 1 - seq_len:i + 1]
@@ -160,7 +160,7 @@ def load_seq_data(file_path, mode, seq_len, neg_num, max_item_num, contain_user=
                 click_seq = click_seq.split(' ')
                 click_seq = [int(x) for x in click_seq]
                 time_seq = time_seq.split(' ')
-                time_seq = [int(x) for x in time_seq]
+                time_seq = [x for x in time_seq]
                 if len(click_seq) >= seq_len:
                     tmp = click_seq[len(click_seq) - seq_len:]
                     tmp2 = time_seq[len(time_seq) - seq_len:]
