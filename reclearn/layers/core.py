@@ -149,11 +149,12 @@ class TransformerEncoder(Layer):
 
 
 class SelfAttention(Layer):
-    def __init__(self):
+    def __init__(self, add_pos=True):
         """Self Attention.
         :return:
         """
         super(SelfAttention, self).__init__()
+        self.add_pos = add_pos
 
     def build(self, input_shape):
         self.dim = input_shape[0][-1]
@@ -165,8 +166,9 @@ class SelfAttention(Layer):
     def call(self, inputs):
         q, k, v, mask = inputs
         # pos encoding
-        k += self.positional_encoding(k)
-        q += self.positional_encoding(q)
+        if self.add_pos:
+            k += self.positional_encoding(k)
+            q += self.positional_encoding(q)
         # Nonlinear transformation
         q = tf.nn.relu(tf.matmul(q, self.W))  # (None, seq_len, dim)
         k = tf.nn.relu(tf.matmul(k, self.W))  # (None, seq_len, dim)
