@@ -46,7 +46,7 @@ class CrossNetwork(Layer):
         x_0 = tf.expand_dims(inputs, axis=2)  # (batch_size, dim, 1)
         x_l = x_0  # (None, dim, 1)
         for i in range(self.layer_num):
-            x_l1 = tf.tensordot(x_l, self.cross_weights[i], axes=[1, 0])  # (batch_size, dim, dim)
+            x_l1 = tf.tensordot(x_l, self.cross_weights[i], axes=[1, 0])  # (batch_size, 1, 1)
             x_l = tf.matmul(x_0, x_l1) + self.cross_bias[i] + x_l  # (batch_size, dim, 1)
         x_l = tf.squeeze(x_l, axis=2)  # (batch_size, dim)
         return x_l
