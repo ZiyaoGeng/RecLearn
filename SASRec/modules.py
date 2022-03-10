@@ -16,6 +16,20 @@ def get_angles(pos, i, d_model):
     return pos * angle_rates
 
 
+def split_heads(x, seq_len, num_heads, depth):
+    """Split the last dimension into (num_heads, depth).
+        Transpose the result such that the shape is (batch_size, num_heads, seq_len, depth)
+    Args:
+        :param x: A Tensor with shape of [batch_size, seq_len, num_heads * depth]
+        :param seq_len: A scalar(int).
+        :param num_heads: A scalar(int).
+        :param depth: A scalar(int).
+    :return: A tensor with shape of [batch_size, num_heads, seq_len, depth]
+    """
+    x = tf.reshape(x, (-1, seq_len, num_heads, depth))
+    return tf.transpose(x, perm=[0, 2, 1, 3])
+
+
 def positional_encoding(seq_inputs, embed_dim):
     angle_rads = get_angles(np.arange(seq_inputs.shape[-1])[:, np.newaxis],
                             np.arange(embed_dim)[np.newaxis, :], embed_dim)
@@ -83,20 +97,18 @@ class MultiHeadAttention(Layer):
         k = self.wk(k)  # (None, seq_len, d_model)
         v = self.wv(v)  # (None, seq_len, d_model)
 
-        # split d_model into num_heads * depth, and concatenate
-        q = tf.reshape(tf.concat([tf.split(q, self.num_heads, axis=2)], axis=0),
-                       (-1, q.shape[1], q.shape[2] // self.num_heads))  # (None * num_heads, seq_len, d_model // num_heads)
-        k = tf.reshape(tf.concat([tf.split(k, self.num_heads, axis=2)], axis=0),
-                       (-1, k.shape[1], k.shape[2] // self.num_heads))  # (None * num_heads, seq_len, d_model // num_heads)
-        v = tf.reshape(tf.concat([tf.split(v, self.num_heads, axis=2)], axis=0),
-                       (-1, v.shape[1], v.shape[2] // self.num_heads))  # (None * num_heads, seq_len, d_model // num_heads)
-
+        # split d_model into num_heads * depth
+        seq_len, d_model = q.shape[1], q.shape[2]
+        q = split_heads(q, seq_len, self.num_heads, q.shape[2] // self.num_heads)  # (None, num_heads, seq_len, depth)
+        k = split_heads(k, seq_len, self.num_heads, k.shape[2] // self.num_heads)  # (None, num_heads, seq_len, depth)
+        v = split_heads(v, seq_len, self.num_heads, v.shape[2] // self.num_heads)  # (None, num_heads, seq_len, depth)
+        # mask
+        mask = tf.tile(tf.expand_dims(mask, axis=1), [1, self.num_heads, 1, 1])  # (None, num_heads, seq_len, 1)
         # attention
         scaled_attention = scaled_dot_product_attention(q, k, v, mask, self.causality)  # (None * num_heads, seq_len, d_model // num_heads)
-
-        # Reshape
-        outputs = tf.concat(tf.split(scaled_attention, self.num_heads, axis=0), axis=2)  # (N, seq_len, d_model)
-
+        # reshape
+        outputs = tf.reshape(tf.transpose(scaled_attention, [0, 2, 1, 3]),
+                             [-1, seq_len, d_model])  # (None, seq_len, d_model)
         return outputs
 
 
