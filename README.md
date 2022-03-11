@@ -15,12 +15,16 @@
 
 [简体中文](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/blob/reclearn/README_CN.md)｜[English](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn)
 
-RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. The implemented recommendation algorithms are classified according to two application stages in the industry:
+RecLearn (Recommender Learning)  which summarizes the contents of the [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) branch in  `Recommender System with TF2.0 `  is a recommended learning framework based on Python and TensorFlow2.x for students and beginners. **Of course, if you are more comfortable with the master branch, you can clone the entire package, run some algorithms in example, and also update and modify the content of model and layer**. The implemented recommendation algorithms are classified according to two application stages in the industry:
 
 - matching recommendation stage (Top-k Recmmendation)
 - ranking  recommendeation stage (CTR predict model)
 
+
+
 ## Installation
+
+### Package
 
 RecLearn is on PyPI, so you can use `pip` to install it.
 
@@ -33,6 +37,18 @@ dependent environment：
 - python3.7+
 - Tensorflow2.7+（**It is very important**)
 - sklearn
+
+
+
+### Local
+
+Clone Reclearn to local:
+
+```shell
+git clone -b reclearn git@github.com:ZiyaoGeng/Recommender-System-with-TF2.0.git
+```
+
+
 
 ## Quick Start
 
