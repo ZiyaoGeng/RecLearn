@@ -13,8 +13,7 @@
   <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
   <img src='https://img.shields.io/badge/sklearn-0.23.2-brightgreen'>
 </p> 
-
-[简体中文](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/blob/reclearn) | [English](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn/README_EN.md)
+[简体中文](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/blob/reclearn/README_CN.md) | [English](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn)
 
 RecLearn（Recommender Learning）对`Recommender System with TF2.0`中 [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) 分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。**当然如果你更习惯master分支中的内容，可以直接clone整个包的内容，在example中运行一些算法，并且也能对model、layer中的内容进行更新和修改**。实现的推荐算法按照工业界的两个应用阶段进行分类：
 
