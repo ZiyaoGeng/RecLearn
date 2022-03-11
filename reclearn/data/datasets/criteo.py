@@ -43,7 +43,7 @@ def get_split_file_path(parent_path=None, dataset_path=None, sample_num=5000000)
         parent_path = os.path.join(os.path.dirname(dataset_path), sub_dir_name)
     elif parent_path is None or not os.path.exists(parent_path):
         splitByLineCount(dataset_path, sample_num, sub_dir_name)
-        parent_path = os.path.join(dataset_path, sub_dir_name)
+        parent_path = os.path.join(os.path.dirname(dataset_path), sub_dir_name)
     split_file_name = os.listdir(parent_path)
     split_file_name.sort()
     split_file_list = [parent_path + "/" + file_name for file_name in split_file_name if file_name[-3:] == 'txt']
@@ -111,10 +111,6 @@ def create_criteo_dataset(file, fea_map, embed_dim=8):
              data such as ({'C1': [...], 'C2': [...]]}, [1, 0, 1, ...]).
     """
     data_df = pd.read_csv(file, sep='\t', header=None, names=NAMES)
-    # test
-    # data_df = pd.read_csv(file, sep='\t', iterator=True, header=None,
-    #                       names=NAMES)
-    # data_df = data_df.get_chunk(10000)
 
     sparse_features = ['C' + str(i) for i in range(1, 27)]
     dense_features = ['I' + str(i) for i in range(1, 14)]
