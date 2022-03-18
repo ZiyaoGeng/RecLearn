@@ -217,10 +217,11 @@ for file in split_file_list[:-1]:
     <th>HR@10</th><th>MRR@10</th><th>NDCG@10</th>
     <th>HR@10</th><th>MRR@10</th><th>NDCG@10</th>
   </tr>
-  <tr><td>BPR</td><td>0.5768</td><td>0.2392</td><td>0.3016</td><td>0.7728</td><td>0.4220</td><td>0.5054</td><td>0.6160</td><td>0.3427</td><td>0.4074</td></tr>
-  <tr><td>NCF</td><td>0.5711</td><td>0.2112</td><td>0.2950</td><td>0.7768</td><td>0.4273</td><td>0.5103</td><td>0.6164</td><td>0.2948</td><td>0.3706</td></tr>
-  <tr><td>SASRec</td><td>0.8103</td><td>0.4812</td><td>0.5605</td><td>0.8606</td><td>0.5669</td><td>0.6374</td><td>0.6705</td><td>0.3532</td><td>0.4286</td></tr>
+  <tr><td>BPR</td><td>0.5768</td><td>0.2392</td><td>0.3016</td><td>0.3708</td><td>0.2108</td><td>0.2485</td><td>0.7728</td><td>0.4220</td><td>0.5054</td></tr>
+  <tr><td>NCF</td><td>0.5711</td><td>0.2112</td><td>0.2950</td><td>0.5448</td><td>0.2831</td><td>0.3451</td><td>0.7768</td><td>0.4273</td><td>0.5103</td></tr>
+  <tr><td>SASRec</td><td>0.8103</td><td>0.4812</td><td>0.5605</td><td>0.5230</td><td>0.2781</td><td>0.3355</td><td>0.8606</td><td>0.5669</td><td>0.6374</td></tr>
 </table>
+
 
 
 
