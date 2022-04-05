@@ -21,7 +21,7 @@ def get_loss(pos_scores, neg_scores, loss_name, gamma=None):
     elif loss_name == 'hinge_loss':
         loss = hinge_loss(pos_scores, neg_scores, gamma)
     else:
-        loss = binary_entropy_loss(pos_scores, neg_scores)
+        loss = binary_cross_entropy_loss(pos_scores, neg_scores)
     return loss
 
 
@@ -48,8 +48,8 @@ def hinge_loss(pos_scores, neg_scores, gamma=0.5):
     return loss
 
 
-def binary_entropy_loss(pos_scores, neg_scores):
-    """binary entropy loss.
+def binary_cross_entropy_loss(pos_scores, neg_scores):
+    """binary cross entropy loss.
     Args:
         :param pos_scores: A tensor with shape of [batch_size, neg_num].
         :param neg_scores: A tensor with shape of [batch_size, neg_num].

@@ -85,10 +85,6 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 </table>
 
 
-
-
-
-
 ### Ranking
 
 <table style="text-align:center;margin:auto">
@@ -149,7 +145,7 @@ In [example](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/rec
 
 ## Discussion
 
-1. If you have any suggestions or questions about the project, you can leave a comment on `Issue` or email `zggzy1996@163.com`.
+1. If you have any suggestions or questions about the project, you can leave a comment on `Issue`.
 2. wechat：
 
 <div align=center><img src="https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/weixin.jpg" width="20%"/></div>
