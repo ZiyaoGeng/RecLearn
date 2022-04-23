@@ -28,7 +28,7 @@ class DSSM(Model):
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
             :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
             pair-loss function as 'bpr_loss'、'hinge_loss'.
-            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
             :param embed_reg: A float type. The regularizer of embedding.
             :param seed: A Python integer to use as random seed.
         :return:
@@ -60,9 +60,9 @@ class DSSM(Model):
 
     def call(self, inputs):
         # user info
-        user_info = self.user_embedding_table(inputs['user'])  # (None, embed_dim)
+        user_info = self.user_embedding_table(tf.reshape(inputs['user'], [-1, ]))  # (None, embed_dim)
         # item info
-        pos_info = self.item_embedding_table(inputs['pos_item'])  # (None, embed_dim)
+        pos_info = self.item_embedding_table(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         neg_info = self.item_embedding_table(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # mlp
         user_info = self.user_mlp_layer(user_info)

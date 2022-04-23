@@ -1,6 +1,6 @@
 """
 Created on Dec 20, 2020
-Updated on Nov 19, 2021
+Updated on Apr 23, 2022
 Reference: "Neural Collaborative Filtering", WWW, 2017
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -14,48 +14,50 @@ from reclearn.models.losses import get_loss
 
 
 class NCF(Model):
-    def __init__(self, feature_columns, hidden_units=None, activation='relu', dnn_dropout=0.,
+    def __init__(self, user_num, item_num, embed_dim, hidden_units=None, activation='relu', dnn_dropout=0.,
                  use_batch_norm=False, use_l2norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
         """Neural Collaborative Filtering
         Args:
-            :param feature_columns:  A dict containing
-                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param user_num: An integer type. The largest user index + 1.
+            :param item_num: An integer type. The largest item index + 1.
+            :param embed_dim: An integer type. Embedding dimension of user vector and item vector.
             :param hidden_units: A list. The list of hidden layer units's numbers, such as [64, 32, 16, 8].
             :param activation: A string. The name of activation function, like 'relu', 'sigmoid' and so on.
-            :param dnn_dropout: A scalar. The rate of dropout .
+            :param dnn_dropout: Float between 0 and 1. Dropout of user and item MLP layer.
             :param use_batch_norm: A boolean. Whether using batch normalization or not.
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-            :param embed_reg: A scalar. The regularizer of embedding.
-            :param seed: A int scalar.
+            :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
+            pair-loss function as 'bpr_loss'、'hinge_loss'.
+            :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A float type. The regularizer of embedding.
+            :param seed: A Python integer to use as random seed.
         :return:
         """
         super(NCF, self).__init__()
         if hidden_units is None:
             hidden_units = [64, 32, 16, 8]
         # MF user embedding
-        self.mf_user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
+        self.mf_user_embedding = Embedding(input_dim=user_num,
                                            input_length=1,
-                                           output_dim=feature_columns['user']['embed_dim'],
+                                           output_dim=embed_dim,
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MF item embedding
-        self.mf_item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.mf_item_embedding = Embedding(input_dim=item_num,
                                            input_length=1,
-                                           output_dim=feature_columns['item']['embed_dim'],
+                                           output_dim=embed_dim,
                                            embeddings_initializer='random_normal',
                                            embeddings_regularizer=l2(embed_reg))
         # MLP user embedding
-        self.mlp_user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
+        self.mlp_user_embedding = Embedding(input_dim=user_num,
                                             input_length=1,
-                                            output_dim=feature_columns['user']['embed_dim'],
+                                            output_dim=embed_dim,
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # MLP item embedding
-        self.mlp_item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.mlp_item_embedding = Embedding(input_dim=item_num,
                                             input_length=1,
-                                            output_dim=feature_columns['item']['embed_dim'],
+                                            output_dim=embed_dim,
                                             embeddings_initializer='random_normal',
                                             embeddings_regularizer=l2(embed_reg))
         # dnn
@@ -71,16 +73,17 @@ class NCF(Model):
 
     def call(self, inputs):
         # user info
-        mf_user_embed = self.mf_user_embedding(inputs['user'])  # (None, embed_dim)
-        mlp_user_embed = self.mlp_user_embedding(inputs['user'])  # (None, embed_dim)
+        mf_user_embed = self.mf_user_embedding(tf.reshape(inputs['user'], [-1, ]))  # (None, embed_dim)
+        mlp_user_embed = self.mlp_user_embedding(tf.reshape(inputs['user'], [-1, ]))  # (None, embed_dim)
         # item
-        mf_pos_embed = self.mf_item_embedding(inputs['pos_item'])  # (None, embed_dim)
+        mf_pos_embed = self.mf_item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         mf_neg_embed = self.mf_item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
-        mlp_pos_embed = self.mlp_item_embedding(inputs['pos_item'])  # (None, embed_dim)
+        mlp_pos_embed = self.mlp_item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         mlp_neg_embed = self.mlp_item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # MF
         mf_pos_vector = tf.nn.sigmoid(tf.multiply(mf_user_embed, mf_pos_embed))  # (None, embed_dim)
-        mf_neg_vector = tf.nn.sigmoid(tf.multiply(tf.expand_dims(mf_user_embed, axis=1), mf_neg_embed))  # (None, neg_num, dim)
+        mf_neg_vector = tf.nn.sigmoid(tf.multiply(tf.expand_dims(mf_user_embed, axis=1),
+                                                  mf_neg_embed))  # (None, neg_num, embed_dim)
         # MLP
         mlp_pos_vector = tf.concat([mlp_user_embed, mlp_pos_embed], axis=-1)  # (None, 2 * embed_dim)
         mlp_neg_vector = tf.concat([tf.tile(tf.expand_dims(mlp_user_embed, axis=1), [1, mlp_neg_embed.shape[1], 1]),

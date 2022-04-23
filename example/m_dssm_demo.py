@@ -15,11 +15,11 @@ from reclearn.evaluator import eval_pos_neg
 FLAGS = flags.FLAGS
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Setting training parameters
 flags.DEFINE_string("file_path", "data/ml-1m/ratings.dat", "file path.")
-flags.DEFINE_string("train_path", "data/ml-1m/ml_train.txt", "train path.")
+flags.DEFINE_string("train_path", "data/ml-1m/ml_train.txt", "train path. If set to None, the program will split the dataset.")
 flags.DEFINE_string("val_path", "data/ml-1m/ml_val.txt", "val path.")
 flags.DEFINE_string("test_path", "data/ml-1m/ml_test.txt", "test path.")
 flags.DEFINE_string("meta_path", "data/ml-1m/ml_meta.txt", "meta path.")
@@ -33,8 +33,8 @@ flags.DEFINE_boolean("use_l2norm", False, "Whether user embedding, item embeddin
 flags.DEFINE_string("loss_name", "binary_cross_entropy_loss", "Loss Name.")
 flags.DEFINE_float("gamma", 0.5, "If hinge_loss is selected as the loss function, you can specify the margin.")
 flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
-flags.DEFINE_integer("neg_num", 2, "The number of negative sample for each positive sample.")
-flags.DEFINE_integer("epochs", 10, "train steps.")
+flags.DEFINE_integer("neg_num", 4, "The number of negative sample for each positive sample.")
+flags.DEFINE_integer("epochs", 20, "train steps.")
 flags.DEFINE_integer("batch_size", 512, "Batch Size.")
 flags.DEFINE_integer("test_neg_num", 100, "The number of test negative samples.")
 flags.DEFINE_integer("k", 10, "recall k items at test stage.")
@@ -43,7 +43,7 @@ flags.DEFINE_integer("k", 10, "recall k items at test stage.")
 def main(argv):
     # TODO: 1. Split Data
     if FLAGS.train_path == "None":
-        train_path, val_path, test_path, meta_path = ml.split_data(file_path=file_path)
+        train_path, val_path, test_path, meta_path = ml.split_data(file_path=FLAGS.file_path)
     else:
         train_path, val_path, test_path, meta_path = FLAGS.train_path, FLAGS.val_path, FLAGS.test_path, FLAGS.meta_path
     with open(meta_path) as f:

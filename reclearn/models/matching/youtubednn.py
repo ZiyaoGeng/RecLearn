@@ -87,7 +87,7 @@ class YoutubeDNN(Model):
 
     def summary(self):
         inputs = {
-            'click_seq': Input(shape=(self.seq_len,), dtype=tf.int32),
+            'click_seq': Input(shape=(100,), dtype=tf.int32),  # suppose sequence length=1
             'pos_item': Input(shape=(), dtype=tf.int32),
             'neg_item': Input(shape=(1,), dtype=tf.int32)  # suppose neg_num=1
         }

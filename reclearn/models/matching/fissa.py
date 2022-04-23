@@ -1,5 +1,6 @@
 """
 Created on Nov 20, 2021
+Updated on Apr 23, 2022
 Reference: "FISSA: fusing item similarity models with self-attention networks for sequential recommendation",
             RecSys, 2020
 @author: Ziyao Geng(zggzy1996@163.com)
@@ -15,41 +16,46 @@ from reclearn.models.losses import get_loss
 
 
 class FISSA(Model):
-    def __init__(self, feature_columns, seq_len=40, blocks=1, num_heads=1, ffn_hidden_unit=128,
-                 dnn_dropout=0., layer_norm_eps=1e-6, use_l2norm=False, loss_name="bpr_loss", gamma=0.5, embed_reg=0., seed=None):
-        """FISSA
+    def __init__(self, item_num, embed_dim, seq_len=100, blocks=2, num_heads=2, ffn_hidden_unit=128,
+                 dnn_dropout=0., layer_norm_eps=1e-6, use_l2norm=False,
+                 loss_name="binary_entropy_loss", gamma=0.5, embed_reg=0., seed=None):
+        """FISSA, Sequential Recommendation Model.
         Args:
-            :param feature_columns:  A dict containing
-                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
-            :param seq_len: A scalar. The length of the input sequence.
-            :param mode: A string. inner or dist.
-            :param w: A scalar. The weight of short interest.
+            :param item_num: An integer type. The largest item index + 1.
+            :param embed_dim: An integer type. Embedding dimension of item vector.
+            :param seq_len: An integer type. The length of the input sequence.
+            :param blocks: An integer type. The Number of blocks.
+            :param num_heads: An integer type. The Number of attention heads.
+            :param ffn_hidden_unit: An integer type. Number of hidden unit in FFN.
+            :param dnn_dropout: Float between 0 and 1. Dropout of user and item MLP layer.
+            :param layer_norm_eps: A float type. Small float added to variance to avoid dividing by zero.
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-            :param embed_reg: A scalar. The regularizer of embedding.
-            :param seed: A int scalar.
+            :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
+            pair-loss function as 'bpr_loss'、'hinge_loss'.
+            :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A float type. The regularizer of embedding.
+            :param seed: A Python integer to use as random seed.
         """
         super(FISSA, self).__init__()
         # item embedding
-        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         self.pos_embedding = Embedding(input_dim=seq_len,
                                        input_length=1,
-                                       output_dim=feature_columns['item']['embed_dim'],
+                                       output_dim=embed_dim,
                                        embeddings_initializer='random_normal',
                                        embeddings_regularizer=l2(embed_reg))
         # item2 embedding, not share embedding
-        self.item2_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item2_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # encoder
-        self.encoder_layer = [TransformerEncoder(feature_columns['item']['embed_dim'], num_heads, ffn_hidden_unit,
+        self.encoder_layer = [TransformerEncoder(embed_dim, num_heads, ffn_hidden_unit,
                                                  dnn_dropout, layer_norm_eps) for _ in range(blocks)]
         self.lba = LBA(dnn_dropout)
         self.gating = Item_similarity_gating(dnn_dropout)
@@ -87,7 +93,7 @@ class FISSA(Model):
 
         local_info = tf.slice(att_outputs, begin=[0, self.seq_len - 1, 0], size=[-1, 1, -1])  # (None, 1, embed_dim)
         global_info = self.lba([seq_embed, seq_embed, mask])  # (None, embed_dim)
-        pos_info = self.item_embedding(inputs['pos_item'])  # (None, dim)
+        pos_info = self.item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, dim)
 
         weights = self.gating([tf.tile(tf.slice(seq_embed, begin=[0, self.seq_len - 1, 0], size=[-1, 1, -1]), [1, neg_info.shape[1] + 1, 1]),

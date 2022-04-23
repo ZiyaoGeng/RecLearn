@@ -1,6 +1,6 @@
 """
 Created on Nov 13, 2020
-Updated on Nov 19, 2021
+Updated on Apr 9, 2022
 Reference: "BPR: Bayesian Personalized Ranking from Implicit Feedback", UAI, 2009
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -13,27 +13,28 @@ from reclearn.models.losses import bpr_loss
 
 
 class BPR(Model):
-    def __init__(self, feature_columns, use_l2norm=False, embed_reg=0., seed=None):
-        """BPR
+    def __init__(self, user_num, item_num, embed_dim, use_l2norm=False, embed_reg=0., seed=None):
+        """Bayesian Personalized Ranking - Matrix Factorization
         Args:
-            :param feature_columns:  A dict containing
-            {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
+            :param user_num: An integer type. The largest user index + 1.
+            :param item_num: An integer type. The largest item index + 1.
+            :param embed_dim: An integer type. Embedding dimension of user vector and item vector.
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-            :param embed_reg: A scalar. The regularizer of embedding.
-            :param seed: A int scalar.
+            :param embed_reg: A float type. The regularizer of embedding.
+            :param seed: A Python integer to use as random seed.
         :return:
         """
         super(BPR, self).__init__()
         # user embedding
-        self.user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
+        self.user_embedding = Embedding(input_dim=user_num,
                                         input_length=1,
-                                        output_dim=feature_columns['user']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
-        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # norm
@@ -43,9 +44,9 @@ class BPR(Model):
 
     def call(self, inputs):
         # user info
-        user_embed = self.user_embedding(inputs['user'])  # (None, embed_dim)
+        user_embed = self.user_embedding(tf.reshape(inputs['user'], [-1, ]))  # (None, embed_dim)
         # item info
-        pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
+        pos_info = self.item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm
         if self.use_l2norm:

@@ -2,12 +2,11 @@
   <img src='https://cdn.jsdelivr.net/gh/BlackSpaceGZY/cdn/img/logo.jpg' width='36%'/>
 </div>
 
-
 ## RecLearn
 
 <p align="left">
-  <img src='https://img.shields.io/badge/python-3.7+-blue'>
-  <img src='https://img.shields.io/badge/Tensorflow-2.6+-blue'>
+  <img src='https://img.shields.io/badge/python-3.8+-blue'>
+  <img src='https://img.shields.io/badge/Tensorflow-2.5+-blue'>
   <img src='https://img.shields.io/badge/License-MIT-blue'>
   <img src='https://img.shields.io/badge/NumPy-1.17-brightgreen'>
   <img src='https://img.shields.io/badge/pandas-1.0.5-brightgreen'>
@@ -16,10 +15,16 @@
 
 [简体中文](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/blob/reclearn/README_CN.md) | [English](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/reclearn)
 
-RecLearn（Recommender Learning）对`Recommender System with TF2.0`中 [master](https://github.com/ZiyaoGeng/Recommender-System-with-TF2.0/tree/master) 分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。**当然如果你更习惯master分支中的内容，可以直接clone整个包的内容，在example中运行一些算法，并且也能对model、layer中的内容进行更新和修改**。实现的推荐算法按照工业界的两个应用阶段进行分类：
+RecLearn（Recommender Learning）对`Recommender System with TF2.0`中 [master](https://github.com/ZiyaoGeng/RecLearn/tree/master) 分支的内容进行了归纳、整理，是一个基于Python和Tensorflow2.x开发的推荐学习框架，适合学生、初学者研究使用。**当然如果你更习惯master分支中的内容，并希望对其中的内容进行修改、更新，可以直接clone整个包的内容进行使用**。实现的推荐算法按照工业界的两个应用阶段进行分类：
 
 - matching recommendation stage
 - ranking  recommendeation stage
+
+
+
+## 更新
+
+**23/04.2022**：更新了所有的召回模型。
 
 
 
@@ -35,18 +40,16 @@ pip install reclearn
 
 所依赖的环境：
 
-- python3.7+
-- Tensorflow2.7+
-- sklearn
-
-
+- python3.8+
+- Tensorflow2.5-GPU+/Tensorflow2.5-CPU+
+- sklearn0.23+
 
 ### Local
 
 也可以直接clone Reclearn到本地：
 
 ```shell
-git clone -b reclearn git@github.com:ZiyaoGeng/Recommender-System-with-TF2.0.git
+git clone -b reclearn git@github.com:ZiyaoGeng/RecLearn.git
 ```
 
 
@@ -57,7 +60,7 @@ git clone -b reclearn git@github.com:ZiyaoGeng/Recommender-System-with-TF2.0.git
 
 ### Matching
 
-**1、分割数据集**
+**1、划分数据集**
 
 给定数据集的路径：
 
@@ -65,7 +68,7 @@ git clone -b reclearn git@github.com:ZiyaoGeng/Recommender-System-with-TF2.0.git
 file_path = 'data/ml-1m/ratings.dat'
 ```
 
-划分当前数据集为训练集、验证集、测试集。如果你使用了`movielens-1m`、`Amazon-Beauty`、`Amazon-Games`、`STEAM`数据集的话，也可以直接调用Reclearn中`data/datasets/*`的方法，在数据集的目录中完成划分（**并对用户、物品的ID从1开始重新进行映射**）：
+划分当前数据集为训练集、验证集、测试集。如果你使用了`movielens-1m`、`Amazon-Beauty`、`Amazon-Games`、`STEAM`数据集的话，也可以直接调用Reclearn中`data/datasets/*`的方法，完成划分：
 
 ```python
 train_path, val_path, test_path, meta_path = ml.split_seq_data(file_path=file_path)
@@ -73,43 +76,44 @@ train_path, val_path, test_path, meta_path = ml.split_seq_data(file_path=file_pa
 
 其中`meta_path`为元文件的路径，元文件保存了用户、物品索引的最大值。
 
-**2、建立特征列**
+**2、加载数据**
 
-特征列是一个字典，例如：
-
-```python
-fea_cols = {
-        'item': sparseFeature('item', max_item_num + 1, embed_dim),
-        'user': sparseFeature('user', max_user_num + 1, embed_dim)
-    }
-```
-
-其中`sparseFeature`是对特征的描述，包括名称、最大值以及Embedding的维度。
-
-**3、加载数据**
-
-完成对训练集、验证集、测试集的读取，并且对每一个正样本分别生成若干个负样本，数据的格式为字典：
+完成对训练集、验证集、测试集的读取，并且对每一个正样本分别生成若干个负样本（随即采样），数据的格式为字典：
 
 ```
 data = {'pos_item':, 'neg_item': , ['user': , 'click_seq': ,...]}
 ```
 
-如果你构建的模型为序列推荐模型，需要引入点击序列，使用了用户ID特征，也需要引入。对于上述4个数据集，Reclearn提供了加载数据的方法：
+如果你构建的模型为序列推荐模型，需要引入点击序列。对于上述4个数据集，Reclearn提供了加载数据的方法：
 
 ```python
-# seq rec model, and use the user feature.
-train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num, contain_user=True)
-# general model
+# general recommendation model
 train_data = ml.load_data(train_path, neg_num, max_item_num)
+# sequence recommendation model, and use the user feature.
+train_data = ml.load_seq_data(train_path, "train", seq_len, neg_num, max_item_num, contain_user=True)
+```
+
+**3、给定超参数**
+
+模型需要指定所需的超参数，以`BPR`模型为例：
+
+```python
+model_params = {
+        'user_num': max_user_num + 1,
+        'item_num': max_item_num + 1,
+        'embed_dim': FLAGS.embed_dim,
+        'use_l2norm': FLAGS.use_l2norm,
+        'embed_reg': FLAGS.embed_reg
+    }
 ```
 
 **4、构建模型、编译**
 
-选择或构建你需要的模型，设置好超参数，并进行编译。以`AttRec`为例：
+选择或构建你需要的模型，并进行编译。以`BPR`为例：
 
 ```python
-model = AttRec(fea_cols, **model_params)
-model.compile(optimizer=Adam(learning_rate=learning_rate))
+model = BPR(**model_params)
+model.compile(optimizer=Adam(learning_rate=FLAGS.learning_rate))
 ```
 
 如果你对模型的结构存在问题的话，编译之后可以调用`summary`方法打印查看：
@@ -134,8 +138,6 @@ for epoch in range(1, epochs + 1):
     print('Iteration %d Fit [%.1f s], Evaluate [%.1f s]: HR = %.4f, MRR = %.4f, NDCG = %.4f'
           % (epoch, t2 - t1, time() - t2, eval_dict['hr'], eval_dict['mrr'], eval_dict['ndcg']))
 ```
-
-
 
 ### Ranking
 
@@ -200,7 +202,7 @@ for file in split_file_list[:-1]:
 
 ## 实验结果
 
-由于实验的不同设置，结果会存在一定偏差。
+Reclearn所设计的实验环境与部分论文不同，所以结果可能会存在一定偏差，具体请参考[experiement](./docs/experiment.md)。
 
 ### Matching
 
@@ -218,12 +220,15 @@ for file in split_file_list[:-1]:
     <th>HR@10</th><th>MRR@10</th><th>NDCG@10</th>
   </tr>
   <tr><td>BPR</td><td>0.5768</td><td>0.2392</td><td>0.3016</td><td>0.3708</td><td>0.2108</td><td>0.2485</td><td>0.7728</td><td>0.4220</td><td>0.5054</td></tr>
-  <tr><td>NCF</td><td>0.5711</td><td>0.2112</td><td>0.2950</td><td>0.5448</td><td>0.2831</td><td>0.3451</td><td>0.7768</td><td>0.4273</td><td>0.5103</td></tr>
-  <tr><td>DSSM</td><td>0.5410</td><td>0.2016</td><td>0.2807</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-  <tr><td>YoutubeDNN</td><td>0.6358</td><td>0.3042</td><td>0.3825</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+  <tr><td>NCF</td><td>0.5834</td><td>0.2219</td><td>0.3060</td><td>0.5448</td><td>0.2831</td><td>0.3451</td><td>0.7768</td><td>0.4273</td><td>0.5103</td></tr>
+  <tr><td>DSSM</td><td>0.5498</td><td>0.2148</td><td>0.2929</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+  <tr><td>YoutubeDNN</td><td>0.6737</td><td>0.3414</td><td>0.4201</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+  <tr><td>GRU4Rec</td><td>0.7969</td><td>0.4698</td><td>0.5483</td><td>0.5211</td><td>0.2724</td><td>0.3312</td><td>0.8501</td><td>0.5486</td><td>0.6209</td></tr>
+  <tr><td>Caser</td><td>0.7916</td><td>0.4450</td><td>0.5280</td><td>0.5487</td><td>0.2884</td><td>0.3501</td><td>0.8275</td><td>0.5064</td><td>0.5832</td></tr>
   <tr><td>SASRec</td><td>0.8103</td><td>0.4812</td><td>0.5605</td><td>0.5230</td><td>0.2781</td><td>0.3355</td><td>0.8606</td><td>0.5669</td><td>0.6374</td></tr>
+  <tr><td>AttRec</td><td>0.7873</td><td>0.4578</td><td>0.5363</td><td>0.4995</td><td>0.2695</td><td>0.3229</td><td>-</td><td>-</td><td>-</td></tr>
+  <tr><td>FISSA</td><td>0.8106</td><td>0.4953</td><td>0.5713</td><td>0.5431</td><td>0.2851</td><td>0.3462</td><td>0.8635</td><td>0.5682</td><td>0.6391</td></tr>
 </table>
-
 
 
 
@@ -255,22 +260,25 @@ for file in split_file_list[:-1]:
 </table>
 
 
-
 ## 复现论文列表
 
-### 1. 召回模型（Top-K推荐）
+### 召回模型（Top-K推荐）
 
-|                         Paper\|Model                         |  Published  |    Author     |
-| :----------------------------------------------------------: | :---------: | :-----------: |
-| BPR: Bayesian Personalized Ranking from Implicit Feedback\|**MF-BPR** |  UAI, 2009  | Steﬀen Rendle |
-|    Neural network-based Collaborative Filtering\|**NCF**     |  WWW, 2017  |  Xiangnan He  |
-|     Self-Attentive Sequential Recommendation｜**SASRec**     | ICDM, 2018  |     UCSD      |
-| Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding｜**Caser** | WSDM, 2018  |  Jiaxi Tang   |
-| Next Item Recommendation with Self-Attentive Metric Learning\|**AttRec** | AAAAI, 2019 |  Shuai Zhang  |
+|                         Paper\|Model                         |  Published   |     Author     |
+| :----------------------------------------------------------: | :----------: | :------------: |
+| BPR: Bayesian Personalized Ranking from Implicit Feedback\|**MF-BPR** |  UAI, 2009   | Steﬀen Rendle  |
+|    Neural network-based Collaborative Filtering\|**NCF**     |  WWW, 2017   |  Xiangnan He   |
+| Learning Deep Structured Semantic Models for Web Search using Clickthrough Data\|**DSSM** |  CIKM, 2013  |  Po-Sen Huang  |
+| Deep Neural Networks for YouTube Recommendations\| **YoutubeDNN** | RecSys, 2016 | Paul Covington |
+| Session-based Recommendations with Recurrent Neural Networks\|**GUR4Rec** |  ICLR, 2016  | Balázs Hidasi  |
+|     Self-Attentive Sequential Recommendation\|**SASRec**     |  ICDM, 2018  |      UCSD      |
+| Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding\|**Caser** |  WSDM, 2018  |   Jiaxi Tang   |
+| Next Item Recommendation with Self-Attentive Metric Learning\|**AttRec** | AAAAI, 2019  |  Shuai Zhang   |
+| FISSA: Fusing Item Similarity Models with Self-Attention Networks for Sequential Recommendation\|**FISSA** | RecSys, 2020 |    Jing Lin    |
 
-&nbsp;
 
-### 2. 排序模型（CTR预估）
+
+### 排序模型（CTR预估）
 
 |                         Paper｜Model                         |  Published   |                            Author                            |
 | :----------------------------------------------------------: | :----------: | :----------------------------------------------------------: |

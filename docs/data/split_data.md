@@ -1,6 +1,6 @@
 # 数据划分
 
-在算法模型的实验中，首先需要完成所需数据集的完成。`reclearn`在`reclearn/data/datasets`中提供了ml-1m、beauty、games、steam、criteo数据集的划分方法。当然读者也可以自己设计方案，本文主要对基本的方法进行简要说明。
+在算法模型的实验中，首先需要完成所需数据集的划分。`reclearn`在`reclearn/data/datasets`中提供了ml-1m、beauty、games、steam、criteo数据集的划分方法。当然读者也可以自己设计方案，本文主要对基本的方法进行简要说明。
 
 数据划分主要完成以下任务：
 

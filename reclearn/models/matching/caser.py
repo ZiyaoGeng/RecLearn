@@ -1,6 +1,6 @@
 """
 Created on Nov 18, 2020
-Updated on Nov 11, 2021
+Updated on Apr 23, 2022
 Reference: "Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding", WSDM, 2018
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -13,42 +13,45 @@ from reclearn.models.losses import get_loss
 
 
 class Caser(Model):
-    def __init__(self, feature_columns, seq_len=40, hor_n=8, hor_h=2, ver_n=4, activation='relu', dnn_dropout=0.5,
-                 use_l2norm=False, loss_name="bpr_loss", gamma=0.5, embed_reg=1e-8, seed=None):
-        """Caser
+    def __init__(self, user_num, item_num, embed_dim, seq_len=100, hor_n=8, hor_h=2, ver_n=4,
+                 activation='relu', dnn_dropout=0., use_l2norm=False,
+                 loss_name="binary_cross_entropy_loss", gamma=0.5, embed_reg=0, seed=None):
+        """Caser, Sequential Recommendation Model.
         Args:
-            :param feature_columns:  A dict containing
-                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
-            :param seq_len: A scalar. The length of the input sequence.
-            :param hor_n: A scalar. The number of horizontal filters.
-            :param hor_h: A scalar. Height of horizontal filters.
-            :param ver_n: A scalar. The number of vertical filters.
-            :param activation: A string. 'relu', 'sigmoid' or 'tanh'.
-            :param dnn_dropout: A scalar. The number of dropout.
+            :param user_num: An integer type. The largest user index + 1.
+            :param item_num: An integer type. The largest item index + 1.
+            :param embed_dim: An integer type. Embedding dimension of user vector and item vector.
+            :param seq_len: An integer type. The length of the input sequence.
+            :param hor_n: An integer type. The number of horizontal filters.
+            :param hor_h: An integer type. Height of horizontal filters.
+            :param ver_n: An integer type. The number of vertical filters.
+            :param activation: A string. Activation function name of user and item MLP layer.
+            :param dnn_dropout: Float between 0 and 1. Dropout of user and item MLP layer.
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-            :param embed_reg: A scalar. The regularizer of embedding.
-            :param seed: A int scalar.
+            :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
+            pair-loss function as 'bpr_loss'、'hinge_loss'.
+            :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A float type. The regularizer of embedding.
+            :param seed: A Python integer to use as random seed.
         :return:
         """
         super(Caser, self).__init__()
         # user embedding
-        self.user_embedding = Embedding(input_dim=feature_columns['user']['feat_num'],
+        self.user_embedding = Embedding(input_dim=user_num,
                                         input_length=1,
-                                        output_dim=feature_columns['user']['embed_dim'] // 2,
+                                        output_dim=embed_dim // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item embedding
-        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'] // 2,
+                                        output_dim=embed_dim // 2,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # item2 embedding
-        self.item2_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item2_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         # seq_len
@@ -60,13 +63,13 @@ class Caser(Model):
         self.ver_n = ver_n
         self.ver_w = 1
         # horizontal conv
-        self.hor_conv = Conv1D(filters=self.hor_n, kernel_size=self.hor_h)
+        self.hor_conv_list = [
+            Conv1D(filters=i+1, kernel_size=self.hor_h) for i in range(self.hor_n + 1)
+        ]
         # vertical conv, should transpose
         self.ver_conv = Conv1D(filters=self.ver_n, kernel_size=self.ver_w)
-        # max_pooling
-        self.pooling = GlobalMaxPooling1D()
         # dense
-        self.dense = Dense(feature_columns['item']['embed_dim'] // 2, activation=activation)
+        self.dense = Dense(embed_dim // 2, activation=activation)
         self.dropout = Dropout(dnn_dropout)
         # norm
         self.use_l2norm = use_l2norm
@@ -78,15 +81,19 @@ class Caser(Model):
 
     def call(self, inputs):
         # user info
-        user_embed = self.user_embedding(inputs['user'])  # (None, embed_dim // 2)
+        user_embed = self.user_embedding(tf.reshape(inputs['user'], [-1, ]))  # (None, embed_dim // 2)
         # mask
         mask = tf.expand_dims(tf.cast(tf.not_equal(inputs['click_seq'], 0), dtype=tf.float32), axis=-1)  # (None, seq_len, 1)
         # seq info
         seq_embed = self.item_embedding(inputs['click_seq'])  # (None, seq_len, embed_dim // 2)
         seq_embed *= mask
         # horizontal conv (None, (seq_len - kernel_size + 2 * pad) / stride +1, hor_n)
-        hor_info = self.hor_conv(seq_embed)
-        hor_info = self.pooling(hor_info)  # (None, hor_n)
+        hor_info = list()
+        for hor_conv in self.hor_conv_list:
+            hor_info_i = hor_conv(seq_embed)
+            hor_info_i = GlobalMaxPooling1D()(hor_info_i)  # (None, hor_n)
+            hor_info.append(hor_info_i)
+        hor_info = tf.concat(hor_info, axis=1)
         # vertical conv  (None, (dim - 1 + 2 * pad) / stride + 1, ver_n)
         ver_info = self.ver_conv(tf.transpose(seq_embed, perm=(0, 2, 1)))
         ver_info = tf.reshape(ver_info, shape=(-1, ver_info.shape[1] * ver_info.shape[2]))  # (None, ?)
@@ -96,7 +103,7 @@ class Caser(Model):
         # concat
         user_info = tf.concat([seq_info, user_embed], axis=-1)  # (None, embed_dim)
         # pos info
-        pos_info = self.item2_embedding(inputs['pos_item'])  # (None, embed_dim)
+        pos_info = self.item2_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         # neg info
         neg_info = self.item2_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm

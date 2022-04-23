@@ -15,11 +15,11 @@ from reclearn.evaluator import eval_pos_neg
 FLAGS = flags.FLAGS
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
 # Setting training parameters
 flags.DEFINE_string("file_path", "data/ml-1m/ratings.dat", "file path.")
-flags.DEFINE_string("train_path", "data/ml-1m/ml_seq_train.txt", "train path.")
+flags.DEFINE_string("train_path", "data/ml-1m/ml_seq_train.txt", "train path. If set to None, the program will split the dataset.")
 flags.DEFINE_string("val_path", "data/ml-1m/ml_seq_val.txt", "val path.")
 flags.DEFINE_string("test_path", "data/ml-1m/ml_seq_test.txt", "test path.")
 flags.DEFINE_string("meta_path", "data/ml-1m/ml_seq_meta.txt", "meta path.")
@@ -30,9 +30,9 @@ flags.DEFINE_string("activation", "relu", "Activation Name.")
 flags.DEFINE_float("dnn_dropout", 0., "Float between 0 and 1. Dropout of user and item MLP layer.")
 flags.DEFINE_boolean("use_l2norm", False, "Whether user embedding, item embedding should be normalized or not.")
 flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
-flags.DEFINE_integer("neg_num", 2, "The number of negative sample for each positive sample.")
-flags.DEFINE_integer("seq_len", 200, "The length of user's behavior sequence.")
-flags.DEFINE_integer("epochs", 10, "train steps.")
+flags.DEFINE_integer("neg_num", 4, "The number of negative sample for each positive sample.")
+flags.DEFINE_integer("seq_len", 100, "The length of user's behavior sequence.")
+flags.DEFINE_integer("epochs", 20, "train steps.")
 flags.DEFINE_integer("batch_size", 512, "Batch Size.")
 flags.DEFINE_integer("test_neg_num", 100, "The number of test negative samples.")
 flags.DEFINE_integer("k", 10, "recall k items at test stage.")

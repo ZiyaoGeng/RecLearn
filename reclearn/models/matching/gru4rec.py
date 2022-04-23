@@ -1,5 +1,6 @@
 """
 Created on Nov 20, 2021
+Updated on Apr 23, 2022
 Reference: "Session-based Recommendation with Recurrent Neural Networks", ICLR, 2016
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -12,28 +13,28 @@ from reclearn.models.losses import get_loss
 
 
 class GRU4Rec(Model):
-    def __init__(self, feature_columns, seq_len=40, gru_layers=1, gru_unit=64, gru_activation='tanh',
+    def __init__(self, item_num, embed_dim, gru_layers=1, gru_unit=64, gru_activation='tanh',
                  dnn_dropout=0., use_l2norm=False, loss_name='bpr_loss', gamma=0.5, embed_reg=0., seed=None):
-        """GRU4Rec
+        """GRU4Rec, Sequential Recommendation Model.
         Args:
-            :param feature_columns:  A dict containing
-            {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
-            :param seq_len: A scalar. The length of the input sequence.
-            :param gru_layers: A scalar. The number of GRU Layers.
-            :param gru_unit: A scalar. The unit of GRU Layer.
+            :param item_num: An integer type. The largest item index + 1.
+            :param embed_dim: An integer type. Embedding dimension of item vector.
+            :param gru_layers: An integer type. The number of GRU Layers.
+            :param gru_unit:An integer type. The unit of GRU Layer.
             :param gru_activation: A string. The name of activation function. Default 'tanh'.
-            :param dnn_dropout: A scalar. Number of dropout.
+            :param dnn_dropout: Float between 0 and 1. Dropout of user and item MLP layer.
             :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-            :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-            :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-            :param embed_reg: A scalar. The regularizer of embedding.
-            :param seed: A int scalar.
+            :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
+            pair-loss function as 'bpr_loss'、'hinge_loss'.
+            :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
+            :param embed_reg: A float type. The regularizer of embedding.
+            :param seed: A Python integer to use as random seed.
         :return:
         """
         super(GRU4Rec, self).__init__()
-        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         self.dropout = Dropout(dnn_dropout)
@@ -43,14 +44,12 @@ class GRU4Rec(Model):
             GRU(units=gru_unit, activation=gru_activation, return_sequences=False)
             for i in range(gru_layers)
         ]
-        self.dense = Dense(units=feature_columns['item']['embed_dim'])
+        self.dense = Dense(units=embed_dim)
         # norm
         self.use_l2norm = use_l2norm
         # loss name
         self.loss_name = loss_name
         self.gamma = gamma
-        # seq_len
-        self.seq_len = seq_len
         # seed
         tf.random.set_seed(seed)
 
@@ -67,7 +66,7 @@ class GRU4Rec(Model):
             seq_info = gru_layer(seq_info)
         seq_info = self.dense(seq_info)
         # positive, negative embedding vector.
-        pos_info = self.item_embedding(inputs['pos_item'])  # (None, embed_dim)
+        pos_info = self.item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, embed_dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, embed_dim)
         # norm
         if self.use_l2norm:
@@ -84,7 +83,7 @@ class GRU4Rec(Model):
 
     def summary(self):
         inputs = {
-            'click_seq': Input(shape=(self.seq_len,), dtype=tf.int32),
+            'click_seq': Input(shape=(100,), dtype=tf.int32),  # suppose sequence length=1
             'pos_item': Input(shape=(), dtype=tf.int32),
             'neg_item': Input(shape=(1,), dtype=tf.int32)  # suppose neg_num=1
         }

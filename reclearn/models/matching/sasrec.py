@@ -1,6 +1,6 @@
 """
 Created on Dec 20, 2020
-Updated on Nov 20, 2021
+Updated on Apr 22, 2022
 Reference: "Self-Attentive Sequential Recommendation", ICDM, 2018
 @author: Ziyao Geng(zggzy1996@163.com)
 """
@@ -14,38 +14,40 @@ from reclearn.models.losses import get_loss
 
 
 class SASRec(Model):
-    def __init__(self, feature_columns, seq_len=40, blocks=1, num_heads=1, ffn_hidden_unit=128,
-                 dnn_dropout=0., layer_norm_eps=1e-6, use_l2norm=False, loss_name="bpr_loss", gamma=0.5, embed_reg=0., seed=None):
+    def __init__(self, item_num, embed_dim, seq_len=100, blocks=1, num_heads=1, ffn_hidden_unit=128,
+                 dnn_dropout=0., layer_norm_eps=1e-6, use_l2norm=False,
+                 loss_name="binary_cross_entropy_loss", gamma=0.5, embed_reg=0., seed=None):
         """Self-Attentive Sequential Recommendation
-        :param feature_columns:  A dict containing
-                {'user': {'feat_name':, 'feat_num':, 'embed_dim'}, 'item': {...}, ...}.
-        :param seq_len: A scalar. The length of the input sequence.
-        :param blocks: A scalar. The Number of blocks.
-        :param num_heads: A scalar. Number of heads.
-        :param ffn_hidden_unit: A scalar. Number of hidden unit in FFN
-        :param dnn_dropout: A scalar. Number of dropout.
-        :param layer_norm_eps: A scalar. Small float added to variance to avoid dividing by zero.
+        :param item_num: An integer type. The largest item index + 1.
+        :param embed_dim: An integer type. Embedding dimension of item vector.
+        :param seq_len: An integer type. The length of the input sequence.
+        :param blocks: An integer type. The Number of blocks.
+        :param num_heads: An integer type. The Number of attention heads.
+        :param ffn_hidden_unit: An integer type. Number of hidden unit in FFN.
+        :param dnn_dropout: Float between 0 and 1. Dropout of user and item MLP layer.
+        :param layer_norm_eps: A float type. Small float added to variance to avoid dividing by zero.
         :param use_l2norm: A boolean. Whether user embedding, item embedding should be normalized or not.
-        :param loss_name: A string. You can specify the current pair-loss function as "bpr_loss" or "hinge_loss".
-        :param gamma: A scalar. If hinge_loss is selected as the loss function, you can specify the margin.
-        :param embed_reg: A scalar. The regularizer of embedding.
-        :param seed: A int scalar.
+        :param loss_name: A string. You can specify the current point-loss function 'binary_cross_entropy_loss' or
+        pair-loss function as 'bpr_loss'、'hinge_loss'.
+        :param gamma: A float type. If hinge_loss is selected as the loss function, you can specify the margin.
+        :param embed_reg: A float type. The regularizer of embedding.
+        :param seed: A Python integer to use as random seed.
         """
         super(SASRec, self).__init__()
         # item embedding
-        self.item_embedding = Embedding(input_dim=feature_columns['item']['feat_num'],
+        self.item_embedding = Embedding(input_dim=item_num,
                                         input_length=1,
-                                        output_dim=feature_columns['item']['embed_dim'],
+                                        output_dim=embed_dim,
                                         embeddings_initializer='random_normal',
                                         embeddings_regularizer=l2(embed_reg))
         self.pos_embedding = Embedding(input_dim=seq_len,
                                        input_length=1,
-                                       output_dim=feature_columns['item']['embed_dim'],
+                                       output_dim=embed_dim,
                                        embeddings_initializer='random_normal',
                                        embeddings_regularizer=l2(embed_reg))
         self.dropout = Dropout(dnn_dropout)
         # multi encoder block
-        self.encoder_layer = [TransformerEncoder(feature_columns['item']['embed_dim'], num_heads, ffn_hidden_unit,
+        self.encoder_layer = [TransformerEncoder(embed_dim, num_heads, ffn_hidden_unit,
                                                  dnn_dropout, layer_norm_eps) for _ in range(blocks)]
         # norm
         self.use_l2norm = use_l2norm
@@ -77,7 +79,7 @@ class SASRec(Model):
         # user_info = tf.reduce_mean(att_outputs, axis=1)  # (None, dim)
         user_info = tf.slice(att_outputs, begin=[0, self.seq_len-1, 0], size=[-1, 1, -1])  # (None, 1, embed_dim)
         # item info contain pos_info and neg_info.
-        pos_info = self.item_embedding(inputs['pos_item'])  # (None, dim)
+        pos_info = self.item_embedding(tf.reshape(inputs['pos_item'], [-1, ]))  # (None, dim)
         neg_info = self.item_embedding(inputs['neg_item'])  # (None, neg_num, dim)
         # norm
         if self.use_l2norm:
