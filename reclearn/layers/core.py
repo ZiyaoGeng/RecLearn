@@ -520,3 +520,80 @@ class Item_similarity_gating(Layer):
         logits = tf.matmul(inputs, self.W)  # (None, neg_num + 1, 1)
         weights = tf.nn.sigmoid(logits)
         return weights
+
+
+class CapsuleNetwork(Layer):
+    def __init__(self, embed_dim, seq_len, bilinear_type=0, num_interest=4, stop_grad=True):
+        super(CapsuleNetwork, self).__init__()
+        self.bilinear_type = bilinear_type
+        self.seq_len = seq_len
+        self.num_interest = num_interest
+        self.embed_dim = embed_dim
+        self.stop_grad = stop_grad
+
+    def build(self, input_shape):
+        if self.bilinear_type >= 2:
+            self.w = self.add_weight(
+                shape=[1, self.seq_len, self.num_interest * self.embed_dim, self.embed_dim],
+                initializer='random_normal',
+                name='weights'
+            )
+
+    def call(self, hist_emb, mask):
+        if self.bilinear_type == 0:
+            hist_emb_hat = tf.tile(hist_emb, [1, 1, self.num_interest])  # (None, seq_len, num_inter * embed_dim)
+        elif self.bilinear_type == 1:
+            hist_emb_hat = Dense(self.dim * self.num_interest, activation=None)(hist_emb)
+        else:
+            u = tf.expand_dims(hist_emb, axis=2)  # (None, seq_len, 1, embed_dim)
+            hist_emb_hat = tf.reduce_sum(self.w * u, axis=3)  # (None, seq_len, num_inter * embed_dim)
+        hist_emb_hat = tf.reshape(hist_emb_hat, [-1, self.seq_len, self.num_interest, self.embed_dim])
+        hist_emb_hat = tf.transpose(hist_emb_hat, [0, 2, 1, 3])  # (None, num_inter, seq_len, embed_dim)
+        hist_emb_hat = tf.reshape(hist_emb_hat, [-1, self.num_interest, self.seq_len, self.embed_dim])
+        if self.stop_grad:
+            hist_emb_iter = tf.stop_gradient(hist_emb_hat)
+        else:
+            hist_emb_iter = hist_emb_hat  # (None, num_inter, seq_len, embed_dim)
+
+        if self.bilinear_type > 0:
+            self.capsule_weight = self.add_weight(
+                shape=[tf.shape(hist_emb_hat)[0], self.num_interest, self.seq_len],
+                initializer=tf.zeros_initializer()
+            )
+        else:
+            self.capsule_weight = tf.random.truncated_normal(
+                shape=[tf.shape(hist_emb_hat)[0], self.num_interest, self.seq_len],
+                stddev=1.0)
+        tf.stop_gradient(self.capsule_weight)
+
+        for i in range(3):
+            att_mask = tf.tile(tf.expand_dims(mask, axis=1), [1, self.num_interest, 1])  # (None, num_inter, seq_len)
+            paddings = tf.zeros_like(att_mask)
+
+            capsule_softmax_weight = tf.nn.softmax(self.capsule_weight, axis=1)  # (None, num_inter, seq_len)
+            capsule_softmax_weight = tf.where(tf.equal(att_mask, 0), paddings, capsule_softmax_weight)
+            capsule_softmax_weight = tf.expand_dims(capsule_softmax_weight, 2)  # (None, num_inter, 1, seq_len)
+
+            if i < 2:
+                interest_capsule = tf.matmul(capsule_softmax_weight, hist_emb_iter)  # (None, num_inter, 1, embed_dim)
+                cap_norm = tf.reduce_sum(tf.square(interest_capsule), -1, keepdims=True)
+                scalar_factor = cap_norm / (1 + cap_norm) / tf.sqrt(cap_norm + 1e-9)
+                interest_capsule = scalar_factor * interest_capsule
+
+                delta_weight = tf.matmul(hist_emb_iter, tf.transpose(interest_capsule, [0, 1, 3, 2]))
+                delta_weight = tf.reshape(delta_weight, [-1, self.num_interest, self.seq_len])
+                self.capsule_weight = self.capsule_weight + delta_weight
+            else:
+                interest_capsule = tf.matmul(capsule_softmax_weight, hist_emb_hat)
+                cap_norm = tf.reduce_sum(tf.square(interest_capsule), -1, True)
+                scalar_factor = cap_norm / (1 + cap_norm) / tf.sqrt(cap_norm + 1e-9)
+                interest_capsule = scalar_factor * interest_capsule
+
+        interest_capsule = tf.reshape(interest_capsule, [-1, self.num_interest, self.embed_dim])
+        return interest_capsule
+
+
+
+
+
+

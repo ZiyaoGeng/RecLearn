@@ -9,6 +9,7 @@ from reclearn.models.matching.sasrec import SASRec
 from reclearn.models.matching.attrec import AttRec
 from reclearn.models.matching.caser import Caser
 from reclearn.models.matching.fissa import FISSA
+from reclearn.models.matching.mind import MIND
 
 
-__all__ = ['PopRec', 'BPR', 'NCF', 'DSSM', 'YoutubeDNN', 'GRU4Rec', 'SASRec', 'AttRec', 'Caser', 'FISSA']
+__all__ = ['PopRec', 'BPR', 'NCF', 'DSSM', 'YoutubeDNN', 'GRU4Rec', 'SASRec', 'AttRec', 'Caser', 'FISSA', 'MIND']

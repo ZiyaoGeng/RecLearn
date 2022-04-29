@@ -168,6 +168,7 @@ The experimental environment designed by Reclearn is different from that of some
   <tr><td>NCF</td><td>0.5834</td><td>0.2219</td><td>0.3060</td><td>0.5448</td><td>0.2831</td><td>0.3451</td><td>0.7768</td><td>0.4273</td><td>0.5103</td></tr>
   <tr><td>DSSM</td><td>0.5498</td><td>0.2148</td><td>0.2929</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
   <tr><td>YoutubeDNN</td><td>0.6737</td><td>0.3414</td><td>0.4201</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+  <tr><td>MIND(Error)</td><td>0.6366</td><td>0.2597</td><td>0.3483</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
   <tr><td>GRU4Rec</td><td>0.7969</td><td>0.4698</td><td>0.5483</td><td>0.5211</td><td>0.2724</td><td>0.3312</td><td>0.8501</td><td>0.5486</td><td>0.6209</td></tr>
   <tr><td>Caser</td><td>0.7916</td><td>0.4450</td><td>0.5280</td><td>0.5487</td><td>0.2884</td><td>0.3501</td><td>0.8275</td><td>0.5064</td><td>0.5832</td></tr>
   <tr><td>SASRec</td><td>0.8103</td><td>0.4812</td><td>0.5605</td><td>0.5230</td><td>0.2781</td><td>0.3355</td><td>0.8606</td><td>0.5669</td><td>0.6374</td></tr>
