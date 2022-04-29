@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # TODO: Hyper Parameters
     file = 'data/criteo/train.txt'
     read_part = True
-    sample_num = 5000000
+    sample_num = 50000
     test_size = 0.2
 
     model_params = {

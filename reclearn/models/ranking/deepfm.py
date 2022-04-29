@@ -54,10 +54,10 @@ class DeepFM(Model):
 		sparse_inputs = index_mapping(inputs, self.map_dict)
 		wide_inputs = {'sparse_inputs': sparse_inputs,
 					   'embed_inputs': tf.reshape(sparse_embed, shape=(-1, self.field_num, self.embed_dim))}
-		wide_outputs = self.fm(wide_inputs)  # (batch_size, 1)
+		wide_outputs = tf.reshape(self.fm(wide_inputs), [-1, 1])  # (batch_size, 1)
 		# deep
 		deep_outputs = self.mlp(sparse_embed)
-		deep_outputs = self.dense(deep_outputs)  # (batch_size, 1)
+		deep_outputs = tf.reshape(self.dense(deep_outputs), [-1, 1])  # (batch_size, 1)
 		# outputs
 		outputs = tf.nn.sigmoid(tf.add(wide_outputs, deep_outputs))
 		return outputs
